@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.utils;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -55,7 +55,7 @@ public class CollectionUtils {
    * and {@code [3,4]}.
    *
    * @param list The list
-   * @param <T> The element type
+   * @param <T>  The element type
    * @return The {@code Stream} or {@code Pairs}
    */
   public static <T> Stream<Pair<T, T>> streamOfPossiblePairs(List<T> list) {
@@ -73,7 +73,8 @@ public class CollectionUtils {
    * <p>
    * So if {@code list} is {@code [1,2,3,4,5]} and {@code n} is {@code 3}, the method returns a
    * {@code Stream} have the following lists as elements: {@code [1,2,3]}, {@code [1,2,4]},
-   * {@code [1,2,5]}, {@code [2,3,4]}, {@code [2,3,5]}, and {@code [3,4,5]}.
+   * {@code [1,2,5]}, {@code [1,3,4]}, {@code [1,3,5]}, {@code [1,4,5]}, {@code [2,3,4]},
+   * {@code [2,3,5]}, {@code [2,4,5]} and {@code [3,4,5]}.
    *
    * @param list The list
    * @param n    Tuple size

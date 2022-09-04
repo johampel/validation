@@ -26,6 +26,7 @@ package de.hipphampel.validation.core.execution;
  * #L%
  */
 
+import de.hipphampel.validation.core.path.Resolvable;
 import de.hipphampel.validation.core.rule.Result;
 import de.hipphampel.validation.core.rule.Rule;
 import de.hipphampel.validation.core.rule.SystemResultReason;
@@ -109,14 +110,14 @@ public class DefaultRuleExecutor extends SimpleRuleExecutor {
 
   private class RuleResultCache {
 
-    private final Object NULL = new Object();
-    private final Map<Object, Map<String, CompletableFuture<Result>>> cache = new ConcurrentHashMap<>();
+    private final Map<Resolvable, Map<String, CompletableFuture<Result>>> cache = new ConcurrentHashMap<>();
 
     public CompletableFuture<Result> getOrCompute(ValidationContext context,
         Rule<?> rule,
         Object facts) {
+      Resolvable resolvable = new Resolvable(facts, context.getCurrentPath());
       Map<String, CompletableFuture<Result>> resultMap = cache.computeIfAbsent(
-          facts == null ? NULL : facts,
+          resolvable,
           ignore -> new ConcurrentHashMap<>());
       return resultMap.computeIfAbsent(
           rule.getId(),

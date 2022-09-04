@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.execution;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -66,7 +66,7 @@ import java.util.stream.Stream;
  * @see Rule
  * @see Result
  */
-public interface  RuleExecutor {
+public interface RuleExecutor {
 
   /**
    * Validates {@code facts} for the {@link Rule}.
@@ -94,6 +94,9 @@ public interface  RuleExecutor {
    *   found in the first step</li>
    * </ol>
    *
+   * <b>Important note:</b> {@code path} needs to be a concrete path; the method cannot deal with
+   * patterns
+   *
    * @param context     The {@code ValidationContext}
    * @param rule        The {@code Rule} to execute
    * @param parentFacts The object containing the object to validate
@@ -110,6 +113,9 @@ public interface  RuleExecutor {
   /**
    * Calls {@link #validateForPath(ValidationContext, Rule, Object, Path) validateForPath} for each
    * element of {@code paths}.
+   *
+   * <b>Important note:</b> {@code paths} needs to be a concrete paths; the method cannot deal with
+   * patterns
    *
    * @param context     The {@code ValidationContext}
    * @param rule        The {@code Rule} to execute
@@ -161,6 +167,10 @@ public interface  RuleExecutor {
    *   found in the first step</li>
    * </ol>
    *
+   *
+   * <b>Important note:</b> {@code path} needs to be a concrete path; the method cannot deal with
+   * patterns
+   *
    * @param context     The {@code ValidationContext}
    * @param selector    The {@link RuleSelector} to use
    * @param parentFacts The object containing the object to validate
@@ -177,6 +187,9 @@ public interface  RuleExecutor {
   /**
    * Calls {@link #validateForPath(ValidationContext, RuleSelector, Object, Path) validateForPath}
    * for each element of {@code paths}.
+   *
+   * <b>Important note:</b> {@code path} needs to be a concrete path; the method cannot deal with
+   * patterns
    *
    * @param context     The {@code ValidationContext}
    * @param selector    The {@link RuleSelector} to use
@@ -223,6 +236,9 @@ public interface  RuleExecutor {
    *   found in the first step</li>
    * </ol>
    *
+   * <b>Important note:</b> {@code path} needs to be a concrete path; the method cannot deal with
+   * patterns
+   *
    * @param context     The {@code ValidationContext}
    * @param rule        The {@link Rule} to use
    * @param parentFacts The object containing the object to validate
@@ -240,6 +256,9 @@ public interface  RuleExecutor {
   /**
    * Calls {@link #validateForPathAsync(ValidationContext, Rule, Object, Path) validateForPathAsync}
    * for each element of {@code paths}.
+   *
+   * <b>Important note:</b> {@code path} needs to be a concrete path; the method cannot deal with
+   * patterns
    *
    * @param context     The {@code ValidationContext}
    * @param rule        The {@link Rule} to use
@@ -299,6 +318,9 @@ public interface  RuleExecutor {
    *   the object being found in the first step</li>
    * </ol>
    *
+   * <b>Important note:</b> {@code path} needs to be a concrete path; the method cannot deal with
+   * patterns
+   *
    * @param context     The {@code ValidationContext}
    * @param selector    The {@link RuleSelector} to use
    * @param parentFacts The object containing the object to validate
@@ -317,6 +339,9 @@ public interface  RuleExecutor {
    * Calls
    * {@link #validateForPathAsync(ValidationContext, RuleSelector, Object, Path)
    * validateForPathAsync} for each element of {@code paths}.
+   *
+   * <b>Important note:</b> {@code paths} needs to be concrete paths; the method cannot deal with
+   * patterns
    *
    * @param context     The {@code ValidationContext}
    * @param selector    The {@link RuleSelector} to use

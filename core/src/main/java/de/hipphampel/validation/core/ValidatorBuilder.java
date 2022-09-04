@@ -12,10 +12,10 @@ package de.hipphampel.validation.core;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,6 +39,28 @@ import de.hipphampel.validation.core.report.ReportReporter;
 import de.hipphampel.validation.core.report.Reporter;
 import de.hipphampel.validation.core.report.ReporterFactory;
 
+
+/**
+ * Builder for a {@link Validator}.
+ * <p>
+ * This class is used as follows (in the most somple case):
+ * <pre><tt>
+ *   Validato&lt;Report> validator = ValidatorBuilder.newBuilder().build();
+ * </tt></pre>
+ * which basically constructs a {@link DefaultValidator} with the standard settings. Using the
+ * different {@code with*} methods, one may customize the generated {@code Validator}.
+ * <p>
+ * Teh default settings of the generated {@code Validator} are as follows:
+ * <ul>
+ *   <li>The {@link ReporterFactory} is a factory for a {@link ReportReporter}</li>
+ *   <li>The {@link RuleRepository} is an empty {@link InMemoryRuleRepository}</li>
+ *   <li>The {@link PathResolver} is a {@link BeanPathResolver}</li>
+ *   <li>The {@link RuleExecutor} is a {@link DefaultRuleExecutor}</li>
+ *   <li>The {@link EventPublisher} is a {@link SubscribableEventPublisher}</li>
+ * </ul>
+ *
+ * @param <T> Type of teh report to return
+ */
 public class ValidatorBuilder<T> {
 
   private ReporterFactory<T> reporterFactory;
@@ -51,12 +73,26 @@ public class ValidatorBuilder<T> {
 
   }
 
+  /**
+   * Creates a new {@link ValidatorBuilder}.
+   * <p>
+   * Using the different {@code with*} methods the validator can be customized; its production is
+   * finalized by calling {@link #build()}
+   *
+   * @return The {@code ValidatorBuilder}
+   */
   public static ValidatorBuilder<Report> newBuilder() {
     return new ValidatorBuilder<>();
   }
 
+
+  /**
+   * Finalizes the production of a {@link Validator}.
+   *
+   * @return The final {@code Validator}
+   */
   public Validator<T> build() {
-    return new GenericValidator<>(
+    return new DefaultValidator<>(
         ruleRepository == null ? new InMemoryRuleRepository() : ruleRepository,
         reporterFactory == null ? defaultReporterFactory() : reporterFactory,
         ruleExecutor == null ? new DefaultRuleExecutor() : ruleExecutor,
@@ -65,26 +101,57 @@ public class ValidatorBuilder<T> {
     );
   }
 
-  public <S> ValidatorBuilder<S> withReporter(ReporterFactory<S> reporter) {
-    this.<S>self().reporterFactory = reporter;
+  /**
+   * Specifies the {@link ReporterFactory} to use.
+   *
+   * @param reporterFactory The {@code ReporterFactory}
+   * @param <S>             The type of the {@code Reporter}
+   * @return This instance
+   */
+  public <S> ValidatorBuilder<S> withReporter(ReporterFactory<S> reporterFactory) {
+    this.<S>self().reporterFactory = reporterFactory;
     return self();
   }
 
+  /**
+   * Specifies the {@link RuleExecutor} to use.
+   *
+   * @param ruleExecutor The {@code RuleExecutor}
+   * @return This instance
+   */
   public ValidatorBuilder<T> withRuleExecutor(RuleExecutor ruleExecutor) {
     this.ruleExecutor = ruleExecutor;
     return self();
   }
 
+  /**
+   * Specifies the {@link RuleRepository} to use.
+   *
+   * @param ruleRepository The {@code RuleRepository}
+   * @return This instance
+   */
   public ValidatorBuilder<T> withRuleRepository(RuleRepository ruleRepository) {
     this.ruleRepository = ruleRepository;
     return self();
   }
 
+  /**
+   * Specifies the {@link PathResolver} to use.
+   *
+   * @param pathResolver The {@code PathResolver}
+   * @return This instance
+   */
   public ValidatorBuilder<T> withPathResolver(PathResolver pathResolver) {
     this.pathResolver = pathResolver;
     return self();
   }
 
+  /**
+   * Specifies the {@link EventPublisher} to use.
+   *
+   * @param eventPublisher The {@code EventPublisher}
+   * @return This instance
+   */
   public ValidatorBuilder<T> withEventPublisher(EventPublisher eventPublisher) {
     this.eventPublisher = eventPublisher;
     return self();

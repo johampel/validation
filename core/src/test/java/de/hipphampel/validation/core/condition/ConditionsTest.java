@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.condition;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +32,9 @@ import de.hipphampel.validation.core.TestUtils;
 import de.hipphampel.validation.core.event.Event;
 import de.hipphampel.validation.core.event.payloads.RuleFinishedPayload;
 import de.hipphampel.validation.core.execution.ValidationContext;
+import de.hipphampel.validation.core.path.Resolvable;
 import de.hipphampel.validation.core.provider.InMemoryRuleRepository;
+import de.hipphampel.validation.core.provider.RuleSelector;
 import de.hipphampel.validation.core.rule.Result;
 import de.hipphampel.validation.core.rule.Rule;
 import de.hipphampel.validation.core.rule.RuleBuilder;
@@ -40,6 +42,8 @@ import de.hipphampel.validation.core.utils.Stacked;
 import de.hipphampel.validation.core.value.Values;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -217,7 +221,7 @@ public class ConditionsTest {
   }
 
   @Test
-  public void rule() {
+  public void rule_noPath() {
     Rule<String> okRule = RuleBuilder.conditionRule("ok", String.class)
         .validateWith(Conditions.alwaysTrue())
         .build();
@@ -229,8 +233,10 @@ public class ConditionsTest {
     TestUtils.collectEventsInto(context, events);
     String facts = "Test";
 
-    Condition conditionOk = Conditions.rule(Values.val("ok"));
-    Condition conditionFail = Conditions.rule(Values.val("fail"));
+    RuleSelector okSelector = RuleSelector.of("ok");
+    RuleSelector failSelector = RuleSelector.of("fail");
+    Condition conditionOk = Conditions.rule(Values.val(okSelector));
+    Condition conditionFail = Conditions.rule(Values.val(failSelector));
 
     assertThat(conditionOk.evaluate(context, facts)).isTrue();
     assertThat(events).contains(new Event<>(
@@ -243,5 +249,49 @@ public class ConditionsTest {
         new RuleFinishedPayload(failRule, Stacked.empty(), facts, Result.failed(),
             TestUtils.FIXED_DURATION),
         TestUtils.FIXED_DATE, context.getRuleExecutor()));
+  }
+
+  @Test
+  public void rule_withPath() {
+    Rule<String> isDonaldRule = RuleBuilder.conditionRule("isDonald", String.class)
+        .validateWith(Conditions.eq(Values.facts(), Values.val("Donald")))
+        .build();
+    context.getSharedObject(InMemoryRuleRepository.class).addRules(isDonaldRule);
+    List<Event<?>> events = new ArrayList<>();
+    TestUtils.collectEventsInto(context, events);
+    Map<String, String> facts = Map.of(
+        "firstName", "Donald",
+        "lastName", "Duck"
+    );
+
+    RuleSelector donaldSelector = RuleSelector.of("isDonald");
+    RuleSelector failSelector = RuleSelector.of("fail");
+    Condition conditionOk = Conditions.rule(Values.val(donaldSelector),
+        Values.val(Set.of("firstName")));
+    Condition conditionFail = Conditions.rule(Values.val(donaldSelector),
+        Values.val(Set.of("lastName")));
+
+    assertThat(conditionOk.evaluate(context, facts)).isTrue();
+    assertThat(events).contains(new Event<>(
+        new RuleFinishedPayload(
+            isDonaldRule,
+            Stacked.<Resolvable>empty()
+                .push(new Resolvable(facts, context.getPathResolver().parse("firstName"))),
+            "Donald",
+            Result.ok(),
+            TestUtils.FIXED_DURATION),
+        TestUtils.FIXED_DATE, context.getRuleExecutor()));
+
+    assertThat(conditionFail.evaluate(context, facts)).isFalse();
+    assertThat(events).contains(new Event<>(
+        new RuleFinishedPayload(
+            isDonaldRule,
+            Stacked.<Resolvable>empty()
+                .push(new Resolvable(facts, context.getPathResolver().parse("lastName"))),
+            "Duck",
+            Result.failed(),
+            TestUtils.FIXED_DURATION),
+        TestUtils.FIXED_DATE, context.getRuleExecutor()));
+
   }
 }

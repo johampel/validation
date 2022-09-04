@@ -33,6 +33,7 @@ import de.hipphampel.validation.core.value.Values;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -133,5 +134,25 @@ public class SimpleRuleSelector implements RuleSelector {
     }
 
     return false;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    SimpleRuleSelector that = (SimpleRuleSelector) o;
+    return Objects.equals(ruleIdFilter, that.ruleIdFilter);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(ruleIdFilter);
+  }
+
+  @Override
+  public String toString() {
+    return "SimpleRuleSelector{" + "ruleIdFilter=" + ruleIdFilter + '}';
   }
 }

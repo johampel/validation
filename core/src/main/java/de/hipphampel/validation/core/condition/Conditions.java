@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.condition;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,13 +27,16 @@ package de.hipphampel.validation.core.condition;
  */
 
 import de.hipphampel.validation.core.condition.CompareCondition.Mode;
+import de.hipphampel.validation.core.provider.RuleSelector;
 import de.hipphampel.validation.core.rule.ResultCode;
 import de.hipphampel.validation.core.rule.Rule;
 import de.hipphampel.validation.core.utils.StreamProvider;
 import de.hipphampel.validation.core.value.Value;
+import de.hipphampel.validation.core.value.Values;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -296,16 +299,21 @@ public interface Conditions {
   }
 
   /**
-   * Creates a {@link Condition} that executes the {@link Rule} with the given {@code ruleId}.
+   * Creates a {@link Condition} that executes the {@link Rule Rules} provided by the given
+   * {@link RuleSelector}.
    * <p>
-   * The condition will evaluate to {@code true}, if the condition evaluates to
+   * The condition will evaluate to {@code true}, if all {@code Rules} evaluate to
    * {@link ResultCode#OK}
    *
-   * @param ruleId The id of the {@code Rule}
+   * @param ruleSelector The {@code RuleSelector}
    * @return The {@code Condition}
    */
-  static Condition rule(Value<String> ruleId) {
-    return new RuleCondition(ruleId);
+  static Condition rule(Value<RuleSelector> ruleSelector) {
+    return rule(ruleSelector, null);
+  }
+
+  static Condition rule(Value<RuleSelector> ruleSelector, Value<Set<String>> paths) {
+    return new RuleCondition(ruleSelector, paths == null ? Values.val(Set.of()) : paths);
   }
 
   /**

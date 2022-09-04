@@ -12,10 +12,10 @@ package de.hipphampel.validation.core;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,9 +34,13 @@ import de.hipphampel.validation.core.provider.RuleRepository;
 import de.hipphampel.validation.core.report.Reporter;
 import de.hipphampel.validation.core.report.ReporterFactory;
 import java.util.Map;
-import java.util.function.Supplier;
 
-public class GenericValidator<T> implements Validator<T> {
+/**
+ * Default implementation of the {@link Validator} interface.
+ *
+ * @param <T> The type of the reports.
+ */
+public class DefaultValidator<T> implements Validator<T> {
 
   private final RuleRepository ruleRepository;
   private final ReporterFactory<T> reporterFactory;
@@ -44,7 +48,16 @@ public class GenericValidator<T> implements Validator<T> {
   private final EventPublisher eventPublisher;
   private final PathResolver pathResolver;
 
-  public GenericValidator(RuleRepository ruleRepository, ReporterFactory<T> reporterFactory,
+  /**
+   * Constructor.
+   *
+   * @param ruleRepository  The {@link RuleRepository} to use.
+   * @param reporterFactory The {@link ReporterFactory} to use.
+   * @param ruleExecutor    The {@link RuleExecutor} to use.
+   * @param eventPublisher  The {@link EventPublisher} to use.
+   * @param pathResolver    The {@link PathResolver} to use.
+   */
+  public DefaultValidator(RuleRepository ruleRepository, ReporterFactory<T> reporterFactory,
       RuleExecutor ruleExecutor, EventPublisher eventPublisher, PathResolver pathResolver) {
     this.ruleRepository = ruleRepository;
     this.reporterFactory = reporterFactory;

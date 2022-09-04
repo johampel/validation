@@ -108,5 +108,5 @@ public @interface RuleDef {
    *
    * @return List of preconditions.
    */
-  String[] preconditions() default {};
+  Precondition[] preconditions() default {};
 }

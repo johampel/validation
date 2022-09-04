@@ -1,6 +1,8 @@
+package de.hipphampel.validation.core.annotations;
+
 /*-
- * #%L
- * validation-samples-triangle
+ * #%
+ * validation-core
  * %%
  * Copyright (C) 2022 Johannes Hampel
  * %%
@@ -10,10 +12,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,16 +25,17 @@
  * THE SOFTWARE.
  * #L%
  */
-module de.hipphampel.validation.samples.triangle {
-  requires com.fasterxml.jackson.databind;
-  requires de.hipphampel.validation.core;
-  requires org.slf4j;
 
-  opens de.hipphampel.validation.samples.triangle.model to
-      com.fasterxml.jackson.databind,
-      de.hipphampel.validation.core;
-  opens de.hipphampel.validation.samples.triangle.v0 to
-      de.hipphampel.validation.core;
-  opens de.hipphampel.validation.samples.triangle.v1 to
-      de.hipphampel.validation.core;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD})
+public @interface Precondition {
+
+  String[] rules();
+
+  String[] paths() default {};
 }

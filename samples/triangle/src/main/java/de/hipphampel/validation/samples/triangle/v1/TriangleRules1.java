@@ -12,10 +12,10 @@ package de.hipphampel.validation.samples.triangle.v1;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,7 @@ package de.hipphampel.validation.samples.triangle.v1;
 
 import static de.hipphampel.validation.samples.triangle.model.ModelUtils.slopeOf;
 
+import de.hipphampel.validation.core.annotations.Precondition;
 import de.hipphampel.validation.core.annotations.RuleDef;
 import de.hipphampel.validation.core.annotations.RuleRef;
 import de.hipphampel.validation.core.condition.Condition;
@@ -51,15 +52,11 @@ public class TriangleRules1 {
           .forPaths("points").validateWith("points:.*")
           .build();
 
-  @RuleRef
-  public static final Rule<List<?>> pointsNotNull =
-      RuleBuilder.<List<?>>dispatchingRule("points:notNullRule", List.class)
-          .forPaths("", "*", "*/*").validateWith("object:notNullRule")
-          .build();
-
   @RuleDef(id = "points:pointsNotInOneLine",
-      message = "The point in the polygon are on the same line",
-      preconditions = {"points:hasThreePoints"})
+      message = "The points in the polygon are on the same line",
+      preconditions = {
+          @Precondition(rules = "points:hasThreePoints")
+      })
   public static boolean pointLinearIndependentRule(List<Point> facts) {
     return CollectionUtils.streamOfPossiblePairs(facts)
         .map(l -> Optional.ofNullable(slopeOf(l.first(), l.second())))
@@ -68,14 +65,18 @@ public class TriangleRules1 {
   }
 
   @RuleDef(id = "points:pointsAreUnique",
-      message = "The point in the polygon are not unique",
-      preconditions = {"points:notNullRule"})
+      message = "The points in the polygon are not unique",
+      preconditions = {
+          @Precondition(rules = "object:notNullRule", paths = {"", "*", "*/*"})
+      })
   public static final Predicate<List<?>> uniquePointsRule =
       f -> f.size() == f.stream().distinct().count();
 
   @RuleDef(id = "points:hasThreePoints",
       message = "Polygon has not exactly three points",
-      preconditions = {"points:notNullRule"})
+      preconditions = {
+          @Precondition(rules = "object:notNullRule", paths = {"", "*", "*/*"})
+      })
   public static final Predicate<List<?>> threePointsRule =
       f -> f.size() == 3;
 

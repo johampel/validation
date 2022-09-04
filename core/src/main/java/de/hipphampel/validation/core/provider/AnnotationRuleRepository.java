@@ -26,6 +26,7 @@ package de.hipphampel.validation.core.provider;
  * #L%
  */
 
+import de.hipphampel.validation.core.annotations.Precondition;
 import de.hipphampel.validation.core.annotations.RuleDef;
 import de.hipphampel.validation.core.annotations.RuleRef;
 import de.hipphampel.validation.core.condition.Condition;
@@ -49,12 +50,14 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -358,9 +361,14 @@ public class AnnotationRuleRepository implements RuleRepository {
 
   private List<? extends Condition> determinePreconditions(RuleDef ruleDef) {
     return Arrays.stream(ruleDef.preconditions())
-        .map(Values::val)
-        .map(RuleCondition::new)
-        .<Condition>toList();
+        .map(this::preconditionToCondition)
+        .toList();
+  }
+
+  private Condition preconditionToCondition(Precondition precondition) {
+    RuleSelector ruleSelector = RuleSelector.of(precondition.rules());
+    Set<String> paths = Arrays.stream(precondition.paths()).collect(Collectors.toSet());
+    return new RuleCondition(Values.val(ruleSelector), Values.val(paths));
   }
 
   interface MethodInvoker extends BiFunction<ValidationContext, Object, Result> {
