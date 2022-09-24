@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.provider;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,6 +32,9 @@ import de.hipphampel.validation.core.annotations.RuleRef;
 import de.hipphampel.validation.core.condition.Condition;
 import de.hipphampel.validation.core.condition.Conditions;
 import de.hipphampel.validation.core.condition.RuleCondition;
+import de.hipphampel.validation.core.event.EventListener;
+import de.hipphampel.validation.core.event.NoopSubscribableEventPublisher;
+import de.hipphampel.validation.core.event.Subscription;
 import de.hipphampel.validation.core.exception.RuleNotFoundException;
 import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.rule.Result;
@@ -50,7 +53,6 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,7 +73,11 @@ import org.slf4j.LoggerFactory;
  * member are used. The latter way is useful in situations where the {@code Rules} depend on the
  * state of the instance.
  * <p>
+ * The behavior of duplicate rule definitions in terms of duplicate {@code ids} is not defined.
+ * <p>
  * Please refer to {@code RuleDef} and {@code RuleRef} for details, how {@code Rules} are defined.
+ * <p>
+ * Instances of this class are static, so that the set of known {@code Rules} never changes
  *
  * @see RuleDef
  * @see RuleRef
@@ -369,6 +375,11 @@ public class AnnotationRuleRepository implements RuleRepository {
     RuleSelector ruleSelector = RuleSelector.of(precondition.rules());
     Set<String> paths = Arrays.stream(precondition.paths()).collect(Collectors.toSet());
     return new RuleCondition(Values.val(ruleSelector), Values.val(paths));
+  }
+
+  @Override
+  public Subscription subscribe(EventListener listener) {
+    return NoopSubscribableEventPublisher.INSTANCE.subscribe(listener);
   }
 
   interface MethodInvoker extends BiFunction<ValidationContext, Object, Result> {

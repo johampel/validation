@@ -26,6 +26,7 @@ package de.hipphampel.validation.core.provider;
  * #L%
  */
 
+import de.hipphampel.validation.core.event.EventSubscriber;
 import de.hipphampel.validation.core.exception.RuleNotFoundException;
 import de.hipphampel.validation.core.rule.Rule;
 import java.util.Set;
@@ -37,9 +38,11 @@ import java.util.Set;
  * repository providing a set of {@code Rules} generally available. In contrast to a
  * {@link RuleSelector} it returns {@code Rules} independent from the object being validated.
  *
+ *
+ * @see EventSubscriber
  * @see RuleSelector
  */
-public interface RuleRepository {
+public interface RuleRepository extends EventSubscriber {
 
   /**
    * Returns, whether a {@link Rule} with the specified {@code id} is known by this instance.
@@ -52,7 +55,7 @@ public interface RuleRepository {
   }
 
   /**
-   * Gets the {@link Rule} with knowthe specified {@code id}. If there is no such {@code Rule}, an
+   * Gets the {@link Rule} with the specified {@code id}. If there is no such {@code Rule}, an
    * exception is thrown.
    *
    * @param id  The id of the {@code Rule}

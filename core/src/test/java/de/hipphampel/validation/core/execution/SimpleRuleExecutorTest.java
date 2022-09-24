@@ -34,8 +34,8 @@ import static org.mockito.Mockito.verify;
 
 import de.hipphampel.validation.core.TestUtils;
 import de.hipphampel.validation.core.condition.Conditions;
+import de.hipphampel.validation.core.event.DefaultSubscribableEventPublisher;
 import de.hipphampel.validation.core.event.Event;
-import de.hipphampel.validation.core.event.SubscribableEventPublisher;
 import de.hipphampel.validation.core.event.payloads.RuleFinishedPayload;
 import de.hipphampel.validation.core.event.payloads.RuleStartedPayload;
 import de.hipphampel.validation.core.path.BeanPathResolver;
@@ -86,7 +86,7 @@ public class SimpleRuleExecutorTest {
   public void beforeEach() {
     context = spy(new ValidationContext(
         new ReportReporter(), Map.of(), executor, ruleRepository, new BeanPathResolver(),
-        new SubscribableEventPublisher()));
+        new DefaultSubscribableEventPublisher()));
     events = new ArrayList<>();
     TestUtils.collectEventsInto(context, events);
   }

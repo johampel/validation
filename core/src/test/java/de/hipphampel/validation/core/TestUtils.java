@@ -26,6 +26,7 @@ package de.hipphampel.validation.core;
  * #L%
  */
 
+import de.hipphampel.validation.core.event.DefaultSubscribableEventPublisher;
 import de.hipphampel.validation.core.event.Event;
 import de.hipphampel.validation.core.event.SubscribableEventPublisher;
 import de.hipphampel.validation.core.event.Subscription;
@@ -41,7 +42,7 @@ public class TestUtils {
 
   public static Subscription collectEventsInto(ValidationContext context, List<Event<?>> sink) {
     SubscribableEventPublisher eventPublisher = context.getSharedObject(
-        SubscribableEventPublisher.class);
+        DefaultSubscribableEventPublisher.class);
     return eventPublisher.subscribe(e -> sink.add(fixify(e)));
   }
 

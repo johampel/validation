@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.path;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -61,17 +61,40 @@ public class ReflectionBeanAccessor implements BeanAccessor {
   /**
    * Default constructor,
    * <p>
-   * Creates an instance with an empty whitelist, which select
+   * Creates an instance with an empty whitelist, which does not restrict the beans known by the
+   * accessor.
    */
   public ReflectionBeanAccessor() {
     this(List.of());
   }
 
+  /**
+   * Constructor.
+   * <p>
+   * Creates an instance with a whitelist, that lets the accessor know only those classes having a
+   * full qualified class name matching at least one entry in the white list.
+   *
+   * @param whiteList List of regular expressions.
+   */
   public ReflectionBeanAccessor(List<String> whiteList) {
     this.accessors = new ConcurrentHashMap<>();
     this.whiteList = whiteList.stream()
         .map(Pattern::compile)
         .toList();
+  }
+
+  /**
+   * Get the white list.
+   * <p>
+   * The white list is a list of regular expression for the full qualified class names of the beans
+   * that are recognized by this instance. For example if the list contains only
+   * {@code de\.hipphampel\..*}, only classes in the package {@code de.hipphampel} are recognized as
+   * classes providing properties, If no pattern is given, all classes are recognized.
+   *
+   * @return The white list
+   */
+  public List<Pattern> getWhiteList() {
+    return whiteList;
   }
 
   @Override

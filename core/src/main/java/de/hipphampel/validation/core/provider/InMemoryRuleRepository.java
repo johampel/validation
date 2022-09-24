@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.provider;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,11 +26,18 @@ package de.hipphampel.validation.core.provider;
  * #L%
  */
 
+import de.hipphampel.validation.core.event.EventListener;
+import de.hipphampel.validation.core.event.NoopSubscribableEventPublisher;
+import de.hipphampel.validation.core.event.SubscribableEventPublisher;
+import de.hipphampel.validation.core.event.Subscription;
+import de.hipphampel.validation.core.event.payloads.RulesChangedPayload;
 import de.hipphampel.validation.core.exception.RuleNotFoundException;
 import de.hipphampel.validation.core.rule.Rule;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,23 +48,71 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class InMemoryRuleRepository implements RuleRepository {
 
+  private final SubscribableEventPublisher subscribableEventPublisher;
   private final Map<String, Rule<?>> rules;
 
   /**
    * Constructs an empty instance.
+   * <p>
+   * {@linkplain #subscribe(EventListener) subscribing} does not inform the listener about changes
    */
   public InMemoryRuleRepository() {
+    this(NoopSubscribableEventPublisher.INSTANCE);
+  }
+
+  /**
+   * Constructs an empty instance.
+   * <p>
+   * It uses the {@code subscribableEventPublisher} to inform
+   * {@linkplain #subscribe(EventListener) subscribed} listeners about changes.
+   *
+   * @param subscribableEventPublisher {@link SubscribableEventPublisher} to use.
+   */
+  public InMemoryRuleRepository(SubscribableEventPublisher subscribableEventPublisher) {
+    this.subscribableEventPublisher = Objects.requireNonNull(subscribableEventPublisher);
     this.rules = new ConcurrentHashMap<>();
   }
 
   /**
-   * Constructs an instance initially knowning the given {@code rules}.
+   * Constructs an instance initially knowing the given {@code rules}.
+   * <p>
+   * It uses the {@code subscribableEventPublisher} to inform
+   * {@linkplain #subscribe(EventListener) subscribed} listeners about changes.
+   *
+   * @param subscribableEventPublisher {@link SubscribableEventPublisher} to use.
+   * @param rules                      The {@link Rule Rules} to add initially
+   */
+  public InMemoryRuleRepository(SubscribableEventPublisher subscribableEventPublisher,
+      Rule<?>... rules) {
+    this(subscribableEventPublisher);
+    addRulesInternal(Arrays.asList(rules));
+  }
+
+  /**
+   * Constructs an instance initially knowing the given {@code rules}.
+   * <p>
+   * {@linkplain #subscribe(EventListener) subscribing} does not inform the listener about changes
    *
    * @param rules The {@link Rule Rules} to add initially
    */
   public InMemoryRuleRepository(Rule<?>... rules) {
     this();
-    addRules(rules);
+    addRulesInternal(Arrays.asList(rules));
+  }
+
+  /**
+   * Constructs an instance initially knowning the given {@code rules}.
+   * <p>
+   * It uses the {@code subscribableEventPublisher} to inform
+   * {@linkplain #subscribe(EventListener) subscribed} listeners about changes.
+   *
+   * @param subscribableEventPublisher {@link SubscribableEventPublisher} to use.
+   * @param rules                      The {@link Rule Rules} to add initially
+   */
+  public InMemoryRuleRepository(SubscribableEventPublisher subscribableEventPublisher,
+      Collection<? extends Rule<?>> rules) {
+    this(subscribableEventPublisher);
+    addRulesInternal(rules);
   }
 
   /**
@@ -67,7 +122,7 @@ public class InMemoryRuleRepository implements RuleRepository {
    */
   public InMemoryRuleRepository(Collection<? extends Rule<?>> rules) {
     this();
-    addRules(rules);
+    addRulesInternal(rules);
   }
 
   /**
@@ -77,9 +132,8 @@ public class InMemoryRuleRepository implements RuleRepository {
    * @return This instance
    */
   public InMemoryRuleRepository addRules(Collection<? extends Rule<?>> rules) {
-    for (Rule<?> rule : rules) {
-      this.rules.put(rule.getId(), rule);
-    }
+    addRulesInternal(rules);
+    subscribableEventPublisher.publish(this, new RulesChangedPayload());
     return this;
   }
 
@@ -90,10 +144,13 @@ public class InMemoryRuleRepository implements RuleRepository {
    * @return This instance
    */
   public InMemoryRuleRepository addRules(Rule<?>... rules) {
+    return addRules(Arrays.asList(rules));
+  }
+
+  private void addRulesInternal(Collection<? extends Rule<?>> rules) {
     for (Rule<?> rule : rules) {
       this.rules.put(rule.getId(), rule);
     }
-    return this;
   }
 
   /**
@@ -103,9 +160,10 @@ public class InMemoryRuleRepository implements RuleRepository {
    * @return This instance
    */
   public InMemoryRuleRepository removeRules(Collection<String> ruleIds) {
-    for(String ruleId: ruleIds) {
+    for (String ruleId : ruleIds) {
       rules.remove(ruleId);
     }
+    subscribableEventPublisher.publish(this, new RulesChangedPayload());
     return this;
   }
 
@@ -116,10 +174,7 @@ public class InMemoryRuleRepository implements RuleRepository {
    * @return This instance
    */
   public InMemoryRuleRepository removeRules(String... ruleIds) {
-    for(String ruleId: ruleIds) {
-      rules.remove(ruleId);
-    }
-    return this;
+    return removeRules(Arrays.asList(ruleIds));
   }
 
   @Override
@@ -140,5 +195,10 @@ public class InMemoryRuleRepository implements RuleRepository {
   @Override
   public Set<String> getRuleIds() {
     return Collections.unmodifiableSet(rules.keySet());
+  }
+
+  @Override
+  public Subscription subscribe(EventListener listener) {
+    return subscribableEventPublisher.subscribe(listener);
   }
 }

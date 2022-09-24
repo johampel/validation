@@ -1,0 +1,6 @@
+validation:
+  path-resolver:
+    separator: .
+    all-in-level: '?'
+    many-levels: ??
+    white-list: abc.*,def.*

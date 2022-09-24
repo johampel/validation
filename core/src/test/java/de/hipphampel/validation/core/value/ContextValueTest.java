@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.value;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,19 +26,20 @@ package de.hipphampel.validation.core.value;
  * #L%
  */
 
-import de.hipphampel.validation.core.event.SubscribableEventPublisher;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import de.hipphampel.validation.core.event.DefaultSubscribableEventPublisher;
 import de.hipphampel.validation.core.execution.SimpleRuleExecutor;
 import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.path.BeanPathResolver;
 import de.hipphampel.validation.core.provider.InMemoryRuleRepository;
 import de.hipphampel.validation.core.report.BooleanReporter;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ContextValueTest {
+
   private ValidationContext context;
 
   @BeforeEach
@@ -49,7 +50,7 @@ public class ContextValueTest {
         new SimpleRuleExecutor(),
         new InMemoryRuleRepository(),
         new BeanPathResolver(),
-        new SubscribableEventPublisher()
+        new DefaultSubscribableEventPublisher()
     );
   }
 

@@ -30,7 +30,7 @@ package de.hipphampel.validation.core.report;
 /**
  * Factory for a {@link Reporter}
  *
- * @param <T>
+ * @param <T> Type of the report
  */
 @FunctionalInterface
 public interface ReporterFactory<T> {

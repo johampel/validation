@@ -32,18 +32,14 @@ import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.path.PathResolver;
 import de.hipphampel.validation.core.provider.RuleRepository;
 import de.hipphampel.validation.core.report.Reporter;
-import de.hipphampel.validation.core.report.ReporterFactory;
 import java.util.Map;
 
 /**
  * Default implementation of the {@link Validator} interface.
- *
- * @param <T> The type of the reports.
  */
-public class DefaultValidator<T> implements Validator<T> {
+public class DefaultValidator implements Validator {
 
   private final RuleRepository ruleRepository;
-  private final ReporterFactory<T> reporterFactory;
   private final RuleExecutor ruleExecutor;
   private final EventPublisher eventPublisher;
   private final PathResolver pathResolver;
@@ -51,28 +47,21 @@ public class DefaultValidator<T> implements Validator<T> {
   /**
    * Constructor.
    *
-   * @param ruleRepository  The {@link RuleRepository} to use.
-   * @param reporterFactory The {@link ReporterFactory} to use.
-   * @param ruleExecutor    The {@link RuleExecutor} to use.
-   * @param eventPublisher  The {@link EventPublisher} to use.
-   * @param pathResolver    The {@link PathResolver} to use.
+   * @param ruleRepository The {@link RuleRepository} to use.
+   * @param ruleExecutor   The {@link RuleExecutor} to use.
+   * @param eventPublisher The {@link EventPublisher} to use.
+   * @param pathResolver   The {@link PathResolver} to use.
    */
-  public DefaultValidator(RuleRepository ruleRepository, ReporterFactory<T> reporterFactory,
-      RuleExecutor ruleExecutor, EventPublisher eventPublisher, PathResolver pathResolver) {
+  public DefaultValidator(RuleRepository ruleRepository, RuleExecutor ruleExecutor,
+      EventPublisher eventPublisher, PathResolver pathResolver) {
     this.ruleRepository = ruleRepository;
-    this.reporterFactory = reporterFactory;
     this.ruleExecutor = ruleExecutor;
     this.eventPublisher = eventPublisher;
     this.pathResolver = pathResolver;
   }
 
   @Override
-  public Reporter<T> createReporter() {
-    return reporterFactory.createReporter();
-  }
-
-  @Override
-  public ValidationContext createValidationContext(Reporter<T> reporter,
+  public <T> ValidationContext createValidationContext(Reporter<T> reporter,
       Map<String, Object> parameters) {
     return new ValidationContext(
         reporter,

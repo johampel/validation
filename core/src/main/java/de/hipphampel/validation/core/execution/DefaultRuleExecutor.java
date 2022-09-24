@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultRuleExecutor extends SimpleRuleExecutor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRuleExecutor.class);
-  private final ForkJoinPool executor;
+  private final Executor executor;
 
   /**
    * Default constructor,
@@ -77,7 +77,7 @@ public class DefaultRuleExecutor extends SimpleRuleExecutor {
    *
    * @param executor The {@code Executor}
    */
-  public DefaultRuleExecutor(ForkJoinPool executor) {
+  public DefaultRuleExecutor(Executor executor) {
     this.executor = Objects.requireNonNull(executor);
   }
 

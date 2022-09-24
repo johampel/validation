@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.event;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,63 +26,15 @@ package de.hipphampel.validation.core.event;
  * #L%
  */
 
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
- * {@link EventPublisher} that also implements {@link EventSubscriber}.
+ * Combination of the {@link EventPublisher} and {@link EventSubscriber} interface.
  * <p>
- * This implementation informs {@linkplain #subscribe(EventListener) subscribed} listeners about any
- * event that takes place
+ * {@linkplain #subscribe(EventListener) subscribed} listeners are informed about
+ * {@linkplain #publish(Object, Object) published events}
  *
  * @see EventSubscriber
  * @see EventPublisher
  */
-public class SubscribableEventPublisher implements EventPublisher, EventSubscriber {
+public interface SubscribableEventPublisher extends EventSubscriber, EventPublisher {
 
-  private final Map<Subscription, EventListener> subscriptions = new ConcurrentHashMap<>();
-
-  @Override
-  public <T> Event<T> publish(Object source, T payload) {
-    Event<T> event = new Event<>(payload, LocalDateTime.now(), source);
-    subscriptions.values().forEach(c -> c.accept(event));
-    return event;
-  }
-
-  @Override
-  public Subscription subscribe(EventListener listener) {
-    Subscription subscription = new SubscriptionImpl();
-    subscriptions.put(subscription, Objects.requireNonNull(listener));
-    return subscription;
-  }
-
-  private class SubscriptionImpl implements Subscription {
-
-    private final UUID id = UUID.randomUUID();
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      SubscriptionImpl that = (SubscriptionImpl) o;
-      return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(id);
-    }
-
-    @Override
-    public void unsubscribe() {
-      SubscribableEventPublisher.this.subscriptions.remove(this);
-    }
-  }
 }

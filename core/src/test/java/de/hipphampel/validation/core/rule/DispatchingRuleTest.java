@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.rule;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,8 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import de.hipphampel.validation.core.TestUtils;
 import de.hipphampel.validation.core.condition.Conditions;
+import de.hipphampel.validation.core.event.DefaultSubscribableEventPublisher;
 import de.hipphampel.validation.core.event.Event;
-import de.hipphampel.validation.core.event.SubscribableEventPublisher;
 import de.hipphampel.validation.core.event.payloads.RuleFinishedPayload;
 import de.hipphampel.validation.core.event.payloads.RuleStartedPayload;
 import de.hipphampel.validation.core.execution.RuleExecutor;
@@ -65,7 +65,8 @@ public class DispatchingRuleTest {
   );
   private final RuleExecutor executor = new SimpleRuleExecutor();
   private final ValidationContext context = new ValidationContext(
-      new ReportReporter(), Map.of(), executor, ruleRepository, pathResolver, new SubscribableEventPublisher());
+      new ReportReporter(), Map.of(), executor, ruleRepository, pathResolver,
+      new DefaultSubscribableEventPublisher());
 
 
   @Test

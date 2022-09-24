@@ -30,11 +30,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hipphampel.validation.core.Validator;
 import de.hipphampel.validation.core.ValidatorBuilder;
-import de.hipphampel.validation.core.event.Event;
-import de.hipphampel.validation.core.event.EventListener;
+import de.hipphampel.validation.core.event.DefaultSubscribableEventPublisher;
 import de.hipphampel.validation.core.event.SubscribableEventPublisher;
-import de.hipphampel.validation.core.event.payloads.RuleFinishedPayload;
-import de.hipphampel.validation.core.event.payloads.RuleStartedPayload;
 import de.hipphampel.validation.core.execution.SimpleRuleExecutor;
 import de.hipphampel.validation.core.provider.AnnotationRuleRepository;
 import de.hipphampel.validation.core.provider.RuleSelector;
@@ -48,8 +45,8 @@ import java.util.List;
 public class TriangleApp1 {
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
-  private static final SubscribableEventPublisher eventPublisher = new SubscribableEventPublisher();
-  private static final Validator<Report> validator = ValidatorBuilder.newBuilder()
+  private static final SubscribableEventPublisher eventPublisher = new DefaultSubscribableEventPublisher();
+  private static final Validator validator = ValidatorBuilder.newBuilder()
       .withRuleRepository(AnnotationRuleRepository.ofClass(TriangleRules1.class))
       .withEventPublisher(eventPublisher)
       .withRuleExecutor(new SimpleRuleExecutor())

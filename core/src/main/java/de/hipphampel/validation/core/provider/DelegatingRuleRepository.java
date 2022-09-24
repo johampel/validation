@@ -26,6 +26,8 @@ package de.hipphampel.validation.core.provider;
  * #L%
  */
 
+import de.hipphampel.validation.core.event.EventListener;
+import de.hipphampel.validation.core.event.Subscription;
 import de.hipphampel.validation.core.rule.Rule;
 import java.util.Objects;
 import java.util.Set;
@@ -70,5 +72,10 @@ public class DelegatingRuleRepository implements RuleRepository {
   @Override
   public Set<String> getRuleIds() {
     return delegate.getRuleIds();
+  }
+
+  @Override
+  public Subscription subscribe(EventListener listener) {
+    return delegate.subscribe(listener);
   }
 }

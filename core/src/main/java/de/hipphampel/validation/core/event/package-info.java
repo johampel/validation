@@ -10,7 +10,7 @@
  * {@link de.hipphampel.validation.core.event.EventSubscriber} is the part that is intended to add
  * {@link de.hipphampel.validation.core.event.EventListener} to be called when an event occurs.
  * Conceputally, {@code EventPublishers} and {@code EvenSubscriber} might be different objects, but
- * with the {@link de.hipphampel.validation.core.event.SubscribableEventPublisher} there is also one
+ * with the {@link de.hipphampel.validation.core.event.DefaultSubscribableEventPublisher} there is also one
  * implementation that unifies both.
  * <p>
  * {@code EventPublisher} and {@code EventSubscriber} are more infrastructural objects that should

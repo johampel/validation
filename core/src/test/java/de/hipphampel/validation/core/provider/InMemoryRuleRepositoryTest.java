@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.provider;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,28 +28,27 @@ package de.hipphampel.validation.core.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import de.hipphampel.validation.core.condition.Conditions;
+import de.hipphampel.validation.core.event.SubscribableEventPublisher;
+import de.hipphampel.validation.core.event.payloads.RulesChangedPayload;
 import de.hipphampel.validation.core.exception.RuleNotFoundException;
 import de.hipphampel.validation.core.rule.ConditionRule;
 import de.hipphampel.validation.core.rule.Rule;
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class InMemoryRuleRepositoryTest {
 
-
-  private InMemoryRuleRepository provider;
-
-  @BeforeEach
-  public void beforeEach() {
-    this.provider = new InMemoryRuleRepository();
-  }
-
   @Test
   public void knowsRuleId() {
+    InMemoryRuleRepository provider = new InMemoryRuleRepository();
+
     assertThat(provider.knowsRuleId("TheRuleId")).isFalse();
 
     provider.addRules(newRule("TheRuleId"));
@@ -61,6 +60,8 @@ public class InMemoryRuleRepositoryTest {
 
   @Test
   public void getRule() {
+    InMemoryRuleRepository provider = new InMemoryRuleRepository();
+
     assertThatThrownBy(() -> provider.getRule("TheRuleId"))
         .isInstanceOf(RuleNotFoundException.class);
 
@@ -74,7 +75,50 @@ public class InMemoryRuleRepositoryTest {
   }
 
   @Test
+  public void addRules() {
+    Rule<?> rule1 = newRule("TheRuleId1");
+    Rule<?> rule2 = newRule("TheRuleId2");
+    SubscribableEventPublisher subscribableEventPublisher = mock(SubscribableEventPublisher.class);
+    InMemoryRuleRepository provider = new InMemoryRuleRepository(subscribableEventPublisher);
+
+    assertThatThrownBy(() -> provider.getRule("TheRuleId1"))
+        .isInstanceOf(RuleNotFoundException.class);
+    assertThatThrownBy(() -> provider.getRule("TheRuleId2"))
+        .isInstanceOf(RuleNotFoundException.class);
+
+    provider.addRules(rule1, rule2);
+
+    assertThat(provider.getRule("TheRuleId1")).isSameAs(rule1);
+    assertThat(provider.getRule("TheRuleId2")).isSameAs(rule2);
+    verify(subscribableEventPublisher, times(1))
+        .publish(eq(provider), eq(new RulesChangedPayload()));
+  }
+
+  @Test
+  public void removeRules() {
+    Rule<?> rule1 = newRule("TheRuleId1");
+    Rule<?> rule2 = newRule("TheRuleId2");
+    SubscribableEventPublisher subscribableEventPublisher = mock(SubscribableEventPublisher.class);
+    InMemoryRuleRepository provider = new InMemoryRuleRepository(subscribableEventPublisher, rule1,
+        rule2);
+
+    assertThat(provider.getRule("TheRuleId1")).isSameAs(rule1);
+    assertThat(provider.getRule("TheRuleId2")).isSameAs(rule2);
+
+    provider.removeRules(rule1.getId(), rule2.getId());
+
+    assertThatThrownBy(() -> provider.getRule("TheRuleId1"))
+        .isInstanceOf(RuleNotFoundException.class);
+    assertThatThrownBy(() -> provider.getRule("TheRuleId2"))
+        .isInstanceOf(RuleNotFoundException.class);
+    verify(subscribableEventPublisher, times(1))
+        .publish(eq(provider), eq(new RulesChangedPayload()));
+  }
+
+  @Test
   public void getRuleIds() {
+    InMemoryRuleRepository provider = new InMemoryRuleRepository();
+
     assertThat(provider.getRuleIds()).containsExactlyInAnyOrder();
 
     provider.addRules(newRule("a"), newRule("b"));

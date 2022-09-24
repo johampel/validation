@@ -12,10 +12,10 @@ package de.hipphampel.validation.core.execution;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,8 +27,8 @@ package de.hipphampel.validation.core.execution;
  */
 
 import de.hipphampel.validation.core.Validator;
+import de.hipphampel.validation.core.event.DefaultSubscribableEventPublisher;
 import de.hipphampel.validation.core.event.EventPublisher;
-import de.hipphampel.validation.core.event.SubscribableEventPublisher;
 import de.hipphampel.validation.core.exception.ValidationException;
 import de.hipphampel.validation.core.path.BeanPathResolver;
 import de.hipphampel.validation.core.path.Path;
@@ -96,8 +96,7 @@ public class ValidationContext {
         new DefaultRuleExecutor(),
         new InMemoryRuleRepository(),
         new BeanPathResolver(),
-        new SubscribableEventPublisher()
-    );
+        new DefaultSubscribableEventPublisher());
   }
 
   /**

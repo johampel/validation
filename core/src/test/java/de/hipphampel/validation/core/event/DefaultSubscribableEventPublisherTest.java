@@ -33,11 +33,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class SubscribableEventPublisherTest {
+public class DefaultSubscribableEventPublisherTest {
 
   @Test
-  void subscribeAndUnsubscribe() {
-    SubscribableEventPublisher publisher = new SubscribableEventPublisher();
+  public void subscribeAndUnsubscribe() {
+    SubscribableEventPublisher publisher = new DefaultSubscribableEventPublisher();
     List<Event<?>> events1 = new ArrayList<>();
     List<Event<?>> events2 = new ArrayList<>();
 
