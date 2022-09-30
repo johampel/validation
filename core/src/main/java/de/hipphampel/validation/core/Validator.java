@@ -1,11 +1,7 @@
-package de.hipphampel.validation.core;
-
-/*-
- * #%L
- * validation-core
- * %%
- * Copyright (C) 2022 Johannes Hampel
- * %%
+/*
+ * The MIT License
+ * Copyright © 2022 Johannes Hampel
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -23,8 +19,8 @@ package de.hipphampel.validation.core;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * #L%
  */
+package de.hipphampel.validation.core;
 
 import de.hipphampel.validation.core.execution.RuleExecutor;
 import de.hipphampel.validation.core.execution.ValidationContext;
