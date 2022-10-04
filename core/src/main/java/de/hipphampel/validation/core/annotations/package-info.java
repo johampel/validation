@@ -20,4 +20,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Provides annotations that can be used to declare
+ * {@link de.hipphampel.validation.core.rule.Rule Rules}.
+ *
+ * Please also refer to {@link de.hipphampel.validation.core.provider.AnnotationRuleRepository}
+ *
+ * @see de.hipphampel.validation.core.provider.AnnotationRuleRepository
+ * @see de.hipphampel.validation.core.annotations.RuleDef
+ * @see de.hipphampel.validation.core.annotations.RuleRef
+ */
 package de.hipphampel.validation.core.annotations;

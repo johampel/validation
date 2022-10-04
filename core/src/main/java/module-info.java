@@ -20,6 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Validation code module
+ */
 module de.hipphampel.validation.core {
 
   exports de.hipphampel.validation.core;

@@ -29,13 +29,18 @@ import java.util.stream.Collectors;
 
 /**
  * Logical {@code OR} condition.
- *
+ * <p>
  * Becomes {@code true}, if at least one of {@code conditions} is {@code true}.
  *
  * @param conditions {@link Condition Conditions} to evaluate
  */
 public record OrCondition(StreamProvider<Condition> conditions) implements Condition {
 
+  /**
+   * Constructor.
+   *
+   * @param conditions {@link Condition Conditions} to evaluate
+   */
   public OrCondition {
     Objects.requireNonNull(conditions);
   }

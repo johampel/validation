@@ -34,7 +34,7 @@ import de.hipphampel.validation.core.utils.Stacked;
  * <p>
  * A {@code Reporter} is invoked by the {@link RuleExecutor} during validation to form the
  * validation report of the object being validated. For this, the {@code RuleExecutor} calls
- * {@link #add(Stacked, Object, Rule, Result) add} each time a {@link Rule} is executed. When all
+ * {@link #add(Path, Object, Rule, Result) add} each time a {@link Rule} is executed. When all
  * validations are done, the {@link Validator} calls {@link #getReport() getReport} to obtain the
  * final validation result.
  * <p>

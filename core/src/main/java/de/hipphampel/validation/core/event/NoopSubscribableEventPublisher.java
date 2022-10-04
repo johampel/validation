@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 
 /**
  * Dummy implementation of the {@link SubscribableEventPublisher} doing nothing.
- *
+ * <p>
  * This implementation neither informs the subscribed listeners, nor it publishes any event
  */
 public class NoopSubscribableEventPublisher implements SubscribableEventPublisher {
@@ -34,6 +34,9 @@ public class NoopSubscribableEventPublisher implements SubscribableEventPublishe
   private static final Subscription NOOP = () -> {
   };
 
+  /**
+   * Preferred instance. Should be preferred over extra instantiation
+   */
   public static final SubscribableEventPublisher INSTANCE = new NoopSubscribableEventPublisher();
 
   @Override

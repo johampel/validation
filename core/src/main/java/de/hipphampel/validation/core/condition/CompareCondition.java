@@ -41,6 +41,13 @@ import java.util.function.Predicate;
 public record CompareCondition<T extends Comparable<T>>(Value<T> left, Value<T> right,
                                                         Mode mode) implements Condition {
 
+  /**
+   * Constructor.
+   *
+   * @param left  Left side argument
+   * @param right Right side argument
+   * @param mode  Compare mode
+   */
   public CompareCondition {
     Objects.requireNonNull(left);
     Objects.requireNonNull(right);

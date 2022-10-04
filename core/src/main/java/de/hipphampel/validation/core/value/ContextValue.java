@@ -35,6 +35,11 @@ import java.util.Objects;
  */
 public record ContextValue<T>(Value<String> key) implements Value<T> {
 
+  /**
+   * Constructor.
+   *
+   * @param key The key to lookup
+   */
   public ContextValue {
     Objects.requireNonNull(key);
   }

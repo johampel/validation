@@ -47,6 +47,12 @@ public record Result(ResultCode code, ResultReason reason) {
 
   private static final Result OK_RESULT = new Result(OK, null);
 
+  /**
+   * Constructor.
+   *
+   * @param code   The main {@code ResultCode}
+   * @param reason The reason, might be {@code null}
+   */
   public Result {
     Objects.requireNonNull(code);
   }
@@ -74,7 +80,7 @@ public record Result(ResultCode code, ResultReason reason) {
   /**
    * Returns, whether the result is ok.
    * <p>
-   * This is the case, if the {@link #code() code) is {@link ResultCode#OK}.
+   * This is the case, if the {@link #code() code} is {@link ResultCode#OK}.
    *
    * @return {@code true}, if ok.
    */
@@ -85,7 +91,7 @@ public record Result(ResultCode code, ResultReason reason) {
   /**
    * Returns, whether the result is not ok.
    * <p>
-   * This is the case, if the {@link #code() code) is not {@link ResultCode#OK}.
+   * This is the case, if the {@link #code() code} is not {@link ResultCode#OK}.
    *
    * @return {@code true}, if not ok.
    */
@@ -96,7 +102,7 @@ public record Result(ResultCode code, ResultReason reason) {
   /**
    * Returns, whether the result is  skipped.
    * <p>
-   * This is the case, if the {@link #code() code) is {@link ResultCode#SKIPPED}.
+   * This is the case, if the {@link #code() code} is {@link ResultCode#SKIPPED}.
    *
    * @return {@code true}, if skipped.
    */
@@ -107,7 +113,7 @@ public record Result(ResultCode code, ResultReason reason) {
   /**
    * Returns, whether the result is failed.
    * <p>
-   * This is the case, if the {@link #code() code) is {@link ResultCode#FAILED}.
+   * This is the case, if the {@link #code() code} is {@link ResultCode#FAILED}.
    *
    * @return {@code true}, if failed.
    */

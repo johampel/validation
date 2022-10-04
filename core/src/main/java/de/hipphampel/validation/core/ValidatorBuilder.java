@@ -36,9 +36,9 @@ import de.hipphampel.validation.core.provider.RuleRepository;
  * Builder for a {@link Validator}.
  * <p>
  * This class is used as follows (in the most simple case):
- * <pre><tt>
+ * <code>
  *   Validator validator = ValidatorBuilder.newBuilder().build();
- * </tt></pre>
+ * </code>
  * which basically constructs a {@link DefaultValidator} with the standard settings. Using the
  * different {@code with*} methods, one may customize the generated {@code Validator}.
  * <p>

@@ -33,6 +33,11 @@ import java.util.function.Predicate;
  */
 public record PredicateCondition(Predicate<?> predicate) implements Condition {
 
+  /**
+   * Constructor
+   *
+   * @param predicate The predicate
+   */
   public PredicateCondition {
     Objects.requireNonNull(predicate);
   }

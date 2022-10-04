@@ -20,4 +20,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Provides classes for reporting validation results.
+ * <p>
+ * The central interface is the {@link de.hipphampel.validation.core.report.Reporter} interface;
+ * instances of this are created and used by the
+ * {@link de.hipphampel.validation.core.Validator Validator} to colect the
+ * {@link de.hipphampel.validation.core.rule.Result Results} of the
+ * {@link de.hipphampel.validation.core.rule.Rule Rules} and form the final validation result.
+ * <p>
+ * This package contains some basic implementations of the {@code Reporter} interface.
+ */
 package de.hipphampel.validation.core.report;

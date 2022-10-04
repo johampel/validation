@@ -20,4 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Provides payload definitions of {@link de.hipphampel.validation.core.event.Event Events}
+ *
+ * @see de.hipphampel.validation.core.event.Event
+ */
 package de.hipphampel.validation.core.event.payloads;

@@ -20,4 +20,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Provides an abstract to provide values to {@link de.hipphampel.validation.core.rule.Rule Rules}.
+ * <p>
+ * The central interface is {@link de.hipphampel.validation.core.value.Value}, which basically is an
+ * abstraction to get a value based on the object being validated and the contextual information
+ * that is available during validation (the
+ * {@link de.hipphampel.validation.core.execution.ValidationContext}
+ */
 package de.hipphampel.validation.core.value;

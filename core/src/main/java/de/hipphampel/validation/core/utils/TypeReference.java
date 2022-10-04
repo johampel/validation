@@ -27,10 +27,10 @@ package de.hipphampel.validation.core.utils;
  * <p>
  * The intended usage is as follows:
  *
- * <pre><tt>
+ * <pre>
  * TypeReference&Lt;List&lt;String>> ref = new TypeReference&lt;>() {} TypeInfo info =
  * TypeInfo info = TypeInfo.forTypeReference(ref); // info is generic TypeInformation
- * </tt></pre>
+ * </pre>
  *
  * @param <T> The type
  * @see TypeInfo

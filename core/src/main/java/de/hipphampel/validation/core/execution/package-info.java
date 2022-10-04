@@ -20,4 +20,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Provides classes relevant for {@link de.hipphampel.validation.core.rule.Rule Rukle} execution.
+ * <p>
+ * Based on the interface {@link de.hipphampel.validation.core.execution.RuleExecutor RuleEecutor}
+ * this package provides with
+ * {@link de.hipphampel.validation.core.execution.SimpleRuleExecutor SimpleRuleExecutor} and
+ * {@link de.hipphampel.validation.core.execution.DefaultRuleExecutor DefaultRuleExecutor} classes
+ * that allow to execute {@code Rules};
+ * {@link de.hipphampel.validation.core.execution.ValidationContext}
+ *
+ * @see de.hipphampel.validation.core.execution.DefaultRuleExecutor
+ * @see de.hipphampel.validation.core.execution.SimpleRuleExecutor
+ * @see de.hipphampel.validation.core.execution.ValidationContext
+ */
 package de.hipphampel.validation.core.execution;

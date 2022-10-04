@@ -47,6 +47,11 @@ import java.util.stream.Collectors;
  */
 public record Report(Set<ReportEntry> entries) {
 
+  /**
+   * Constructor.
+   *
+   * @param entries The {@code ReportEntries}
+   */
   public Report {
     Objects.requireNonNull(entries);
   }

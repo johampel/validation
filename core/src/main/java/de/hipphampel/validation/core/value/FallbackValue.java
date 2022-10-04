@@ -36,6 +36,12 @@ import java.util.Objects;
  */
 public record FallbackValue<T>(Value<T> value, Value<T> fallback) implements Value<T> {
 
+  /**
+   * Constructor.
+   *
+   * @param value    The value
+   * @param fallback The fallback
+   */
   public FallbackValue {
     Objects.requireNonNull(value);
     Objects.requireNonNull(fallback);

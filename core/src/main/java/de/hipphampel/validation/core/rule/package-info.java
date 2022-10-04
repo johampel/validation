@@ -20,4 +20,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Provides class to define validation rules.
+ * <p>
+ * A validation rule is represented by the {@link de.hipphampel.validation.core.rule.Rule}
+ * interface. They are the building blocks of this library, everything is built around such
+ * validation rules.
+ *
+ * @see de.hipphampel.validation.core.rule.Rule
+ */
 package de.hipphampel.validation.core.rule;

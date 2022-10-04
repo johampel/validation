@@ -43,6 +43,9 @@ import de.hipphampel.validation.core.rule.StringResultReason;
  */
 public class RuleFailedException extends ValidationException {
 
+  /**
+   * The reason.
+   */
   private final ResultReason reason;
 
   /**
@@ -80,7 +83,7 @@ public class RuleFailedException extends ValidationException {
    * Constructor.
    *
    * @param reason The {@link ResultReason}
-   * @param cause   The cause
+   * @param cause  The cause
    */
   public RuleFailedException(ResultReason reason, Throwable cause) {
     super(String.valueOf(reason), cause);

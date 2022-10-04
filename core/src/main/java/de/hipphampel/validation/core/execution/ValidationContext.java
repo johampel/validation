@@ -103,6 +103,7 @@ public class ValidationContext {
    * @param ruleRepository The {@link RuleRepository}
    * @param pathResolver   The {@link PathResolver}
    * @param eventPublisher The {@link EventPublisher}
+   * @param parameters     Additional paramters passed to the validation
    */
   public ValidationContext(
       Reporter<?> reporter,

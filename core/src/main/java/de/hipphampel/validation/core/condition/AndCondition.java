@@ -36,6 +36,11 @@ import java.util.stream.Collectors;
  */
 public record AndCondition(StreamProvider<Condition> conditions) implements Condition {
 
+  /**
+   * Constructor.
+   *
+   * @param conditions {@link Condition Conditions} to evaluate
+   */
   public AndCondition {
     Objects.requireNonNull(conditions);
   }

@@ -37,6 +37,13 @@ import java.util.Objects;
  */
 public record Event<T>(T payload, LocalDateTime publishTime, Object source) {
 
+  /**
+   * Constructor
+   *
+   * @param payload     The event payload
+   * @param publishTime The publish time of the event
+   * @param source      The object being the originator of this event
+   */
   public Event {
     Objects.requireNonNull(payload);
     Objects.requireNonNull(publishTime);

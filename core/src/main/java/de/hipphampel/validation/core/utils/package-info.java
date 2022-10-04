@@ -20,4 +20,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Collection of utility classes.
+ */
 package de.hipphampel.validation.core.utils;

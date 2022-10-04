@@ -20,4 +20,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Provides an abstraction to extract components from an object.
+ * <p>
+ * The core concepts of this package are {@link de.hipphampel.validation.core.path.Path}, which
+ * defines either a concrete "pointer" to a component of an object or a group of such pointers. The
+ * second important interface is the {@link de.hipphampel.validation.core.path.PathResolver}, which
+ * provides methods to parse and resolve such {@code Path} objects. *
+ *
+ * @see de.hipphampel.validation.core.path.Path
+ * @see de.hipphampel.validation.core.path.PathResolver
+ */
 package de.hipphampel.validation.core.path;

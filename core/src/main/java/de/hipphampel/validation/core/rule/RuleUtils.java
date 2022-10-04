@@ -56,11 +56,12 @@ public class RuleUtils {
    * THe method deduces this information from the generic type information of the {@code rule}
    *
    * @param rule The {@link Rule}
+   * @param <T>  Type type
    * @return The type
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> determineRuleFactsType(Rule<?> rule) {
-    return (Class<T>)determineRuleFactsTypeInfo(rule).resolve();
+    return (Class<T>) determineRuleFactsTypeInfo(rule).resolve();
   }
 
-  }
+}

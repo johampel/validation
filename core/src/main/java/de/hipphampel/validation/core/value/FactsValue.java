@@ -26,12 +26,19 @@ import de.hipphampel.validation.core.execution.ValidationContext;
 
 /**
  * {@link Value} implementation returning the object being validated
+ *
  * @param <T> Type of teh value
  */
 public class FactsValue<T> implements Value<T> {
 
   private static final Value<?> INSTANCE = new FactsValue<>();
 
+  /**
+   * The one and only instance.
+   *
+   * @param <S> Type of the facts
+   * @return The instance
+   */
   @SuppressWarnings("unchecked")
   public static <S> Value<S> instance() {
     return (Value<S>) INSTANCE;

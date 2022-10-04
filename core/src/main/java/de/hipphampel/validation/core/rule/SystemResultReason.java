@@ -22,12 +22,49 @@
  */
 package de.hipphampel.validation.core.rule;
 
+import java.util.Objects;
+
+/**
+ * {@link ResultReason} implementation for internal causes
+ *
+ * @param code    The {@link Code}
+ * @param message The message
+ */
 public record SystemResultReason(Code code, String message) implements ResultReason {
 
+  /**
+   * Constructor.
+   *
+   * @param code    The {@link Code}
+   * @param message The message
+   */
+  public SystemResultReason {
+    Objects.requireNonNull(code);
+  }
+
+  /**
+   * Code describing the reason why a execution failed.
+   */
   public enum Code {
+
+    /**
+     * Indicates that at least one of the precondotions was not met.
+     */
     PreconditionNotMet,
+
+    /**
+     * Indicates that the {@link Rule} was called with the wrong type.
+     */
     FactTypeDoesNotMatchRuleType,
+
+    /**
+     * Indicates that a {@link Rule} threw an exception
+     */
     RuleExecutionThrowsException,
+
+    /**
+     * Indicates a cyclic dependency between {@link Rule Rules}.
+     */
     CyclicRuleDependency
   }
 }

@@ -20,4 +20,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Provides types for objects providing {@link de.hipphampel.validation.core.rule.Rule Rules}.
+ * <p>
+ * There are basically two groups of providers:
+ * <ol>
+ *   <li>{@link de.hipphampel.validation.core.provider.RuleRepository RuleRepositories}, which act as
+ *   a storage for {@code Rules} in general. {@code Repositories} are typically context free, so
+ *   they returns always the same set of {@code Rules}.</li>
+ *   <li>{@link de.hipphampel.validation.core.provider.RuleSelector RuleSelectors} that act as a
+ *   kind of filter for {@code Repositories} that return only those {@code Rules} that are
+ *   suitable for the object to validate</li>
+ * </ol>
+ *
+ * @see de.hipphampel.validation.core.provider.RuleSelector
+ * @see de.hipphampel.validation.core.provider.RuleRepository
+ */
 package de.hipphampel.validation.core.provider;

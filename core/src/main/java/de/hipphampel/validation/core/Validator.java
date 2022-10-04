@@ -195,11 +195,12 @@ public interface Validator {
    * <p>
    * This is called - similar to {@code createReporter} - for each call of {@code validate} or
    * {@code validateAsync}. But unlike the the {@code Reporter}, the {@code ValidationContext} is
-   * not shread between different threads, instead based on this instance copies might be created on
+   * not shared between different threads, instead based on this instance copies might be created on
    * demand by calling {@link ValidationContext#copy()}.
    *
    * @param reporter   The {@link Reporter} to use
    * @param parameters Additional validation parameters
+   * @param <T>        Type of the generated report
    * @return The {@code ValidationContext}
    */
   <T> ValidationContext createValidationContext(Reporter<T> reporter,

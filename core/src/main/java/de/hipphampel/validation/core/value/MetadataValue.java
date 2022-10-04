@@ -31,16 +31,21 @@ import java.util.Objects;
 /**
  * A {@link Value} implementation that accesses the {@linkplain Rule#getMetadata() metadata} of the
  * current {@link Rule}.
- *
- * This implementation returns the value of the metadata map of the the current {@code Rule} that
- * is bound to the given {@code key}. If no {@code Rule} is active, an exception is thrown. If no
- * such key exists, {@code null} is returned.
+ * <p>
+ * This implementation returns the value of the metadata map of the the current {@code Rule} that is
+ * bound to the given {@code key}. If no {@code Rule} is active, an exception is thrown. If no such
+ * key exists, {@code null} is returned.
  *
  * @param key The {@code Value} evaluating to the key to look up
  * @param <T> Type of the value
  */
 public record MetadataValue<T>(Value<String> key) implements Value<T> {
 
+  /**
+   * Constructor.
+   *
+   * @param key The {@code Value} evaluating to the key to look up
+   */
   public MetadataValue {
     Objects.requireNonNull(key);
   }

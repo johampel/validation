@@ -23,6 +23,7 @@
 package de.hipphampel.validation.core.condition;
 
 import de.hipphampel.validation.core.condition.CompareCondition.Mode;
+import de.hipphampel.validation.core.path.Path;
 import de.hipphampel.validation.core.provider.RuleSelector;
 import de.hipphampel.validation.core.rule.ResultCode;
 import de.hipphampel.validation.core.rule.Rule;
@@ -308,6 +309,17 @@ public interface Conditions {
     return rule(ruleSelector, null);
   }
 
+  /**
+   * Creates a {@link Condition} that executes the {@link Rule Rules} provided by the given
+   * {@link RuleSelector} for the specified {@code paths}.
+   * <p>
+   * The condition will evaluate to {@code true}, if all {@code Rules} evaluate to
+   * {@link ResultCode#OK}
+   *
+   * @param ruleSelector The {@code RuleSelector}
+   * @param paths        The {@link Path Paths}
+   * @return The {@code Condition}
+   */
   static Condition rule(Value<RuleSelector> ruleSelector, Value<Set<String>> paths) {
     return new RuleCondition(ruleSelector, paths == null ? Values.val(Set.of()) : paths);
   }

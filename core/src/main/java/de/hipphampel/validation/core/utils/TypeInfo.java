@@ -39,10 +39,13 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Provides type information including the generic type information.
  * <p>
- * This is basically an adaption of Spring's {@çode org.springframework.core.ResolvableType} class.
+ * This is basically an adaption of Spring's {@code org.springframework.core.ResolvableType} class.
  */
 public class TypeInfo {
 
+  /**
+   * Constant representing no {@link TypeInfo}
+   */
   public static final TypeInfo NONE = new TypeInfo(EmptyType.INSTANCE, null, 0);
   private static final TypeInfo[] EMPTY_TYPES_ARRAY = new TypeInfo[0];
 
@@ -142,6 +145,7 @@ public class TypeInfo {
    * Determine whether the given object is an instance of this {@code TypeInfo}.
    *
    * @param obj the object to check
+   * @return {@code true} or {@code false}
    * @see #isAssignableFrom(Class)
    */
   public boolean isInstance(Object obj) {
@@ -152,6 +156,7 @@ public class TypeInfo {
    * Determine whether this {@code TypeInfo} is assignable from the specified other type.
    *
    * @param other the type to be checked against (as a {@code Class})
+   * @return {@code true} or {@code false}
    * @see #isAssignableFrom(TypeInfo)
    */
   public boolean isAssignableFrom(Class<?> other) {
@@ -263,6 +268,7 @@ public class TypeInfo {
   /**
    * Return {@code true} if this type resolves to a Class that represents an array.
    *
+   * @return {@code true} or {@code false}
    * @see #getComponentType()
    */
   public boolean isArray() {
@@ -277,6 +283,7 @@ public class TypeInfo {
    * Return the TypeInfo representing the component type of the array or {@link #NONE} if this type
    * does not represent an array.
    *
+   * @return {@code TypeInfo}
    * @see #isArray()
    */
   public TypeInfo getComponentType() {
@@ -302,6 +309,7 @@ public class TypeInfo {
    * <p>Returns {@link #NONE} if this type does not implement or extend
    * {@link Collection}.
    *
+   * @return {@code TypeInfo}
    * @see #as(Class)
    * @see #asMap()
    */
@@ -314,6 +322,7 @@ public class TypeInfo {
    * <p>Returns {@link #NONE} if this type does not implement or extend
    * {@link Map}.
    *
+   * @return {@code TypeInfo}
    * @see #as(Class)
    * @see #asCollection()
    */
@@ -355,6 +364,7 @@ public class TypeInfo {
    * Return a {@link TypeInfo} representing the direct supertype of this type.
    * <p>If no supertype is available this method returns {@link #NONE}.
    *
+   * @return {@code TypeInfo}
    * @see #getInterfaces()
    */
   public TypeInfo getSuperType() {
@@ -383,6 +393,7 @@ public class TypeInfo {
    * Return a {@link TypeInfo} array representing the direct interfaces implemented by this type. If
    * this type does not implement any interfaces an empty array is returned.
    *
+   * @return Array with the interfaces
    * @see #getSuperType()
    */
   public TypeInfo[] getInterfaces() {
@@ -405,6 +416,7 @@ public class TypeInfo {
   /**
    * Return {@code true} if this type contains generic parameters.
    *
+   * @return {@code true} or {@code false}
    * @see #getGeneric(int...)
    * @see #getGenerics()
    */
@@ -415,6 +427,8 @@ public class TypeInfo {
   /**
    * Return {@code true} if this type contains unresolvable generics only, that is, no substitute
    * for any of its declared type variables.
+   *
+   * @return {@code true} or {@code false}
    */
   boolean isEntirelyUnresolvable() {
     if (this == NONE) {
@@ -434,6 +448,8 @@ public class TypeInfo {
    * unresolvable type variable on the type itself or through implementing a generic interface in a
    * raw fashion, i.e. without substituting that interface's type variables. The result will be
    * {@code true} only in those two scenarios.
+   *
+   * @return {@code true} or {@code false}
    */
   public boolean hasUnresolvableGenerics() {
     if (this == NONE) {
@@ -1080,11 +1096,12 @@ public class TypeInfo {
    * Gets the type wrapped by the given {@code typeRef}
    *
    * @param typeRef The {@link TypeReference}
+   * @param <T>     Type type
    * @return The {@link TypeInfo}
    */
   public static <T> TypeInfo forTypeReference(TypeReference<T> typeRef) {
     Type[] interfaces = typeRef.getClass().getGenericInterfaces();
-    for(Type interf: interfaces) {
+    for (Type interf : interfaces) {
       if (interf instanceof ParameterizedType pt && pt.getRawType() == TypeReference.class) {
         return forType(pt.getActualTypeArguments()[0]);
       }

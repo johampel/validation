@@ -37,6 +37,11 @@ import java.util.function.Predicate;
  */
 public record IsNullCondition<T>(Value<T> arg, Mode mode) implements Condition {
 
+  /**
+   * Constructor.
+   * @param arg  The argument
+   * @param mode Compare mode
+   */
   public IsNullCondition {
     Objects.requireNonNull(arg);
     Objects.requireNonNull(mode);

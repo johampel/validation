@@ -39,16 +39,20 @@ import java.util.Set;
  * This condition calls the the {@code Rules} selected by the {@link RuleSelector} for the given
  * paths, or - in case that the paths are not set - for the object being validated.
  * <p>
- * <p>
  * The condition evaluates to {@code true}, if all rules evaulates to {@code ok}
  *
  * @param ruleSelector The {@code RuleSelector} to use
  * @param paths        A {@link Set} for the paths to evaluate
  */
 public record RuleCondition(Value<RuleSelector> ruleSelector,
-                            Value<Set<String>> paths) implements
-    Condition {
+                            Value<Set<String>> paths) implements Condition {
 
+  /**
+   * Constructor.
+   *
+   * @param ruleSelector The {@code RuleSelector} to use
+   * @param paths        A {@link Set} for the paths to evaluate
+   */
   public RuleCondition {
     Objects.requireNonNull(ruleSelector);
     Objects.requireNonNull(paths);

@@ -57,9 +57,24 @@ import java.util.function.BiFunction;
  */
 public abstract class RuleBuilder<T, B extends RuleBuilder<T, B>> {
 
+  /**
+   * The id.
+   */
   protected final String id;
+
+  /**
+   * The facts type
+   */
   protected final Class<? super T> factsType;
+
+  /**
+   * The metadata
+   */
   protected final Map<String, Object> metadata;
+
+  /**
+   * The preconditions.
+   */
   protected final List<Condition> preconditions;
 
   /**
@@ -78,14 +93,15 @@ public abstract class RuleBuilder<T, B extends RuleBuilder<T, B>> {
   /**
    * Creates a new {@link ConditionRuleBuilder}.
    *
-   * @param id       Id of the {@link ConditionRule} to build
+   * @param id        Id of the {@link ConditionRule} to build
    * @param factsType The type of the object being validated
-   * @param <T>      The type of the object being validated
+   * @param <T>       The type of the object being validated
    * @return The {@link ConditionRuleBuilder}
    */
   @SuppressWarnings("unchecked")
   public static <T> ConditionRuleBuilder<T> conditionRule(String id, TypeReference<T> factsType) {
-    return new ConditionRuleBuilder<>(id, (Class<T>) TypeInfo.forTypeReference(factsType).getRawClass());
+    return new ConditionRuleBuilder<>(id,
+        (Class<T>) TypeInfo.forTypeReference(factsType).getRawClass());
   }
 
   /**
@@ -169,7 +185,7 @@ public abstract class RuleBuilder<T, B extends RuleBuilder<T, B>> {
 
   /**
    * Adds the given {@code metadata} to the
-   * {@link Rule#getMetadata() metadata of the {@link Rule} to built.
+   * {@link Rule#getMetadata() metadata} of the {@link Rule} to built.
    *
    * @param metadata The addditional metadata
    * @return This builder

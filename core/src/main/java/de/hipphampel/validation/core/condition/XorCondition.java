@@ -37,6 +37,10 @@ import java.util.stream.Collectors;
  */
 public record XorCondition(StreamProvider<Condition> conditions) implements Condition {
 
+  /**
+   * Constructor
+   * @param conditions {@link Condition Conditions} to evaluate
+   */
   public XorCondition {
     Objects.requireNonNull(conditions);
   }

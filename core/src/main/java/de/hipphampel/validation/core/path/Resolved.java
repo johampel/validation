@@ -158,6 +158,11 @@ public sealed interface Resolved<T> {
     return isEmpty() ? Stream.empty() : Stream.of(get());
   }
 
+  /**
+   * Implementation of {@link Resolved} for empty alternative
+   *
+   * @param <T> The type
+   */
   final class EmptyResolved<T> implements Resolved<T> {
 
     static Resolved<?> INSTANCE = new EmptyResolved<>();
@@ -181,6 +186,10 @@ public sealed interface Resolved<T> {
     }
   }
 
+  /**
+   * Implementation of {@link Resolved} for not empty alternative
+   * @param <T> The type
+   */
   final class PresentResolved<T> implements Resolved<T> {
 
     private final T value;

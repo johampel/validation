@@ -33,8 +33,6 @@ import java.util.function.Predicate;
  * emulate a stack (in opposite to the {@code Stack} class, a {@code Stacked} instance is immutable,
  * so that {@code push} and {@code pop} always return new instances).
  *
- * @param parent The parent element, might be {@code null}
- * @param value  The value
  * @param <T>    The type of the value
  */
 public class Stacked<T> {

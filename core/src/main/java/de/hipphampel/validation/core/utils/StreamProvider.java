@@ -30,7 +30,7 @@ import java.util.stream.Stream;
  * <p>
  * The intention is that {@link #getStream()} always returns a new, unconsumed {@code Stream}
  *
- * @param <T>
+ * @param <T> Type of the objects in the stream
  */
 @FunctionalInterface
 public interface StreamProvider<T> {

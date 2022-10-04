@@ -96,6 +96,12 @@ public class ComponentPath implements Path {
    */
   public record Component(ComponentType type, String name) {
 
+    /**
+     * Constructor.
+     *
+     * @param type The type of the component
+     * @param name The name of the component, if any
+     */
     public Component {
       Objects.requireNonNull(type);
       Objects.requireNonNull(name);

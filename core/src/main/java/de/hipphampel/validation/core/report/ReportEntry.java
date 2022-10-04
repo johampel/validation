@@ -42,9 +42,22 @@ public record ReportEntry(Path path, Rule rule, Result result) {
    * Enum identifying a field of the {@link ReportEntry} class.
    */
   public enum Field {
-    RULE(Comparator.comparing(e-> e.rule.getId()), e-> e.rule.getId()),
+
+    /**
+     * Field representing the rule id.
+     */
+    RULE(Comparator.comparing(e -> e.rule.getId()), e -> e.rule.getId()),
+    /**
+     * Field representing the path.
+     */
     PATH(Comparator.comparing(e -> String.valueOf(e.path())), ReportEntry::path),
+    /**
+     * Field representing the code.
+     */
     CODE(Comparator.comparing(e -> e.result().code().ordinal()), e -> e.result().code()),
+    /**
+     * Field representing the reason.
+     */
     REASON(Comparator.comparing(e -> String.valueOf(e.result().reason())),
         e -> e.result().reason());
 
@@ -101,6 +114,11 @@ public record ReportEntry(Path path, Rule rule, Result result) {
    */
   public record Sort(Field field, boolean descending) {
 
+    /**
+     * Constructor.
+     * @param field      The {@link Field} to sort
+     * @param descending The sort direction, {@code true} if descending
+     */
     public Sort {
       Objects.requireNonNull(field);
     }
