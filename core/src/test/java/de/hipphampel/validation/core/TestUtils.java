@@ -37,7 +37,7 @@ public class TestUtils {
   public static final long FIXED_DURATION = 123L;
 
   public static Subscription collectEventsInto(ValidationContext context, List<Event<?>> sink) {
-    SubscribableEventPublisher eventPublisher = context.getSharedObject(
+    SubscribableEventPublisher eventPublisher = context.getSharedExtension(
         DefaultSubscribableEventPublisher.class);
     return eventPublisher.subscribe(e -> sink.add(fixify(e)));
   }

@@ -73,7 +73,7 @@ public class ComponentPathTest {
     Path path = resolver.parse(str);
     Path pattern = resolver.parse(patternStr);
 
-    assertThat(path.isMatchedBy(pattern)).isEqualTo(match);
+    assertThat(((ComponentPath)path).isMatchedBy(pattern)).isEqualTo(match);
   }
 
   @ParameterizedTest

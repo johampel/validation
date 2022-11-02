@@ -22,7 +22,7 @@
  */
 
 /**
- * Validation code module
+ * Validation core module
  */
 module de.hipphampel.validation.core {
 

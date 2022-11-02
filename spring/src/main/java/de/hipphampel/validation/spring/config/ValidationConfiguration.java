@@ -44,7 +44,6 @@ import de.hipphampel.validation.spring.provider.RuleRepositoryProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -52,17 +51,50 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
+/**
+ * Autoconfiguration for the validation library.
+ * <p>
+ * This is a ready to start configuration of all beans required to create a {@link Validator}.
+ * Beside the {@code Validator} itself it provides bean definitions for all subordinated components,
+ * such as:
+ * <ul>
+ *   <li>A {@link PathResolver}, which is a {@link BeanPathResolver}</li>
+ *   <li>A {@link EventPublisher}, which is a {@link DefaultSubscribableEventPublisher}</li>
+ *   <li>A {@link RuleExecutor}, which is a {@link DefaultRuleExecutor}</li>
+ *   <li>A {@link RuleRepository}, which is provided via the {@link DefaultRuleRepositoryProvider}</li>
+ * </ul>
+ * <p>
+ * All these beans are only instantiated, unless the application defines its own beans.
+ * <p>
+ * Some of those beans can be configured via the {@link ValidationProperties}.
+ *
+ * @see ValidationProperties
+ */
 @Configuration
-@ConditionalOnClass(Validator.class)
 @EnableConfigurationProperties(ValidationProperties.class)
 public class ValidationConfiguration {
 
   private final ValidationProperties properties;
 
+  /**
+   * Constructor
+   *
+   * @param properties The {@link ValidationProperties}
+   */
   public ValidationConfiguration(ValidationProperties properties) {
     this.properties = properties;
   }
 
+  /**
+   * Optional {@link Validator} bean.
+   *
+   * @param ruleRepositoryProvider {@link RuleRepositoryProvider} providing the
+   *                               {@link RuleRepository}
+   * @param ruleExecutor           The {@link RuleExecutor}
+   * @param eventPublisher         The {@link EventPublisher}
+   * @param pathResolver           The {@link PathResolver}
+   * @return The {@code Validator}
+   */
   @Bean
   @Lazy
   @ConditionalOnMissingBean(Validator.class)
@@ -79,6 +111,13 @@ public class ValidationConfiguration {
         .build();
   }
 
+  /**
+   * Optional {@link ReporterFactory} bean.
+   * <p>
+   * Returns a {@link ReporterFactory} providing a {@link Report}
+   *
+   * @return The {@link ReporterFactory}
+   */
   @Bean
   @Lazy
   @ConditionalOnMissingBean(ReporterFactory.class)
@@ -153,7 +192,6 @@ public class ValidationConfiguration {
    * @return The {@code PathResolver}
    */
   @Bean
-  @Lazy
   @ConditionalOnMissingBean(PathResolver.class)
   public PathResolver pathResolver(BeanAccessor beanAccessor) {
     return new BeanPathResolver(

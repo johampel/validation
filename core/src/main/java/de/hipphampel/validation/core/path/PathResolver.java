@@ -125,8 +125,8 @@ public interface PathResolver {
    * ({@code pattern}), in case the path exists or an empty stream if not exists.
    * <p>
    * If {@code pattern} is a pattern, it generates a stream containing all the those {@code Path}
-   * instances, which return {@code true} when calling {@link Path#isMatchedBy(Path) isMatchedBy}
-   * with {@code pattern} as argument and which really exist for the given {@code ref} object.
+   * instances, which return match the given pattern and which really exist for the given
+   * {@code ref} object.
    *
    * @param ref     The reference object
    * @param pattern The {@link Path}

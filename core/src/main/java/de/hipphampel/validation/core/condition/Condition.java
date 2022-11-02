@@ -35,8 +35,8 @@ import de.hipphampel.validation.core.rule.Rule;
  * {@code facts} parameter a reference to the current {@link ValidationContext}, in order to allow
  * access to external data not directly part of the object being checked.
  * <p>
- * {@code Conditions} are used for the preconditions of {@code Rules}, but it is also
- * possible to wrap a {@code Rule} around a {@code Condition} using the {@link ConditionRule}.
+ * {@code Conditions} are used for the preconditions of {@code Rules}, but it is also possible to
+ * wrap a {@code Rule} around a {@code Condition} using the {@link ConditionRule}.
  *
  * @see Rule
  * @see ConditionRule

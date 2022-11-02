@@ -20,4 +20,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Provides Spring specific annotations.
+ */
 package de.hipphampel.validation.spring.annotation;

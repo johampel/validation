@@ -224,7 +224,7 @@ public class ConditionsTest {
     Rule<String> failRule = RuleBuilder.conditionRule("fail", String.class)
         .validateWith(Conditions.alwaysFalse())
         .build();
-    context.getSharedObject(InMemoryRuleRepository.class).addRules(okRule, failRule);
+    context.getSharedExtension(InMemoryRuleRepository.class).addRules(okRule, failRule);
     List<Event<?>> events = new ArrayList<>();
     TestUtils.collectEventsInto(context, events);
     String facts = "Test";
@@ -252,7 +252,7 @@ public class ConditionsTest {
     Rule<String> isDonaldRule = RuleBuilder.conditionRule("isDonald", String.class)
         .validateWith(Conditions.eq(Values.facts(), Values.val("Donald")))
         .build();
-    context.getSharedObject(InMemoryRuleRepository.class).addRules(isDonaldRule);
+    context.getSharedExtension(InMemoryRuleRepository.class).addRules(isDonaldRule);
     List<Event<?>> events = new ArrayList<>();
     TestUtils.collectEventsInto(context, events);
     Map<String, String> facts = Map.of(

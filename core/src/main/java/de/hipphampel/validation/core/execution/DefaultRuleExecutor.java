@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *   <li>Rule execution is done in an real asyncrhonous fashion; all rule executions are done
  *   by utilizing the associated {@link ForkJoinPool}.</li>
- *   <li>It caches the results opf {@link Rule} executions. The lifetime of the cache is bound to
+ *   <li>It caches the results of {@link Rule} executions. The lifetime of the cache is bound to
  *   the {@link ValidationContext}. The {@code ValidationContext} is usually constructed for each
  *   validation of an object and lives until all rules of the objects are executed</li>
  * </ul>
@@ -97,7 +97,7 @@ public class DefaultRuleExecutor extends SimpleRuleExecutor {
   public CompletableFuture<Result> validateAsync(ValidationContext context, Rule<?> rule,
       Object facts) {
     ValidationContext localContext = context.copy();
-    RuleResultCache cache = localContext.getOrCreateSharedObject(
+    RuleResultCache cache = localContext.getOrCreateSharedExtension(
         RuleResultCache.class,
         type -> new RuleResultCache());
     return cache.getOrCompute(localContext, rule, facts)
@@ -106,17 +106,17 @@ public class DefaultRuleExecutor extends SimpleRuleExecutor {
 
   private class RuleResultCache {
 
-    private final Map<Resolvable, Map<String, CompletableFuture<Result>>> cache = new ConcurrentHashMap<>();
+    private final Map<Resolvable, Map<Rule<?>, CompletableFuture<Result>>> cache = new ConcurrentHashMap<>();
 
     public CompletableFuture<Result> getOrCompute(ValidationContext context,
         Rule<?> rule,
         Object facts) {
       Resolvable resolvable = new Resolvable(facts, context.getCurrentPath());
-      Map<String, CompletableFuture<Result>> resultMap = cache.computeIfAbsent(
+      Map<Rule<?>, CompletableFuture<Result>> resultMap = cache.computeIfAbsent(
           resolvable,
           ignore -> new ConcurrentHashMap<>());
       return resultMap.computeIfAbsent(
-          rule.getId(),
+          rule,
           ignore -> CompletableFuture.supplyAsync(() ->
                   DefaultRuleExecutor.super.validateInternal(context, rule, facts),
               executor));

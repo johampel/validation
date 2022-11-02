@@ -20,4 +20,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Provides class related to {@link de.hipphampel.validation.core.provider}.
+ */
 package de.hipphampel.validation.spring.provider;

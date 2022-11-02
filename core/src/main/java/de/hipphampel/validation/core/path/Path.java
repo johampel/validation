@@ -58,7 +58,6 @@ public interface Path {
    *
    * @return {@code true}, if it is a pattern
    * @see #isConcrete()
-   * @see #isMatchedBy(Path)
    * @see PathResolver#resolvePattern(Object, Path)
    */
   boolean isPattern();
@@ -76,19 +75,6 @@ public interface Path {
   default boolean isConcrete() {
     return !isPattern();
   }
-
-  /**
-   * Checks, whether this {@code Path} is matched by the given {@code pattern}.
-   * <p>
-   * If this instance is a pattern, the result must be always {@code false}. Otherwise it is
-   * checked, whether this instance is matched by the given {@code pattern}; the exact matching
-   * algorithm is up to the implementation, but in case {@code pattern} is a concrete {@code Path}
-   * it must return {@code true} only if it is (semantically) equal to this instance.
-   *
-   * @param pattern The {@code Path} representing the pattern
-   * @return {@code true}, if matching
-   */
-  boolean isMatchedBy(Path pattern);
 
   /**
    * Concatenates this and the given {@code child} to a new {@link Path}.

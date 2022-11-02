@@ -41,10 +41,10 @@ import org.springframework.stereotype.Component;
  * <p>
  * This annotation is intended to be used for spring components that contain members with
  * {@link RuleDef} or {@link RuleRef} annotations.
- *
+ * <p>
  * Since this annotation is not only a {@code Component} but also a {@link Qualifier}, it can be
- * used in bean postprocessors or injects to identify those beans that are intended to be wrapped
- * by a {@link AnnotationRuleRepository}
+ * used in bean postprocessors or injects to identify those beans that are intended to be wrapped by
+ * a {@link AnnotationRuleRepository}
  *
  * @see RuleRef
  * @see RuleDef
@@ -59,6 +59,11 @@ import org.springframework.stereotype.Component;
 @Qualifier
 public @interface RuleContainer {
 
+  /**
+   * The name of the bean
+   *
+   * @return The name of the bean
+   */
   @AliasFor(
       annotation = Component.class
   )

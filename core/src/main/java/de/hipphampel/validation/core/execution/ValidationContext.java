@@ -77,7 +77,8 @@ import java.util.function.Function;
  */
 public class ValidationContext {
 
-  private final ObjectRegistry registry;
+  private final ObjectRegistry sharedExtensions;
+  private final ObjectRegistry localExtensions;
   private final Map<String, Object> parameters;
   private Stacked<Pair<Rule<?>, Object>> ruleStack;
   private Stacked<Resolvable> pathStack;
@@ -115,16 +116,18 @@ public class ValidationContext {
     this.ruleStack = Stacked.empty();
     this.pathStack = Stacked.empty();
     this.parameters = Collections.unmodifiableMap(parameters);
-    this.registry = new ObjectRegistry();
-    registry.add(Objects.requireNonNull(reporter), Reporter.class);
-    registry.add(Objects.requireNonNull(eventPublisher), EventPublisher.class);
-    registry.add(Objects.requireNonNull(pathResolver), PathResolver.class);
-    registry.add(Objects.requireNonNull(ruleExecutor), RuleExecutor.class);
-    registry.add(Objects.requireNonNull(ruleRepository), RuleRepository.class);
+    this.sharedExtensions = new ObjectRegistry();
+    this.localExtensions = new ObjectRegistry();
+    sharedExtensions.add(Objects.requireNonNull(reporter), Reporter.class);
+    sharedExtensions.add(Objects.requireNonNull(eventPublisher), EventPublisher.class);
+    sharedExtensions.add(Objects.requireNonNull(pathResolver), PathResolver.class);
+    sharedExtensions.add(Objects.requireNonNull(ruleExecutor), RuleExecutor.class);
+    sharedExtensions.add(Objects.requireNonNull(ruleRepository), RuleRepository.class);
   }
 
   private ValidationContext(ValidationContext source) {
-    this.registry = source.registry;
+    this.sharedExtensions = source.sharedExtensions;
+    this.localExtensions = new ObjectRegistry();
     this.ruleStack = source.ruleStack;
     this.pathStack = source.pathStack;
     this.parameters = source.parameters;
@@ -295,7 +298,7 @@ public class ValidationContext {
    * @return The {@code Reporter}
    */
   public Reporter<?> getReporter() {
-    return getSharedObject(Reporter.class);
+    return getSharedExtension(Reporter.class);
   }
 
   /**
@@ -304,7 +307,7 @@ public class ValidationContext {
    * @return The {@code RuleRepository}
    */
   public RuleRepository getRuleProvider() {
-    return getSharedObject(RuleRepository.class);
+    return getSharedExtension(RuleRepository.class);
   }
 
   /**
@@ -313,7 +316,7 @@ public class ValidationContext {
    * @return The {@code RuleExecutor }
    */
   public RuleExecutor getRuleExecutor() {
-    return getSharedObject(RuleExecutor.class);
+    return getSharedExtension(RuleExecutor.class);
   }
 
   /**
@@ -322,7 +325,7 @@ public class ValidationContext {
    * @return The {@code PathResolver}
    */
   public PathResolver getPathResolver() {
-    return getSharedObject(PathResolver.class);
+    return getSharedExtension(PathResolver.class);
   }
 
   /**
@@ -331,44 +334,89 @@ public class ValidationContext {
    * @return The {@code EventPublisher}.
    */
   public EventPublisher getEventPublisher() {
-    return getSharedObject(EventPublisher.class);
+    return getSharedExtension(EventPublisher.class);
   }
 
   /**
-   * Gets the shared object of the given {@code type} from this validator.
+   * Gets the shared extension of the given {@code type} from this context.
    * <p>
-   * Shared objects are shared between the different copies of this {@code ValidationContext},
+   * Shared extensions are shared between the different copies of this {@code ValidationContext},
    * meaning that if calling this function with the same parameters on a context created by
-   * {@link #copy() copy}, it returns the same instance.
+   * {@link #copy() copy}, it returns the same instance. This effectively means that the objects are
+   * available during the complete validation of an object, not only for a single rule.
    *
    * @param type The type of the requested object
    * @param <T>  The type of the requested object
    * @return The object
    * @throws java.util.NoSuchElementException If there is nu such object
+   * @see #getLocalExtension(Class)
    */
-  public <T> T getSharedObject(Class<T> type) {
-    return registry.get(type);
+  public <T> T getSharedExtension(Class<T> type) {
+    return sharedExtensions.get(type);
   }
 
   /**
-   * Checks, whether this instance knows an object of the given type
+   * Checks, whether this instance knows a shared extension of the given type. See
+   * {@link #getSharedExtension(Class)} for details.
    *
    * @param type The type of the requested object
    * @return {@code true}, if object is known
    */
-  public boolean knowsSharedObjectOf(Class<?> type) {
-    return registry.knowsType(type);
+  public boolean knowsSharedExtension(Class<?> type) {
+    return sharedExtensions.knowsType(type);
   }
 
   /**
-   * Gets the object of the {@code type} or creates it using theb{@code create} is not exists yet.
+   * Gets the shared extension of the {@code type} or creates it using the {@code create} is not
+   * exists yet. See {@link #getSharedExtension(Class)} for details.
    *
    * @param type    The type of the requested object
    * @param creator The function to create the object
    * @param <T>     The type of the requested object
    * @return The object
    */
-  public <T> T getOrCreateSharedObject(Class<T> type, Function<Class<T>, T> creator) {
-    return registry.getOrRegister(type, creator);
+  public <T> T getOrCreateSharedExtension(Class<T> type, Function<Class<T>, T> creator) {
+    return sharedExtensions.getOrRegister(type, creator);
+  }
+
+  /**
+   * Gets the local extension of the given {@code type} from this context.
+   * <p>
+   * Local extensions are only valid for this {@code ValidationContext} and not shared between
+   * different instances - so they are only available during the validation of a single
+   * {@code Rule}.
+   *
+   * @param type The type of the requested object
+   * @param <T>  The type of the requested object
+   * @return The object
+   * @throws java.util.NoSuchElementException If there is nu such object
+   * @see #getSharedExtension(Class)
+   */
+  public <T> T getLocalExtension(Class<T> type) {
+    return localExtensions.get(type);
+  }
+
+  /**
+   * Checks, whether this instance knows a local extension of the given type. See
+   * {@link #getLocalExtension(Class)} for details.
+   *
+   * @param type The type of the requested object
+   * @return {@code true}, if object is known
+   */
+  public boolean knowsLocalExtension(Class<?> type) {
+    return localExtensions.knowsType(type);
+  }
+
+  /**
+   * Gets the local extension of the {@code type} or creates it using the {@code create} is not
+   * exists yet. See {@link #getLocalExtension(Class)} for details.
+   *
+   * @param type    The type of the requested object
+   * @param creator The function to create the object
+   * @param <T>     The type of the requested object
+   * @return The object
+   */
+  public <T> T getOrCreateLocalExtension(Class<T> type, Function<Class<T>, T> creator) {
+    return localExtensions.getOrRegister(type, creator);
   }
 }

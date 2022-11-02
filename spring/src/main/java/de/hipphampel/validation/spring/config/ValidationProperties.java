@@ -22,57 +22,122 @@
  */
 package de.hipphampel.validation.spring.config;
 
+import de.hipphampel.validation.core.path.AbstractComponentPathResolver;
+import de.hipphampel.validation.core.path.BeanPathResolver;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * Configurable properties of the {@link ValidationConfiguration}.
+ * <p>
+ * All properties are bound under the prfix {@code validation}.
+ */
 @ConfigurationProperties(prefix = "validation")
 public class ValidationProperties {
 
-  private PathResolverConfiguration pathResolver = new PathResolverConfiguration();
+  private PathResolverProperties pathResolver = new PathResolverProperties();
 
-  public PathResolverConfiguration getPathResolver() {
+  /**
+   * Gets the properties to configure the {@link BeanPathResolver}.
+   *
+   * @return The configuration properties,
+   */
+  public PathResolverProperties getPathResolver() {
     return pathResolver;
   }
 
-  public void setPathResolver(PathResolverConfiguration pathResolver) {
+  /**
+   * Sets the properties to configure the {@link BeanPathResolver}
+   *
+   * @param pathResolver The configuration properties
+   */
+  public void setPathResolver(PathResolverProperties pathResolver) {
     this.pathResolver = pathResolver;
   }
 
-  public static class PathResolverConfiguration {
+  /**
+   * Properties to configure a {@link BeanPathResolver}.
+   * <p>
+   * Please also refer to the {@link AbstractComponentPathResolver} for a detailed description of
+   * the settings
+   *
+   * @see AbstractComponentPathResolver
+   */
+  public static class PathResolverProperties {
 
     private String separator = "/";
     private String allInLevel = "*";
     private String manyLevels = "**";
     private List<String> whiteList = List.of();
 
+    /**
+     * Gets the separator string to separate components of a path.
+     *
+     * @return Separator string
+     */
     public String getSeparator() {
       return separator;
     }
 
+    /**
+     * Sets the separator string to separate components of a path.
+     *
+     * @param separator Separator string
+     */
     public void setSeparator(String separator) {
       this.separator = separator;
     }
 
+    /**
+     * Gets the string representing all possible components in one level in a path.
+     *
+     * @return String for all in level.
+     */
     public String getAllInLevel() {
       return allInLevel;
     }
 
+    /**
+     * Sets the string representing all possible components in one level in a path.
+     *
+     * @param allInLevel String for all in level.
+     */
     public void setAllInLevel(String allInLevel) {
       this.allInLevel = allInLevel;
     }
 
+    /**
+     * Gets the string representing zero or more levels in a path.
+     *
+     * @return String for many lavels.
+     */
     public String getManyLevels() {
       return manyLevels;
     }
 
+    /**
+     * Sets the string representing zero or more levels in a path.
+     *
+     * @param manyLevels String for many lavels.
+     */
     public void setManyLevels(String manyLevels) {
       this.manyLevels = manyLevels;
     }
 
+    /**
+     * Gets the regular expressions for the types recognized by the path resolver.
+     *
+     * @return List of regular expressions
+     */
     public List<String> getWhiteList() {
       return whiteList;
     }
 
+    /**
+     * sets the regular expressions for the types recognized by the path resolver.
+     *
+     * @param whiteList List of regular expressions
+     */
     public void setWhiteList(List<String> whiteList) {
       this.whiteList = whiteList;
     }

@@ -28,7 +28,9 @@ import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.path.PathResolver;
 import de.hipphampel.validation.core.provider.RuleRepository;
 import de.hipphampel.validation.core.report.Reporter;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Default implementation of the {@link Validator} interface.
@@ -39,6 +41,7 @@ public class DefaultValidator implements Validator {
   private final RuleExecutor ruleExecutor;
   private final EventPublisher eventPublisher;
   private final PathResolver pathResolver;
+  private final Map<Class<?>, ?> sharedObjects;
 
   /**
    * Constructor.
@@ -47,19 +50,23 @@ public class DefaultValidator implements Validator {
    * @param ruleExecutor   The {@link RuleExecutor} to use.
    * @param eventPublisher The {@link EventPublisher} to use.
    * @param pathResolver   The {@link PathResolver} to use.
+   * @param sharedObjects  Additional shared objects made available in the
+   *                       {@link ValidationContext}
    */
   public DefaultValidator(RuleRepository ruleRepository, RuleExecutor ruleExecutor,
-      EventPublisher eventPublisher, PathResolver pathResolver) {
-    this.ruleRepository = ruleRepository;
-    this.ruleExecutor = ruleExecutor;
-    this.eventPublisher = eventPublisher;
-    this.pathResolver = pathResolver;
+      EventPublisher eventPublisher, PathResolver pathResolver, Map<Class<?>, ?> sharedObjects) {
+    this.ruleRepository = Objects.requireNonNull(ruleRepository);
+    this.ruleExecutor = Objects.requireNonNull(ruleExecutor);
+    this.eventPublisher = Objects.requireNonNull(eventPublisher);
+    this.pathResolver = Objects.requireNonNull(pathResolver);
+    this.sharedObjects = sharedObjects == null ? Map.of() : new HashMap<>(sharedObjects);
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> ValidationContext createValidationContext(Reporter<T> reporter,
       Map<String, Object> parameters) {
-    return new ValidationContext(
+    ValidationContext context = new ValidationContext(
         reporter,
         parameters,
         ruleExecutor,
@@ -67,5 +74,9 @@ public class DefaultValidator implements Validator {
         pathResolver,
         eventPublisher
     );
+    sharedObjects.forEach(
+        (key, value) -> context.getOrCreateSharedExtension((Class<Object>) key, ignore -> value)
+    );
+    return context;
   }
 }

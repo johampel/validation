@@ -112,6 +112,11 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>de.hipphampel.validation</groupId>
+        <artifactId>validation-spring</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>${assertj.version}</version>
@@ -161,15 +166,24 @@
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot</artifactId>
+        <version>${spring-boot.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-autoconfigure</artifactId>
         <version>${spring-boot.version}</version>
-        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter</artifactId>
+        <version>${spring-boot.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-test</artifactId>
         <version>${spring-boot.version}</version>
-        <scope>provided</scope>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -252,6 +266,7 @@
             <configuration>
               <show>protected</show>
               <quiet>true</quiet>
+              <nocomment>false</nocomment>
             </configuration>
             <executions>
               <execution>

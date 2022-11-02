@@ -33,7 +33,9 @@ import java.util.Set;
  * Classes implementing this interface know a set of {@code Rules}. Typically, this is a kind of
  * repository providing a set of {@code Rules} generally available. In contrast to a
  * {@link RuleSelector} it returns {@code Rules} independent from the object being validated.
- *
+ * <p>
+ * One may subscribe to the repository in order to be informed, when the set of rules has been
+ * changed.
  *
  * @see EventSubscriber
  * @see RuleSelector

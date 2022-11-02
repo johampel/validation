@@ -26,10 +26,13 @@ import de.hipphampel.validation.core.event.DefaultSubscribableEventPublisher;
 import de.hipphampel.validation.core.event.EventPublisher;
 import de.hipphampel.validation.core.execution.DefaultRuleExecutor;
 import de.hipphampel.validation.core.execution.RuleExecutor;
+import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.path.BeanPathResolver;
 import de.hipphampel.validation.core.path.PathResolver;
 import de.hipphampel.validation.core.provider.InMemoryRuleRepository;
 import de.hipphampel.validation.core.provider.RuleRepository;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -37,7 +40,7 @@ import de.hipphampel.validation.core.provider.RuleRepository;
  * <p>
  * This class is used as follows (in the most simple case):
  * <code>
- *   Validator validator = ValidatorBuilder.newBuilder().build();
+ * Validator validator = ValidatorBuilder.newBuilder().build();
  * </code>
  * which basically constructs a {@link DefaultValidator} with the standard settings. Using the
  * different {@code with*} methods, one may customize the generated {@code Validator}.
@@ -56,6 +59,8 @@ public class ValidatorBuilder {
   private PathResolver pathResolver;
   private RuleExecutor ruleExecutor;
   private EventPublisher eventPublisher;
+  private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
+
 
   private ValidatorBuilder() {
 
@@ -84,8 +89,8 @@ public class ValidatorBuilder {
         ruleRepository == null ? new InMemoryRuleRepository() : ruleRepository,
         ruleExecutor == null ? new DefaultRuleExecutor() : ruleExecutor,
         eventPublisher == null ? new DefaultSubscribableEventPublisher() : eventPublisher,
-        pathResolver == null ? new BeanPathResolver() : pathResolver
-    );
+        pathResolver == null ? new BeanPathResolver() : pathResolver,
+        sharedObjects);
   }
 
   /**
@@ -129,6 +134,21 @@ public class ValidatorBuilder {
    */
   public ValidatorBuilder withEventPublisher(EventPublisher eventPublisher) {
     this.eventPublisher = eventPublisher;
+    return this;
+  }
+
+  /**
+   * Adds a shared object.
+   *
+   * The shared objects are additional objects that can be passed to the {@link ValidationContext}
+   * and can be made accessible in the validation rules.
+   * @param type The type of the object
+   * @param object The object
+   * @return This builder
+   * @param <T> The type of the object
+   */
+  public <T> ValidatorBuilder withSharedObject(Class<T> type, T object) {
+    this.sharedObjects.put(type, object);
     return this;
   }
 }

@@ -32,6 +32,7 @@ import de.hipphampel.validation.core.condition.Conditions;
 import de.hipphampel.validation.core.rule.Rule;
 import de.hipphampel.validation.core.rule.RuleBuilder;
 import de.hipphampel.validation.core.utils.CollectionUtils;
+import de.hipphampel.validation.core.utils.TypeReference;
 import de.hipphampel.validation.core.value.Values;
 import de.hipphampel.validation.samples.triangle.model.Point;
 import de.hipphampel.validation.samples.triangle.model.Polygon;
@@ -63,7 +64,7 @@ public class TriangleRules1 {
   @RuleDef(id = "points:pointsAreUnique",
       message = "The points in the polygon are not unique",
       preconditions = {
-          @Precondition(rules = "object:notNullRule", paths = {"", "*", "*/*"})
+          @Precondition(rules = "points:notNull")
       })
   public static final Predicate<List<?>> uniquePointsRule =
       f -> f.size() == f.stream().distinct().count();
@@ -71,10 +72,17 @@ public class TriangleRules1 {
   @RuleDef(id = "points:hasThreePoints",
       message = "Polygon has not exactly three points",
       preconditions = {
-          @Precondition(rules = "object:notNullRule", paths = {"", "*", "*/*"})
+          @Precondition(rules = "points:notNull")
       })
   public static final Predicate<List<?>> threePointsRule =
       f -> f.size() == 3;
+
+  @RuleRef
+  public static final Rule<List<Point>> pointsNotNull =
+      RuleBuilder.dispatchingRule("points:notNull", new TypeReference<List<Point>>() {
+      })
+          .forPaths("", "*", "*/*").validateWith("object:notNullRule")
+          .build();
 
   @RuleDef(id = "object:notNullRule", message = "Object must not be null")
   public static final Condition objectNotNullRule = Conditions.isNotNull(Values.facts());

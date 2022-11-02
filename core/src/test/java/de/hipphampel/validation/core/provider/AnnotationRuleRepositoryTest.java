@@ -77,7 +77,7 @@ public class AnnotationRuleRepositoryTest {
     assertThat(r4.validate(context, 5L)).isEqualTo(Result.failed());
 
     Rule<Long> r5 = repository.getRule("staticPredicate");
-    context.getOrCreateSharedObject(Long.class, ignore -> 4L);
+    context.getOrCreateSharedExtension(Long.class, ignore -> 4L);
     assertThat(r5.validate(context, 4L)).isEqualTo(Result.ok());
     assertThat(r5.validate(context, 5L)).isEqualTo(Result.failed("Bad"));
 
@@ -126,7 +126,7 @@ public class AnnotationRuleRepositoryTest {
     assertThat(r4.validate(context, 5L)).isEqualTo(Result.failed());
 
     Rule<Long> r5 = repository.getRule("predicate");
-    context.getOrCreateSharedObject(Long.class, ignore -> 4L);
+    context.getOrCreateSharedExtension(Long.class, ignore -> 4L);
     assertThat(r5.validate(context, 4L)).isEqualTo(Result.ok());
     assertThat(r5.validate(context, 5L)).isEqualTo(Result.failed("Bad"));
 
@@ -165,7 +165,7 @@ public class AnnotationRuleRepositoryTest {
 
     @RuleDef(id = "predicate", message = "Bad")
     public Boolean r5(ValidationContext context, Long value) {
-      return Objects.equals(value, context.getSharedObject(Long.class));
+      return Objects.equals(value, context.getSharedExtension(Long.class));
     }
 
     @RuleDef(id = "method", preconditions = {
@@ -203,7 +203,7 @@ public class AnnotationRuleRepositoryTest {
 
     @RuleDef(id = "staticPredicate", message = "Bad")
     public static Boolean r5(ValidationContext context, Long value) {
-      return Objects.equals(value, context.getSharedObject(Long.class));
+      return Objects.equals(value, context.getSharedExtension(Long.class));
     }
 
     @RuleDef(id = "staticMethod")

@@ -1,7 +1,7 @@
 # Triangle example
 
 This example is intended to get familar with the basic usage of the validation library.
-As an introductional example, we validate polygons and validate, whether a given polygon is
+As an example for introduction, we validate polygons and check, whether a given polygon is
 a triangle or not.
 
 ## The business model
@@ -10,11 +10,9 @@ In our case, the business model is pretty simple: we have a `Polygon` class, tha
 `Points`. In order to easyly distingush the polygons, a `Polygon` also has a name:
 
 ```java
-public record Polygon(String name, List<Point> points) {
-}
+public record Polygon(String name, List<Point> points) { }
 
-public record Point(Double x, Double y) {
-}
+public record Point(Double x, Double y) { }
 ```
 
 ## The rules
@@ -47,15 +45,15 @@ Polygon 4 is invalid:
 Polygon 5 is valid
 ...
 ```
-So it prints for each polygon from the input some information, whether it is valid in terms of the 
-rules defined above or not. If it is not valid, it also shows the reasons why. Let's see how it works:
+So it prints for each polygon some information, whether it is valid in terms of the rules defined 
+above or not. If it is not valid, it also shows the reasons why. Let's see how it works:
 
 In the `TriangleApp0` class you'll find five methods, directly related to the validation: all
 returning a `boolean` indicating whether a given polygon is valid, and expecting two parameters:
 the first is the `Polygon` instance to validate, the second a list of string to be filled with the
 problems, in case that valiation fails.
 
-While the methods `*Rule` method correspond to the rules described in the section before, the
+While the methods named `*Rule` correspond to the rules described in the section before, the
 `validatePolygon` method orchestrates the rule methods:
 
 ```java
@@ -149,13 +147,16 @@ Polygon 5: Result: OK
 ...
 ```
 So it basically prints nearly the same information, but a little more than above. Let's go through 
-the source. first the main class:
+the source. First the main class with the so called `Validator`:
+
+
+### `Validator` 
 
 ```java
 public class TriangleApp1 {
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
-  private static final Validator<Report> validator = ValidatorBuilder.newBuilder()
+  private static final Validator validator = ValidatorBuilder.newBuilder()
       .withRuleRepository(AnnotationRuleRepository.ofClass(TriangleRules1.class))
       .build();
   private static final ReportFormatter reportFormatter = new ReportFormatter.Simple();
@@ -166,7 +167,7 @@ public class TriangleApp1 {
       });
       for (Polygon polygon : polygons) {
         Report report = validator.validate(polygon, RuleSelector.of("polygon:.*"));
-        System.out.print(polygon==null? null: polygon.name()+": ");
+        System.out.print(polygon == null ? null : polygon.name() + ": ");
         reportFormatter.format(report.filter(ResultCode.FAILED), System.out);
       }
     } catch (Exception e) {
@@ -175,24 +176,45 @@ public class TriangleApp1 {
   }
 }
 ```
-Compared with `TriangleApp0` we have two new important fields: one is the `Validator` that contains 
-the complete configuration for the validation. The `Validator` is constructed via a `ValidatorBuilder`,
-using the `withRuleRepository` method the validation rules are made known to the validator: 
-`AnnotationRuleRepository.ofClass(TriangleRules1.class)` means that - based on some annotations - 
-according rules are made available.
+Compared with `TriangleApp0` we have one new important fields: the `Validator` that contains the 
+complete configuration for the validation. The `Validator` is constructed via a `ValidatorBuilder`,
+there are several methods to customize the generated `Validator`, but finally it is built using
+the `build()` methoed. The only thing that really needs to be specified is where the validation 
+rules come from, which is done via the `.withRuleRepository(...)` call to the `ValidationBuilder`.
 
-Rules are basically objects implementing the `Rule` interface, they are the building blocks of the
-validation  and contain the business logic. Basically, a `Rule` has the following members:
+### `RuleRepository`
+
+A `RuleRepository` is an object that provides the validation rules so that the `Validator` can 
+use them. The `AnnotationRuleRepository` is on implementation of the `RuleRepository` interface,
+which finds or defines validation rules based on annotations attached to members of a class. So
+the code from above:
+```java
+withRuleRepository(AnnotationRuleRepository.ofClass(TriangleRules1.class))
+```
+creates a `RuleRepository` that knows the rules defined in the class `TriangleRule1`.
+
+
+### Rules
+
+The validaiton rules the a `RuleRepository` provides are basically objects implementing the `Rule`
+interface, they are the building blocks of the validation and contain the business logic. Basically,
+a `Rule` has the following members:
 
 - an unique `id` that identifies the rule.
-- The definition, for which type of object the rule is intended.
+- an information, for which type of object the rule is intended.
 - a `validate` method that contains the code to execute the actual validation.
 - an optional list of preconditions that must be met to execute the rule at all.
-- finally, a map with some metadata.
+- finally, an optional map with some metadata.
 
-This it would be quite verbose to implement for each concrete `Rule` an own class, the validation
-library provides annotation to automatically generate `Rule` instances. Let's see how this and other
-work with the rules defined in `TriangleRules`:
+Since it would be quite verbose to implement for each concrete `Rule` an own class (but of course,
+this could be one valid way to go), the validation library provides annotation to automatically
+generate `Rule` instances or easily make them known to the `RuleRepository`. 
+Let's see how this work with the rules defined in `TriangleRules1`.
+
+
+### @RuleRef
+
+Lets start with the following:
 
 ```java
   @RuleRef
@@ -202,16 +224,17 @@ work with the rules defined in `TriangleRules`:
           .forPaths("points").validateWith("points:.*")
           .build();
 ```
-This is the first rule dwfinition. If we use `@RuleRef` to tag a field or a parameter less method 
-returning a `Rule` object, the `AnnotationRuleRepository` recognizes the `Rule`. This `allRules` 
-field is a so called `DispatchingRule` constructed via the `RuleBuilder` (the `RuleBuilder`) provides
-several further patterns to create rules).  The main aim of a `DispatchingRule` is to call other 
-rules. But step by step:
+This is the first rule definition. We use `@RuleRef` to tag a field having the type `Rule` or a
+parameter less method returning a `Rule` object to make it known to the `AnnotationRuleRepository`.
+This `allRules` field is a so called `DispatchingRule` constructed via the `RuleBuilder` 
+(the `RuleBuilder` provides several further patterns to create rules). The main aim of a 
+`DispatchingRule` is to call other rules. But step by step:
 
 `RuleBuilder.dispatchingRule("polygon:allRules", Polygon.class)` tells that rule the builder should
-create has the id `polygon:allRules` and is intended to be used for objects of type `Polygon`.
+create a rule with the id `polygon:allRules` and it is intended to be used for objects of type 
+`Polygon`.
 
-The next lines are all syntatically the same: `.forPaths(...).validateWith(...)` specify, for which
+The next lines are all syntactically the same: `.forPaths(...).validateWith(...)` specify, for which
 parts of the `Polygon` which validation rules have to be executed. The parts are identified via so
 called _paths_, whereas a path is simply spoken a string describing a path in an object graph. 
 For example, `points` means the field  `Polygon.points`, `points/0/x` would be the x coordinate of
@@ -226,7 +249,35 @@ rule and also a regular expression to select the rules to execute.
 Finally, the `build()` finalizes the rule production. All in all this first rule is more or less the 
 orchestrating rule, which triggers the others. The `pointsNotNull` rule is the same kind of rule.
 
-While '@RuleRef' 
+### @RuleDef
+
+While `@RuleRef` is an annotation that makes an existing `Rule` known to the 
+`AnnotationRuleRepository`, the `@RuleDef` annotation is intended to construct a `Rule` based on
+more lightweight objects like ordinary methods or `Predicates`.
+
+As an example, consider the following definition:
+
+```java
+  @RuleDef(id = "points:hasThreePoints",
+      message = "Polygon has not exactly three points",
+      preconditions = {
+          @Precondition(rules = "points:notNull")
+      })
+  public static final Predicate<List<?>> threePointsRule =
+      f -> f.size() == 3;
+```
+
+This definition creates a `Rule` named `points:hasThreePoints`. The generated `Rule` will be 
+basically a wrapper around the `Predicate<List<?>>` which checks, whether the given list has three 
+elements. Since the `Predicate` itself is not a `Rule`, the `@RuleDef` annotation needs to provide some 
+additional information, such as the `id` of the `Rule`, the validation `message` and - if required - 
+a list of `preconditions`. 
+
+Internally, the validation library uses also a `RuleBuilder` to create a new `Rule` instance based on
+the given definition.
+
+
+
 
 
 
