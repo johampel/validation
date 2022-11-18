@@ -47,30 +47,25 @@ import java.util.function.Function;
 /**
  * Contextual information passed to a {@link Rule} when executing it.
  * <p>
- * First of all, the {@code ValidationContext} provides information about the {@code Rule} and
- * object currently being validated. For this purpose, it provides several callback methods that are
- * called by the {@link RuleExecutor}. For example {@link #enterRule(Rule, Object) enterRule} and
- * {@link #leaveRule() leaveRule} are called by the {@code RuleExecutor}, when a {@code Rule} is
- * entered or left, it influences then the {@link #getRuleStack() ruleStack} and the
- * {@link #getCurrentRule() currentRule}.
+ * First of all, the {@code ValidationContext} provides information about the {@code Rule} and object currently being validated. For this
+ * purpose, it provides several callback methods that are called by the {@link RuleExecutor}. For example
+ * {@link #enterRule(Rule, Object) enterRule} and {@link #leaveRule() leaveRule} are called by the {@code RuleExecutor}, when a {@code Rule}
+ * is entered or left, it influences then the {@link #getRuleStack() ruleStack} and the {@link #getCurrentRule() currentRule}.
  * <p>
- * Secondly, the {@code ValidationContext} provides access to infrastructural/shared objects, like
- * the {@link PathResolver}, {@link RuleExecutor}, {@link EventPublisher}, {@link Reporter}, and
- * {@link RuleRepository}, or more in general to so called <i>shared objects</i>, which can be
- * registered at any time you want in the {@code ValidationContext}, but stay always the same.
+ * Secondly, the {@code ValidationContext} provides access to infrastructural/shared objects, like the {@link PathResolver},
+ * {@link RuleExecutor}, {@link EventPublisher}, {@link Reporter}, and {@link RuleRepository}, or more in general to so called <i>shared
+ * objects</i>, which can be registered at any time you want in the {@code ValidationContext}, but stay always the same.
  * <p>
- * Thirdly, the {@code Validator} might pass validation parameters to the validation. These
- * parameters might be used to influence the validation behaviour.
+ * Thirdly, the {@code Validator} might pass validation parameters to the validation. These parameters might be used to influence the
+ * validation behaviour.
  * <p>
- * It is guaranteed that an instance of the {@code ValidationContext} is only accessed by one single
- * thread at any point of time. But since {@code Rules} might be executed asynchronously, there is a
- * need to create a {@link #copy() copy} of the {@code ValidationContext} from time to time. The
- * contract is that the copied instance must return exactly the same objects for the infrastructural
- * or shared objects, for all other objects a deep copy is sufficient.
+ * It is guaranteed that an instance of the {@code ValidationContext} is only accessed by one single thread at any point of time. But since
+ * {@code Rules} might be executed asynchronously, there is a need to create a {@link #copy() copy} of the {@code ValidationContext} from
+ * time to time. The contract is that the copied instance must return exactly the same objects for the infrastructural or shared objects,
+ * for all other objects a deep copy is sufficient.
  * <p>
- * Normally, an initial {@code ValidationContext} is created by the {@link Validator} when calling a
- * {@code validate*} method, so in general, the lifetime of a {@code ValidationContext} is limited
- * to the execution of all rules for a single object.
+ * Normally, an initial {@code ValidationContext} is created by the {@link Validator} when calling a {@code validate*} method, so in
+ * general, the lifetime of a {@code ValidationContext} is limited to the execution of all rules for a single object.
  *
  * @see RuleExecutor
  * @see Validator
@@ -84,11 +79,11 @@ public class ValidationContext {
   private Stacked<Resolvable> pathStack;
 
   /**
-   * Default constructor
+   * Default constructor. Makes only sense for testing purposes.
    */
   public ValidationContext() {
     this(
-        new ReportReporter(),
+        new ReportReporter(null),
         Map.of(),
         new DefaultRuleExecutor(),
         new InMemoryRuleRepository(),
@@ -136,8 +131,7 @@ public class ValidationContext {
   /**
    * Creates a deep copy of the {@link ValidationContext}.
    * <p>
-   * This method id called - for example - by the {@link RuleExecutor} when executing the rules
-   * asynchronously.
+   * This method id called - for example - by the {@link RuleExecutor} when executing the rules asynchronously.
    *
    * @return The copy.
    * @see RuleSelector
@@ -149,12 +143,11 @@ public class ValidationContext {
   /**
    * Gets the stack of the {@link Rule Rules} being executed.
    * <p>
-   * When a {@code Rule} is {@linkplain #enterRule(Rule, Object) entered}, an entry is pushed on to
-   * this stack, when it is {@linkplain #leaveRule() left}, it is popped.
+   * When a {@code Rule} is {@linkplain #enterRule(Rule, Object) entered}, an entry is pushed on to this stack, when it is
+   * {@linkplain #leaveRule() left}, it is popped.
    * <p>
-   * Each entry is a {@link Pair} of of {@code Rule} and the object being validated. There is a
-   * special check, when pushing entries on the stack: it is not possible to push the same entry
-   * twice on to the stack in order to prevent recursive {@code Rule} execution.
+   * Each entry is a {@link Pair} of of {@code Rule} and the object being validated. There is a special check, when pushing entries on the
+   * stack: it is not possible to push the same entry twice on to the stack in order to prevent recursive {@code Rule} execution.
    *
    * @return A {@link Stacked} with the top of the stack.
    * @see #enterRule(Rule, Object)
@@ -168,14 +161,13 @@ public class ValidationContext {
   /**
    * Called by the {@link RuleExecutor} just before a {@link Rule} is executed.
    * <p>
-   * It basically tries to push an according entry on to the {@link #getRuleStack()}. If the same
-   * combination of parameters is already on the stack, nothing happens
+   * It basically tries to push an according entry on to the {@link #getRuleStack()}. If the same combination of parameters is already on
+   * the stack, nothing happens
    *
    * @param rule  The {@link Rule}
    * @param facts The object being executed
-   * @return {@code true}, when the {@code Rule} has been entered, {@code false} if not. In case the
-   * method returns {@code false} this is an indicator, that a rule recursively calls itself on the
-   * same object, which is not allowed
+   * @return {@code true}, when the {@code Rule} has been entered, {@code false} if not. In case the method returns {@code false} this is an
+   * indicator, that a rule recursively calls itself on the same object, which is not allowed
    * @see RuleExecutor
    * @see #getRuleStack()
    * @see #leaveRule()
@@ -194,8 +186,8 @@ public class ValidationContext {
   /**
    * Called by the {@link RuleExecutor} just after a {@link Rule} is executed.
    * <p>
-   * This is the counterpart to {@link #enterRule(Rule, Object) enterRule}. It is called by thw
-   * {@code RuleExecutor} directly after the rule execution
+   * This is the counterpart to {@link #enterRule(Rule, Object) enterRule}. It is called by thw {@code RuleExecutor} directly after the rule
+   * execution
    *
    * @see RuleExecutor
    * @see #enterRule(Rule, Object)
@@ -211,8 +203,7 @@ public class ValidationContext {
   /**
    * Gets the currently active {@link Rule}.
    * <p>
-   * Note that this might have a different value for different threads, since rules might be
-   * executed in an asynchronous fashion.
+   * Note that this might have a different value for different threads, since rules might be executed in an asynchronous fashion.
    *
    * @return The current {@code Rule} or {@code null}
    */
@@ -223,11 +214,10 @@ public class ValidationContext {
   /**
    * Gets the stack of the {@link Path Paths} and facts.
    * <p>
-   * When a {@code Path} is {@linkplain #enterPath(Object, Path) entered} then an entry is pushed on
-   * to this stack, when it is {@linkplain  #leavePath() left}, the entry is popped.
+   * When a {@code Path} is {@linkplain #enterPath(Object, Path) entered} then an entry is pushed on to this stack, when it is
+   * {@linkplain  #leavePath() left}, the entry is popped.
    * <p>
-   * Entering and leaving is done by the {@link RuleExecutor} when a {@code validateForPath} method
-   * is called
+   * Entering and leaving is done by the {@link RuleExecutor} when a {@code validateForPath} method is called
    *
    * @return The stack
    * @see #enterPath(Object, Path)
@@ -240,11 +230,9 @@ public class ValidationContext {
   /**
    * Gets the current {@link Path} used for validation.
    * <p>
-   * If the validation is currently executed for a {@code Path}, this is returned, otherwise
-   * {@link PathResolver#selfPath() the self path}.
+   * If the validation is currently executed for a {@code Path}, this is returned, otherwise {@link PathResolver#selfPath() the self path}.
    * <p>
-   * Note that this might have a different value for different threads, since rules might be
-   * executed in an asynchronous fashion.
+   * Note that this might have a different value for different threads, since rules might be executed in an asynchronous fashion.
    *
    * @return The  {@code Path}
    */
@@ -253,15 +241,12 @@ public class ValidationContext {
   }
 
   /**
-   * Called by the {@link RuleExecutor} before an object if validated using a
-   * {@code validateForPath} method.
+   * Called by the {@link RuleExecutor} before an object if validated using a {@code validateForPath} method.
    * <p>
-   * For example, when {@link RuleExecutor#validateForPath(ValidationContext, Rule, Object, Path)}
-   * is called, this method id called; after the execution of the rule, the {@link #leavePath()} is
-   * called.
+   * For example, when {@link RuleExecutor#validateForPath(ValidationContext, Rule, Object, Path)} is called, this method id called; after
+   * the execution of the rule, the {@link #leavePath()} is called.
    *
-   * @param parent The parent object being used, {@code path} is resolved on this object to
-   *               calculate the object being validated
+   * @param parent The parent object being used, {@code path} is resolved on this object to calculate the object being validated
    * @param path   The {@link Path}
    * @see #enterPath(Object, Path)
    */
@@ -271,8 +256,7 @@ public class ValidationContext {
   }
 
   /**
-   * Called by the {@link RuleExecutor} after an object is validated using {@code validateForPath}
-   * methods.
+   * Called by the {@link RuleExecutor} after an object is validated using {@code validateForPath} methods.
    *
    * @see #enterPath(Object, Path)
    */
@@ -340,10 +324,9 @@ public class ValidationContext {
   /**
    * Gets the shared extension of the given {@code type} from this context.
    * <p>
-   * Shared extensions are shared between the different copies of this {@code ValidationContext},
-   * meaning that if calling this function with the same parameters on a context created by
-   * {@link #copy() copy}, it returns the same instance. This effectively means that the objects are
-   * available during the complete validation of an object, not only for a single rule.
+   * Shared extensions are shared between the different copies of this {@code ValidationContext}, meaning that if calling this function with
+   * the same parameters on a context created by {@link #copy() copy}, it returns the same instance. This effectively means that the objects
+   * are available during the complete validation of an object, not only for a single rule.
    *
    * @param type The type of the requested object
    * @param <T>  The type of the requested object
@@ -356,8 +339,7 @@ public class ValidationContext {
   }
 
   /**
-   * Checks, whether this instance knows a shared extension of the given type. See
-   * {@link #getSharedExtension(Class)} for details.
+   * Checks, whether this instance knows a shared extension of the given type. See {@link #getSharedExtension(Class)} for details.
    *
    * @param type The type of the requested object
    * @return {@code true}, if object is known
@@ -367,8 +349,8 @@ public class ValidationContext {
   }
 
   /**
-   * Gets the shared extension of the {@code type} or creates it using the {@code create} is not
-   * exists yet. See {@link #getSharedExtension(Class)} for details.
+   * Gets the shared extension of the {@code type} or creates it using the {@code create} is not exists yet. See
+   * {@link #getSharedExtension(Class)} for details.
    *
    * @param type    The type of the requested object
    * @param creator The function to create the object
@@ -382,9 +364,8 @@ public class ValidationContext {
   /**
    * Gets the local extension of the given {@code type} from this context.
    * <p>
-   * Local extensions are only valid for this {@code ValidationContext} and not shared between
-   * different instances - so they are only available during the validation of a single
-   * {@code Rule}.
+   * Local extensions are only valid for this {@code ValidationContext} and not shared between different instances - so they are only
+   * available during the validation of a single {@code Rule}.
    *
    * @param type The type of the requested object
    * @param <T>  The type of the requested object
@@ -397,8 +378,7 @@ public class ValidationContext {
   }
 
   /**
-   * Checks, whether this instance knows a local extension of the given type. See
-   * {@link #getLocalExtension(Class)} for details.
+   * Checks, whether this instance knows a local extension of the given type. See {@link #getLocalExtension(Class)} for details.
    *
    * @param type The type of the requested object
    * @return {@code true}, if object is known
@@ -408,8 +388,8 @@ public class ValidationContext {
   }
 
   /**
-   * Gets the local extension of the {@code type} or creates it using the {@code create} is not
-   * exists yet. See {@link #getLocalExtension(Class)} for details.
+   * Gets the local extension of the {@code type} or creates it using the {@code create} is not exists yet. See
+   * {@link #getLocalExtension(Class)} for details.
    *
    * @param type    The type of the requested object
    * @param creator The function to create the object

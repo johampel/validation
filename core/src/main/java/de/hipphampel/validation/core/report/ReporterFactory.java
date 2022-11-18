@@ -34,7 +34,8 @@ public interface ReporterFactory<T> {
   /**
    * Creates a new {@link Reporter} instance
    *
+   * @param facts The facts the report is intended for
    * @return The {@code Reporter}
    */
-  Reporter<T> createReporter();
+  Reporter<T> createReporter(Object facts);
 }

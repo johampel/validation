@@ -41,20 +41,30 @@ import java.util.function.Predicate;
  */
 public abstract class AbstractReportBasedReporter<T> implements Reporter<T> {
 
-  private final Set<ReportEntry> entries;
+  private final Object facts;
   private final Predicate<ReportEntry> entryPredicate;
+  private final Set<ReportEntry> entries;
 
   /**
    * Constructor.
-   *
+   * @param facts The Object being validated
    * @param entryPredicate A {@code Predicate} that decides, whether a {@link ReportEntry} should
    *                       become part of the {@code Report}, might be {@code null}
    */
-  protected AbstractReportBasedReporter(Predicate<ReportEntry> entryPredicate) {
+  protected AbstractReportBasedReporter(Object facts, Predicate<ReportEntry> entryPredicate) {
+    this.facts = facts;
     this.entries = ConcurrentHashMap.newKeySet();
     this.entryPredicate = entryPredicate == null ? entry -> true : entryPredicate;
   }
 
+  /**
+   * Gets the object being validated
+   *
+   * @return The object being validated.
+   */
+  public Object getFacts() {
+    return facts;
+  }
 
   @Override
   public void add(Path path, Object facts, Rule<?> rule, Result result) {

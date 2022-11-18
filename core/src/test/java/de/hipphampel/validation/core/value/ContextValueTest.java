@@ -41,7 +41,7 @@ public class ContextValueTest {
   @BeforeEach
   public void beforeEach() {
     this.context = new ValidationContext(
-        new BooleanReporter(),
+        new BooleanReporter(null),
         Map.of("param1", "a", "param2", 2),
         new SimpleRuleExecutor(),
         new InMemoryRuleRepository(),

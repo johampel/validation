@@ -61,7 +61,7 @@ public class DispatchingRuleTest {
   );
   private final RuleExecutor executor = new SimpleRuleExecutor();
   private final ValidationContext context = new ValidationContext(
-      new ReportReporter(), Map.of(), executor, ruleRepository, pathResolver,
+      new ReportReporter(null), Map.of(), executor, ruleRepository, pathResolver,
       new DefaultSubscribableEventPublisher());
 
 

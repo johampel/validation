@@ -111,7 +111,7 @@ public interface Validator {
    */
   default <T> T validate(ReporterFactory<T> reporterFactory, Object facts,
       RuleSelector ruleSelector, Map<String, Object> parameters) {
-    Reporter<T> reporter = reporterFactory.createReporter();
+    Reporter<T> reporter = reporterFactory.createReporter(facts);
     ValidationContext context = createValidationContext(reporter, parameters);
     context.getRuleExecutor().validate(context, ruleSelector, facts);
     return reporter.getReport();
@@ -184,7 +184,7 @@ public interface Validator {
   default <T> CompletableFuture<T> validateAsync(ReporterFactory<T> reporterFactory, Object facts,
       RuleSelector ruleSelector,
       Map<String, Object> parameters) {
-    Reporter<T> reporter = reporterFactory.createReporter();
+    Reporter<T> reporter = reporterFactory.createReporter(facts);
     ValidationContext context = createValidationContext(reporter, parameters);
     return context.getRuleExecutor().validateAsync(context, ruleSelector, facts)
         .thenApply(ignore -> reporter.getReport());

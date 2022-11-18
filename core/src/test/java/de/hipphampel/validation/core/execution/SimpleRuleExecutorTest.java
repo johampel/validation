@@ -81,7 +81,7 @@ public class SimpleRuleExecutorTest {
   @BeforeEach
   public void beforeEach() {
     context = spy(new ValidationContext(
-        new ReportReporter(), Map.of(), executor, ruleRepository, new BeanPathResolver(),
+        new ReportReporter(null), Map.of(), executor, ruleRepository, new BeanPathResolver(),
         new DefaultSubscribableEventPublisher()));
     events = new ArrayList<>();
     TestUtils.collectEventsInto(context, events);

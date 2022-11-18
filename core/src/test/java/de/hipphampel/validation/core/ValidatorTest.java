@@ -48,7 +48,7 @@ public class ValidatorTest {
   private static final Object FACTS = new Object();
   private static final RuleSelector SELECTOR = mock(RuleSelector.class);
   private static final Map<String, Object> PARAMS = Map.of("a", "b");
-  private static final ReporterFactory<Boolean> REPORTER_FACTORY = BooleanReporter::new;
+  private static final ReporterFactory<Boolean> REPORTER_FACTORY = obj -> new BooleanReporter(obj);
 
   private ValidationContext context;
   private RuleExecutor ruleExecutor;

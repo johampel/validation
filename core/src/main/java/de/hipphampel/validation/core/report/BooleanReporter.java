@@ -36,27 +36,41 @@ public class BooleanReporter implements Reporter<Boolean> {
 
   private final boolean skippedIsFailed;
   private final AtomicBoolean report;
+  private final Object facts;
 
   /**
    * Default constructor.
    * <p>
-   * Reports {@code true} only if there where neither skipped or failed {@link Result Results}
+   * Reports {@code true} only if there are neither skipped or failed {@link Result Results}
+   *
+   * @param facts The facts being valided
    */
-  public BooleanReporter() {
-    this(true);
+  public BooleanReporter(Object facts) {
+    this(facts, true);
   }
 
   /**
    * Constructor.
    * <p>
-   * Reports {@code true} if was no {@link Result} indicating a failure. If {@code skippedIsFailed}
-   * is {@code true}, skipped results are counted as failure, otherwise as success.
+   * Reports {@code true} if was no {@link Result} indicating a failure. If {@code skippedIsFailed} is {@code true}, skipped results are
+   * counted as failure, otherwise as success.
    *
+   * @param facts           The facts being valided
    * @param skippedIsFailed {@code true}, if count skipped {@code Results} as failure.
    */
-  public BooleanReporter(boolean skippedIsFailed) {
+  public BooleanReporter(Object facts, boolean skippedIsFailed) {
     this.report = new AtomicBoolean(true);
+    this.facts = facts;
     this.skippedIsFailed = skippedIsFailed;
+  }
+
+  /**
+   * Gets the object being validated
+   *
+   * @return The object being validated.
+   */
+  public Object getFacts() {
+    return facts;
   }
 
   @Override

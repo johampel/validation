@@ -77,7 +77,7 @@ public class RuleExecutorTest {
       }
     });
     context = spy(new ValidationContext(
-        new ReportReporter(), Map.of(), underTest, ruleRepository, new BeanPathResolver(),
+        new ReportReporter(null), Map.of(), underTest, ruleRepository, new BeanPathResolver(),
         new DefaultSubscribableEventPublisher()));
 
   }

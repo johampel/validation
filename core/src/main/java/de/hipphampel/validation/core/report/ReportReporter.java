@@ -22,17 +22,7 @@
  */
 package de.hipphampel.validation.core.report;
 
-import de.hipphampel.validation.core.path.Path;
-import de.hipphampel.validation.core.path.Resolvable;
 import de.hipphampel.validation.core.rule.Result;
-import de.hipphampel.validation.core.rule.ResultCode;
-import de.hipphampel.validation.core.rule.Rule;
-import de.hipphampel.validation.core.utils.Stacked;
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 /**
@@ -49,9 +39,11 @@ public class ReportReporter extends AbstractReportBasedReporter<Report> {
    * Default constructor.
    * <p>
    * Records all entries.
+   *
+   * @param facts The object being validated
    */
-  public ReportReporter() {
-    super(null);
+  public ReportReporter(Object facts) {
+    super(facts, null);
   }
 
 
@@ -60,10 +52,11 @@ public class ReportReporter extends AbstractReportBasedReporter<Report> {
    * <p>
    * Records only {@link Result Results}, that match the given predicate
    *
+   * @param facts     The object being validated
    * @param predicate The predicate.
    */
-  public ReportReporter(Predicate<ReportEntry> predicate) {
-    super(predicate);
+  public ReportReporter(Object facts, Predicate<ReportEntry> predicate) {
+    super(facts, predicate);
   }
 
 
