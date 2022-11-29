@@ -40,12 +40,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ForkJoinPool;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class DefaultRuleExecutorTest {
 
-  private final DefaultRuleExecutor executor = new DefaultRuleExecutor();
   private ValidationContext context;
   private List<Event<?>> events;
 
@@ -57,7 +57,8 @@ public class DefaultRuleExecutorTest {
   }
 
   @Test
-  public void validate_cachesResults() {
+  public void validate_cachesResultsIfCachingIsOn() {
+    DefaultRuleExecutor executor = createExecutor(true);
     Rule<Integer> rule = new DelegatingRule<>(
         RuleBuilder.conditionRule("test", Integer.class)
             .withPrecondition(Conditions.alwaysTrue())
@@ -81,7 +82,33 @@ public class DefaultRuleExecutorTest {
   }
 
   @Test
-  public void validateAsync_cachesResults() {
+  public void validate_doesNotCacheResultsIfCachingIsOff() {
+    DefaultRuleExecutor executor = createExecutor(false);
+    Rule<Integer> rule = new DelegatingRule<>(
+        RuleBuilder.conditionRule("test", Integer.class)
+            .withPrecondition(Conditions.alwaysTrue())
+            .validateWith(Conditions.alwaysTrue())
+            .build());
+
+    // Do first execution
+    Result result = executor.validate(context, rule, 4711);
+    assertThat(result).isEqualTo(Result.ok());
+    assertThat(events).containsExactly(
+        new Event<>(new RuleStartedPayload(rule, Stacked.empty(), 4711),
+            TestUtils.FIXED_DATE, executor),
+        new Event<>(new RuleFinishedPayload(rule, Stacked.empty(), 4711, Result.ok(),
+            TestUtils.FIXED_DURATION),
+            TestUtils.FIXED_DATE, executor)
+    );
+
+    // Do second execution (no new events)
+    assertThat(executor.validate(context, rule, 4711)).isSameAs(result);
+    assertThat(events).hasSize(4);
+  }
+
+  @Test
+  public void validateAsync_cachesResultsIfCachingIsOn() {
+    DefaultRuleExecutor executor = createExecutor(true);
     Rule<Integer> rule = new DelegatingRule<>(
         RuleBuilder.conditionRule("test", Integer.class)
             .withPrecondition(Conditions.alwaysTrue())
@@ -123,7 +150,61 @@ public class DefaultRuleExecutorTest {
   }
 
   @Test
+  public void validateAsync_doesNotCacheResultsIfCachingIsOff() {
+    DefaultRuleExecutor executor = createExecutor(false);
+    Rule<Integer> rule = new DelegatingRule<>(
+        RuleBuilder.conditionRule("test", Integer.class)
+            .withPrecondition(Conditions.alwaysTrue())
+            .validateWith(Conditions.alwaysTrue())
+            .build());
+
+    // Do both executions
+    CompletableFuture<Result> resultFuture1 = executor.validateAsync(context, rule, 4711);
+    CompletableFuture<Result> resultFuture2 = executor.validateAsync(context, rule, 4711);
+
+    Result result1 = resultFuture1.join();
+    Result result2 = resultFuture2.join();
+    assertThat(result1).isEqualTo(Result.ok());
+    assertThat(result2).isSameAs(result1);
+    assertThat(events).containsExactlyInAnyOrder(
+        new Event<>(new RuleStartedPayload(rule, Stacked.empty(), 4711),
+            TestUtils.FIXED_DATE, executor),
+        new Event<>(new RuleStartedPayload(rule, Stacked.empty(), 4711),
+            TestUtils.FIXED_DATE, executor),
+        new Event<>(new RuleFinishedPayload(rule, Stacked.empty(), 4711, Result.ok(),
+            TestUtils.FIXED_DURATION),
+            TestUtils.FIXED_DATE, executor),
+        new Event<>(new RuleFinishedPayload(rule, Stacked.empty(), 4711, Result.ok(),
+            TestUtils.FIXED_DURATION),
+            TestUtils.FIXED_DATE, executor)
+    );
+
+    // Do execution for different object
+    CompletableFuture<Result> resultFuture3 = executor.validateAsync(context, rule, 4712);
+    Result result3 = resultFuture3.join();
+    assertThat(result3).isEqualTo(Result.ok());
+    assertThat(events).containsExactlyInAnyOrder(
+        new Event<>(new RuleStartedPayload(rule, Stacked.empty(), 4711),
+            TestUtils.FIXED_DATE, executor),
+        new Event<>(new RuleFinishedPayload(rule, Stacked.empty(), 4711, Result.ok(),
+            TestUtils.FIXED_DURATION),
+            TestUtils.FIXED_DATE, executor),
+        new Event<>(new RuleStartedPayload(rule, Stacked.empty(), 4711),
+            TestUtils.FIXED_DATE, executor),
+        new Event<>(new RuleFinishedPayload(rule, Stacked.empty(), 4711, Result.ok(),
+            TestUtils.FIXED_DURATION),
+            TestUtils.FIXED_DATE, executor),
+        new Event<>(new RuleStartedPayload(rule, Stacked.empty(), 4712),
+            TestUtils.FIXED_DATE, executor),
+        new Event<>(new RuleFinishedPayload(rule, Stacked.empty(), 4712, Result.ok(),
+            TestUtils.FIXED_DURATION),
+            TestUtils.FIXED_DATE, executor)
+    );
+  }
+
+  @Test
   public void validateAsync_asynchronouslyExecutesTheRules() {
+    DefaultRuleExecutor executor = createExecutor(true);
     Rule<Integer> rule3 = new SleepyRule("3", 300);
     Rule<Integer> rule2 = new SleepyRule("2", 200);
     Rule<Integer> rule1 = new SleepyRule("1", 100);
@@ -158,6 +239,7 @@ public class DefaultRuleExecutorTest {
 
   @Test
   public void validateAsync_createsCopyOfValidationContext() {
+    DefaultRuleExecutor executor = createExecutor(true);
     Rule<Integer> rule = new OkRule<>("1") {
       @Override
       public Result validate(ValidationContext context, Integer facts) {
@@ -168,6 +250,10 @@ public class DefaultRuleExecutorTest {
 
     // Run all rules
     assertThat(executor.validateAsync(context, rule, 4711).join()).isEqualTo(Result.ok());
+  }
+
+  private DefaultRuleExecutor createExecutor(boolean caching) {
+    return new DefaultRuleExecutor(ForkJoinPool.commonPool(), caching);
   }
 
   private static class SleepyRule extends AbstractRule<Integer> {

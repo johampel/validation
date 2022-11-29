@@ -68,10 +68,15 @@ public record PathValue<T>(OneOfTwo<Value<String>, Path> path,
     Path pathToResolve = path.mapIfFirst(value -> valueToPath(context, facts, value));
 
     Resolved<T> resolved = resolver.resolve(reference, pathToResolve);
-    return resolved.orElseGet(() -> defaultValue
-        .map(d -> d.get(context, facts))
-        .orElseThrow(() ->
-            new ValueEvaluationException("Path '" + path + "' on " + reference + " resolves to nothing")));
+    if (resolved.isPresent()) {
+      return resolved.get();
+    }
+
+    if (defaultValue.isEmpty()) {
+      throw new ValueEvaluationException("Path '" + path + "' on " + reference + " resolves to nothing");
+    }
+
+    return defaultValue.get().get(context, facts);
   }
 
   private Path valueToPath(ValidationContext context, Object facts, Value<String> value) {

@@ -64,8 +64,9 @@ public class SimpleRuleExecutor implements RuleExecutor {
 
   @Override
   public Result validate(ValidationContext context, Rule<?> rule, Object facts) {
-    Result result = validateInternal(context, rule, facts);
-    return addRuleResultToReporter(context, rule, facts, result);
+    ValidationContext localContext = context.copy();
+    Result result = doValidate(localContext, rule, facts);
+    return addRuleResultToReporter(localContext, rule, facts, result);
   }
 
   /**
@@ -95,7 +96,7 @@ public class SimpleRuleExecutor implements RuleExecutor {
    * @param facts   The object to be validated
    * @return The {@link Result} indicating the result
    */
-  protected Result validateInternal(ValidationContext context, Rule<?> rule, Object facts) {
+  protected Result doValidate(ValidationContext context, Rule<?> rule, Object facts) {
     Result result = null;
     long now = System.nanoTime();
 

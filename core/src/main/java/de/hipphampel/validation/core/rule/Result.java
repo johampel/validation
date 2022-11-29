@@ -164,6 +164,16 @@ public record Result(ResultCode code, ResultReason reason) {
   }
 
   /**
+   * Factory method to create a ok result.
+   *
+   * @param reason The reason, might be {@code null}
+   * @return The {@code Result}
+   */
+  public static Result ok(ResultReason reason) {
+    return new Result(SKIPPED, reason);
+  }
+
+  /**
    * Factory method to create a skipped result.
    *
    * @param reason The reason, might be {@code null}

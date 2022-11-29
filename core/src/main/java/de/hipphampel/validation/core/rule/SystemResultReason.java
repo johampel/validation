@@ -42,6 +42,11 @@ public record SystemResultReason(Code code, String message) implements ResultRea
     Objects.requireNonNull(code);
   }
 
+  @Override
+  public String toString() {
+    return code + ": " + message;
+  }
+
   /**
    * Code describing the reason why a execution failed.
    */

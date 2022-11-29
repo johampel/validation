@@ -22,12 +22,10 @@
  */
 package de.hipphampel.validation.core.rule;
 
+import java.util.stream.Stream;
+
 /**
  * Marker interface for the reason part of {@link Result RuleResults}.
- *
- * The intention is to let enumerations implement this interface in order to pass it to the
- * {@code Result} as parameter, but any other kind of type is suitable as well.
  */
 public interface ResultReason {
-
 }

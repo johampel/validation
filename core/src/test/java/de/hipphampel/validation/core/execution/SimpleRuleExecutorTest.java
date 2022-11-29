@@ -183,8 +183,8 @@ public class SimpleRuleExecutorTest {
         RuleBuilder.functionRule("test", Integer.class)
             .withPrecondition(Conditions.alwaysTrue())
             .validateWith(
-                (ctxt, facts) -> context.getCurrentRule() != null
-                    && context.getCurrentRule().getId().equals("test") ? Result.ok()
+                (ctxt, facts) -> ctxt.getCurrentRule() != null
+                    && ctxt.getCurrentRule().getId().equals("test") ? Result.ok()
                     : Result.failed())
             .build());
 

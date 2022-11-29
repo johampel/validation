@@ -56,11 +56,12 @@ public class DefaultRuleExecutor extends SimpleRuleExecutor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRuleExecutor.class);
   private final Executor executor;
+  private final boolean caching;
 
   /**
    * Default constructor,
    * <p>
-   * Creates a new instance backed by the common {@link ForkJoinPool}
+   * Creates a new instance backed by the common {@link ForkJoinPool}, using caching
    */
   public DefaultRuleExecutor() {
     this(ForkJoinPool.commonPool());
@@ -69,27 +70,44 @@ public class DefaultRuleExecutor extends SimpleRuleExecutor {
   /**
    * Constructor.
    * <p>
-   * Creates an instance backed by the given {@link Executor}
+   * Creates an instance backed by the given {@link Executor} and using caching
    *
    * @param executor The {@code Executor}
    */
   public DefaultRuleExecutor(Executor executor) {
+    this(executor, true);
+  }
+
+  /**
+   * Constructor.
+   * <p>
+   * Creates an instance backed by the given {@link Executor}
+   *
+   * @param executor The {@code Executor}
+   * @param caching Flag indicating whether or not caching rule results.
+   */
+  public DefaultRuleExecutor(Executor executor, boolean caching) {
     this.executor = Objects.requireNonNull(executor);
+    this.caching = caching;
   }
 
   @Override
   public Result validate(ValidationContext context, Rule<?> rule, Object facts) {
-    try {
-      return validateAsync(context, rule, facts).get();
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      LOGGER.error("Execution of rule '" + rule.getId() + "' failed", e);
-      return Result.failed(
-          new SystemResultReason(Code.RuleExecutionThrowsException, e.getMessage()));
-    } catch (ExecutionException e) {
-      LOGGER.error("Execution of rule '" + rule.getId() + "' failed", e.getCause());
-      return Result.failed(
-          new SystemResultReason(Code.RuleExecutionThrowsException, e.getCause().getMessage()));
+    if (caching) {
+      try {
+        return validateAsync(context, rule, facts).get();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        LOGGER.error("Execution of rule '" + rule.getId() + "' failed", e);
+        return Result.failed(
+            new SystemResultReason(Code.RuleExecutionThrowsException, e.getMessage()));
+      } catch (ExecutionException e) {
+        LOGGER.error("Execution of rule '" + rule.getId() + "' failed", e.getCause());
+        return Result.failed(
+            new SystemResultReason(Code.RuleExecutionThrowsException, e.getCause().getMessage()));
+      }
+    }else {
+      return super.validate(context, rule, facts);
     }
   }
 
@@ -97,11 +115,18 @@ public class DefaultRuleExecutor extends SimpleRuleExecutor {
   public CompletableFuture<Result> validateAsync(ValidationContext context, Rule<?> rule,
       Object facts) {
     ValidationContext localContext = context.copy();
-    RuleResultCache cache = localContext.getOrCreateSharedExtension(
-        RuleResultCache.class,
-        type -> new RuleResultCache());
-    return cache.getOrCompute(localContext, rule, facts)
-        .thenApply(result -> addRuleResultToReporter(localContext, rule, facts, result));
+    CompletableFuture<Result> result;
+    if (caching) {
+      RuleResultCache cache = localContext.getOrCreateSharedExtension(
+          RuleResultCache.class,
+          type -> new RuleResultCache());
+      result = cache.getOrCompute(localContext, rule, facts);
+    } else {
+      result = CompletableFuture.supplyAsync(() -> doValidate(localContext, rule, facts), executor);
+    }
+    return result
+        .thenApply(r -> addRuleResultToReporter(localContext, rule, facts, r));
+
   }
 
   private class RuleResultCache {
@@ -117,8 +142,7 @@ public class DefaultRuleExecutor extends SimpleRuleExecutor {
           ignore -> new ConcurrentHashMap<>());
       return resultMap.computeIfAbsent(
           rule,
-          ignore -> CompletableFuture.supplyAsync(() ->
-                  DefaultRuleExecutor.super.validateInternal(context, rule, facts),
+          ignore -> CompletableFuture.supplyAsync(() -> doValidate(context, rule, facts),
               executor));
     }
   }
