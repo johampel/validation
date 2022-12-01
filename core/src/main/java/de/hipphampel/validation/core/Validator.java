@@ -22,6 +22,8 @@
  */
 package de.hipphampel.validation.core;
 
+import de.hipphampel.validation.core.event.payloads.ValidationFinishedPayload;
+import de.hipphampel.validation.core.event.payloads.ValidationStartedPayload;
 import de.hipphampel.validation.core.execution.RuleExecutor;
 import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.provider.RuleSelector;
@@ -36,22 +38,19 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Validates objects and generates a validation report.
  * <p>
- * In terms of this interface, validation means to execute the {@link Rule Rules} selected by some
- * {@link RuleSelector}, collect their results and form an according report. The kind of report
- * totally depends on the {@link Reporter} being used.
+ * In terms of this interface, validation means to execute the {@link Rule Rules} selected by some {@link RuleSelector}, collect their
+ * results and form an according report. The kind of report totally depends on the {@link Reporter} being used.
  * <p>
- * A typical implementation of this interface - such as the {@link DefaultValidator} - will delegate
- * most of its work to subordinated classes. You may use the {@link ValidatorBuilder} to create an
- * instance of an {@code Validator}
+ * A typical implementation of this interface - such as the {@link DefaultValidator} - will delegate most of its work to subordinated
+ * classes. You may use the {@link ValidatorBuilder} to create an instance of an {@code Validator}
  */
 public interface Validator {
 
   /**
-   * Validates {@code facts} using the rules provided by the {@code ruleSelector} and produces a
-   * {@link Report}.
+   * Validates {@code facts} using the rules provided by the {@code ruleSelector} and produces a {@link Report}.
    * <p>
-   * Typically, an implementation creates a {@link ValidationContext} which is passed to a
-   * {@link RuleExecutor} to execute the rules. The final result is built using a {@link Reporter}.
+   * Typically, an implementation creates a {@link ValidationContext} which is passed to a {@link RuleExecutor} to execute the rules. The
+   * final result is built using a {@link Reporter}.
    *
    * @param facts        The object being validated
    * @param ruleSelector The {@link RuleSelector} selecting the rules to execute
@@ -62,11 +61,11 @@ public interface Validator {
   }
 
   /**
-   * Validates {@code facts} using the rules provided by the {@code ruleSelector} and fills a report
-   * created by the {@code reporterFactory}.
+   * Validates {@code facts} using the rules provided by the {@code ruleSelector} and fills a report created by the
+   * {@code reporterFactory}.
    * <p>
-   * Typically, an implementation creates a {@link ValidationContext} which is passed to a
-   * {@link RuleExecutor} to execute the rules. The final result is built using a {@link Reporter}.
+   * Typically, an implementation creates a {@link ValidationContext} which is passed to a {@link RuleExecutor} to execute the rules. The
+   * final result is built using a {@link Reporter}.
    *
    * @param reporterFactory The {@link ReporterFactory} to use
    * @param facts           The object being validated
@@ -80,11 +79,10 @@ public interface Validator {
   }
 
   /**
-   * Validates {@code facts} using the rules provided by the {@code ruleSelector} and produces a
-   * {@link Report}.
+   * Validates {@code facts} using the rules provided by the {@code ruleSelector} and produces a {@link Report}.
    * <p>
-   * Typically, an implementation creates a {@link ValidationContext} which is passed to a
-   * {@link RuleExecutor} to execute the rules. The final result is built using a {@link Reporter}.
+   * Typically, an implementation creates a {@link ValidationContext} which is passed to a {@link RuleExecutor} to execute the rules. The
+   * final result is built using a {@link Reporter}.
    *
    * @param facts        The object being validated
    * @param ruleSelector The {@link RuleSelector} selecting the rules to execute
@@ -96,11 +94,11 @@ public interface Validator {
   }
 
   /**
-   * Validates {@code facts} using the rules provided by the {@code ruleSelector} and fills a report
-   * created by the {@code reporterFactory}.
+   * Validates {@code facts} using the rules provided by the {@code ruleSelector} and fills a report created by the
+   * {@code reporterFactory}.
    * <p>
-   * Typically, an implementation creates a {@link ValidationContext} which is passed to a
-   * {@link RuleExecutor} to execute the rules. The final result is built using a {@link Reporter}.
+   * Typically, an implementation creates a {@link ValidationContext} which is passed to a {@link RuleExecutor} to execute the rules. The
+   * final result is built using a {@link Reporter}.
    *
    * @param reporterFactory The {@link ReporterFactory} to use
    * @param facts           The object being validated
@@ -111,18 +109,21 @@ public interface Validator {
    */
   default <T> T validate(ReporterFactory<T> reporterFactory, Object facts,
       RuleSelector ruleSelector, Map<String, Object> parameters) {
+    long start = System.nanoTime();
     Reporter<T> reporter = reporterFactory.createReporter(facts);
     ValidationContext context = createValidationContext(reporter, parameters);
+    context.getEventPublisher().publish(this, new ValidationStartedPayload(facts));
     context.getRuleExecutor().validate(context, ruleSelector, facts);
-    return reporter.getReport();
+    T report = reporter.getReport();
+    context.getEventPublisher().publish(this, new ValidationFinishedPayload<>(facts, report, null, System.nanoTime()-start));
+    return report;
   }
 
   /**
-   * Asynchronously validates {@code facts} using the rules provided by the {@code ruleSelector} and
-   * produces a {@link Report}.
+   * Asynchronously validates {@code facts} using the rules provided by the {@code ruleSelector} and produces a {@link Report}.
    * <p>
-   * Typically, an implementation creates a {@link ValidationContext} which is passed to a
-   * {@link RuleExecutor} to execute the rules. The final result is built using a {@link Reporter}.
+   * Typically, an implementation creates a {@link ValidationContext} which is passed to a {@link RuleExecutor} to execute the rules. The
+   * final result is built using a {@link Reporter}.
    *
    * @param facts        The object being validated
    * @param ruleSelector The {@link RuleSelector} selecting the rules to execute
@@ -133,11 +134,11 @@ public interface Validator {
   }
 
   /**
-   * Asynchronously validates {@code facts} using the rules provided by the {@code ruleSelector} and
-   * fills a report created by the {@code reporterFactory}.
+   * Asynchronously validates {@code facts} using the rules provided by the {@code ruleSelector} and fills a report created by the
+   * {@code reporterFactory}.
    * <p>
-   * Typically, an implementation creates a {@link ValidationContext} which is passed to a
-   * {@link RuleExecutor} to execute the rules. The final result is built using a {@link Reporter}.
+   * Typically, an implementation creates a {@link ValidationContext} which is passed to a {@link RuleExecutor} to execute the rules. The
+   * final result is built using a {@link Reporter}.
    *
    * @param reporterFactory The {@link ReporterFactory} to use
    * @param facts           The object being validated
@@ -151,11 +152,10 @@ public interface Validator {
   }
 
   /**
-   * Asynchronously validates {@code facts} using the rules provided by the {@code ruleSelector} and
-   * produces a {@link Report}.
+   * Asynchronously validates {@code facts} using the rules provided by the {@code ruleSelector} and produces a {@link Report}.
    * <p>
-   * Typically, an implementation creates a {@link ValidationContext} which is passed to a
-   * {@link RuleExecutor} to execute the rules. The final result is built using a {@link Reporter}.
+   * Typically, an implementation creates a {@link ValidationContext} which is passed to a {@link RuleExecutor} to execute the rules. The
+   * final result is built using a {@link Reporter}.
    *
    * @param facts        The object being validated
    * @param ruleSelector The {@link RuleSelector} selecting the rules to execute
@@ -168,11 +168,11 @@ public interface Validator {
   }
 
   /**
-   * Asynchronously validates {@code facts} using the rules provided by the {@code ruleSelector} and
-   * fills a report created by the {@code reporterFactory}.
+   * Asynchronously validates {@code facts} using the rules provided by the {@code ruleSelector} and fills a report created by the
+   * {@code reporterFactory}.
    * <p>
-   * Typically, an implementation creates a {@link ValidationContext} which is passed to a
-   * {@link RuleExecutor} to execute the rules. The final result is built using a {@link Reporter}.
+   * Typically, an implementation creates a {@link ValidationContext} which is passed to a {@link RuleExecutor} to execute the rules. The
+   * final result is built using a {@link Reporter}.
    *
    * @param reporterFactory The {@link ReporterFactory} to use
    * @param facts           The object being validated
@@ -184,19 +184,23 @@ public interface Validator {
   default <T> CompletableFuture<T> validateAsync(ReporterFactory<T> reporterFactory, Object facts,
       RuleSelector ruleSelector,
       Map<String, Object> parameters) {
+    long start = System.nanoTime();
     Reporter<T> reporter = reporterFactory.createReporter(facts);
     ValidationContext context = createValidationContext(reporter, parameters);
+    context.getEventPublisher().publish(this, new ValidationStartedPayload(facts));
     return context.getRuleExecutor().validateAsync(context, ruleSelector, facts)
-        .thenApply(ignore -> reporter.getReport());
+        .thenApply(ignore -> reporter.getReport())
+        .whenComplete((result, ex) -> context.getEventPublisher()
+            .publish(this, new ValidationFinishedPayload<T>(facts, result, ex, System.nanoTime() - start)));
+
   }
 
   /**
    * Creates a {@link ValidationContext} to store contextual information during validation.
    * <p>
-   * This is called - similar to {@code createReporter} - for each call of {@code validate} or
-   * {@code validateAsync}. But unlike the the {@code Reporter}, the {@code ValidationContext} is
-   * not shared between different threads, instead based on this instance copies might be created on
-   * demand by calling {@link ValidationContext#copy()}.
+   * This is called - similar to {@code createReporter} - for each call of {@code validate} or {@code validateAsync}. But unlike the the
+   * {@code Reporter}, the {@code ValidationContext} is not shared between different threads, instead based on this instance copies might be
+   * created on demand by calling {@link ValidationContext#copy()}.
    *
    * @param reporter   The {@link Reporter} to use
    * @param parameters Additional validation parameters

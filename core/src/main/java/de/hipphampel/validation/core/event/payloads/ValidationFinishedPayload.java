@@ -25,10 +25,11 @@ package de.hipphampel.validation.core.event.payloads;
 /**
  * Indicates that the validation of {@code facts} has been finished.
  *
- * @param facts The facts being validated.
+ * @param facts  The facts being validated.
  * @param result The normal validation result, if any
- * @param error An exception, if exceptionally terminating the validation
+ * @param error  An exception, if exceptionally terminating the validation
+ * @param nanos  The execution time in nanos
  */
-public record ValidationFinishedPayload<T>(Object facts, T result, Throwable error) implements FactsPayload {
+public record ValidationFinishedPayload<T>(Object facts, T result, Throwable error, long nanos) implements FactsPayload {
 
 }

@@ -22,6 +22,7 @@
  */
 package de.hipphampel.validation.core;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
@@ -31,16 +32,27 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import de.hipphampel.validation.core.event.DefaultSubscribableEventPublisher;
+import de.hipphampel.validation.core.event.Event;
+import de.hipphampel.validation.core.event.EventPublisher;
+import de.hipphampel.validation.core.event.SubscribableEventPublisher;
+import de.hipphampel.validation.core.event.payloads.ValidationFinishedPayload;
+import de.hipphampel.validation.core.event.payloads.ValidationStartedPayload;
 import de.hipphampel.validation.core.execution.RuleExecutor;
 import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.provider.RuleSelector;
 import de.hipphampel.validation.core.report.BooleanReporter;
+import de.hipphampel.validation.core.report.Report;
 import de.hipphampel.validation.core.report.Reporter;
 import de.hipphampel.validation.core.report.ReporterFactory;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 public class ValidatorTest {
@@ -52,14 +64,72 @@ public class ValidatorTest {
 
   private ValidationContext context;
   private RuleExecutor ruleExecutor;
+  private SubscribableEventPublisher eventPublisher;
   private Validator validator;
+
+  private List<Event<?>> events;
 
   @BeforeEach
   public void beforeEach() {
+    eventPublisher = new DefaultSubscribableEventPublisher();
+    events = new ArrayList<>();
+    eventPublisher.subscribe(events::add);
     ruleExecutor = mock(RuleExecutor.class);
     context = mock(ValidationContext.class);
     when(context.getRuleExecutor()).thenReturn(ruleExecutor);
+    when(context.getEventPublisher()).thenReturn(eventPublisher);
     validator = spy(new TestValidator());
+  }
+
+  @Test
+  public void validate_sendEvents() {
+    validator.validate(FACTS, SELECTOR);
+    assertThat(events).hasSize(2);
+    assertThat(events.get(0).source()).isEqualTo(validator);
+    assertThat(events.get(0).payload()).isEqualTo(new ValidationStartedPayload(FACTS));
+    assertThat(events.get(1).source()).isEqualTo(validator);
+    assertThat(events.get(1).payload()).isInstanceOf(ValidationFinishedPayload.class);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).facts()).isEqualTo(FACTS);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).error()).isNull();
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).result()).isEqualTo(new Report(Set.of()));
+    events.clear();
+    Mockito.reset(validator, ruleExecutor);
+
+    validator.validate(REPORTER_FACTORY, FACTS, SELECTOR);
+    assertThat(events).hasSize(2);
+    assertThat(events.get(0).source()).isEqualTo(validator);
+    assertThat(events.get(0).payload()).isEqualTo(new ValidationStartedPayload(FACTS));
+    assertThat(events.get(1).source()).isEqualTo(validator);
+    assertThat(events.get(1).payload()).isInstanceOf(ValidationFinishedPayload.class);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).facts()).isEqualTo(FACTS);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).error()).isNull();
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).result()).isEqualTo(true);
+    events.clear();
+    Mockito.reset(validator, ruleExecutor);
+
+    validator.validate(FACTS, SELECTOR, PARAMS);
+    assertThat(events).hasSize(2);
+    assertThat(events.get(0).source()).isEqualTo(validator);
+    assertThat(events.get(0).payload()).isEqualTo(new ValidationStartedPayload(FACTS));
+    assertThat(events.get(1).source()).isEqualTo(validator);
+    assertThat(events.get(1).payload()).isInstanceOf(ValidationFinishedPayload.class);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).facts()).isEqualTo(FACTS);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).error()).isNull();
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).result()).isEqualTo(new Report(Set.of()));
+    events.clear();
+    Mockito.reset(validator, ruleExecutor);
+
+    validator.validate(REPORTER_FACTORY, FACTS, SELECTOR, PARAMS);
+    assertThat(events).hasSize(2);
+    assertThat(events.get(0).source()).isEqualTo(validator);
+    assertThat(events.get(0).payload()).isEqualTo(new ValidationStartedPayload(FACTS));
+    assertThat(events.get(1).source()).isEqualTo(validator);
+    assertThat(events.get(1).payload()).isInstanceOf(ValidationFinishedPayload.class);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).facts()).isEqualTo(FACTS);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).error()).isNull();
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).result()).isEqualTo(true);
+    events.clear();
+    Mockito.reset(validator, ruleExecutor);
   }
 
   @Test
@@ -124,6 +194,64 @@ public class ValidatorTest {
     Mockito.reset(validator, ruleExecutor);
   }
 
+  @Test
+  public void validateAsync_sendEvents() {
+    when(ruleExecutor.validateAsync(any(), any(RuleSelector.class), any())).thenReturn(
+        CompletableFuture.completedFuture(null));
+    validator.validateAsync(FACTS, SELECTOR).join();
+    assertThat(events).hasSize(2);
+    assertThat(events.get(0).source()).isEqualTo(validator);
+    assertThat(events.get(0).payload()).isEqualTo(new ValidationStartedPayload(FACTS));
+    assertThat(events.get(1).source()).isEqualTo(validator);
+    assertThat(events.get(1).payload()).isInstanceOf(ValidationFinishedPayload.class);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).facts()).isEqualTo(FACTS);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).error()).isNull();
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).result()).isEqualTo(new Report(Set.of()));
+    events.clear();
+    Mockito.reset(validator, ruleExecutor);
+
+    when(ruleExecutor.validateAsync(any(), any(RuleSelector.class), any())).thenReturn(
+        CompletableFuture.completedFuture(null));
+    validator.validateAsync(REPORTER_FACTORY, FACTS, SELECTOR).join();
+    assertThat(events).hasSize(2);
+    assertThat(events.get(0).source()).isEqualTo(validator);
+    assertThat(events.get(0).payload()).isEqualTo(new ValidationStartedPayload(FACTS));
+    assertThat(events.get(1).source()).isEqualTo(validator);
+    assertThat(events.get(1).payload()).isInstanceOf(ValidationFinishedPayload.class);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).facts()).isEqualTo(FACTS);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).error()).isNull();
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).result()).isEqualTo(true);
+    events.clear();
+    Mockito.reset(validator, ruleExecutor);
+
+    when(ruleExecutor.validateAsync(any(), any(RuleSelector.class), any())).thenReturn(
+        CompletableFuture.completedFuture(null));
+    validator.validateAsync(FACTS, SELECTOR, PARAMS).join();
+    assertThat(events).hasSize(2);
+    assertThat(events.get(0).source()).isEqualTo(validator);
+    assertThat(events.get(0).payload()).isEqualTo(new ValidationStartedPayload(FACTS));
+    assertThat(events.get(1).source()).isEqualTo(validator);
+    assertThat(events.get(1).payload()).isInstanceOf(ValidationFinishedPayload.class);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).facts()).isEqualTo(FACTS);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).error()).isNull();
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).result()).isEqualTo(new Report(Set.of()));
+    events.clear();
+    Mockito.reset(validator, ruleExecutor);
+
+    when(ruleExecutor.validateAsync(any(), any(RuleSelector.class), any())).thenReturn(
+        CompletableFuture.completedFuture(null));
+    validator.validateAsync(REPORTER_FACTORY, FACTS, SELECTOR, PARAMS).join();
+    assertThat(events).hasSize(2);
+    assertThat(events.get(0).source()).isEqualTo(validator);
+    assertThat(events.get(0).payload()).isEqualTo(new ValidationStartedPayload(FACTS));
+    assertThat(events.get(1).source()).isEqualTo(validator);
+    assertThat(events.get(1).payload()).isInstanceOf(ValidationFinishedPayload.class);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).facts()).isEqualTo(FACTS);
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).error()).isNull();
+    assertThat(((ValidationFinishedPayload<?>)events.get(1).payload()).result()).isEqualTo(true);
+    events.clear();
+    Mockito.reset(validator, ruleExecutor);
+  }
   private class TestValidator implements Validator {
 
     @Override
