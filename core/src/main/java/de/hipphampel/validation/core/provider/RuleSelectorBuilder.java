@@ -7,8 +7,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * Builders to create {@link RuleSelector RuleSelectors}
+ */
 public class RuleSelectorBuilder {
 
+  /**
+   * Starts the production of a {@link CategorizingRuleSelector}.
+   *
+   * @param discriminator The discriminator to determine the value
+   * @param <D>           Type of the category
+   * @return The builder
+   */
   public static <D> CategorizingRuleSelectorBuilder<D> withCategorizer(Value<D> discriminator) {
     return new CategorizingRuleSelectorBuilder<>(discriminator);
   }
