@@ -1,6 +1,6 @@
 # Triangle example
 
-This example is intended to get familar with the basic usage of the validation library.
+This example is intended to become familar with the basic usage of the validation library.
 As an example for introduction, we validate polygons and check, whether a given polygon is
 a triangle or not.
 
