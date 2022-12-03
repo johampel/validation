@@ -28,11 +28,11 @@ import java.util.Objects;
 /**
  * An event sent by an {@link EventPublisher}.
  * <p>
- * This is basically an en envelope around the event payload provided by some event sender
+ * This is basically an envelope around the event payload provided by some event sender
  *
  * @param payload     The event payload
- * @param publishTime The publish time of the event
- * @param source      The object being the originator of this event
+ * @param publishTime The publication time of the event
+ * @param source      The originator of this event
  * @param <T>         The payload type
  */
 public record Event<T>(T payload, LocalDateTime publishTime, Object source) {
@@ -41,8 +41,8 @@ public record Event<T>(T payload, LocalDateTime publishTime, Object source) {
    * Constructor
    *
    * @param payload     The event payload
-   * @param publishTime The publish time of the event
-   * @param source      The object being the originator of this event
+   * @param publishTime The publication time of the event
+   * @param source      The originator of this event
    */
   public Event {
     Objects.requireNonNull(payload);

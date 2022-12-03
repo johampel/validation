@@ -24,27 +24,23 @@
 /**
  * Classes describing reusable conditions on facts.
  * <p>
- * The most important classes of this package a
- * {@link de.hipphampel.validation.core.condition.Condition}, which is an interface for describing a
- * condition, and {@link de.hipphampel.validation.core.condition.Conditions}, which provide a set of
- * factory methods to create {@code Condition} instances.
+ * The most important classes of this package is {@link de.hipphampel.validation.core.condition.Condition}, which is an interface for
+ * describing a condition, and {@link de.hipphampel.validation.core.condition.Conditions}, which provide a set of factory methods to create
+ * {@code Condition} instances.
  * <p>
  * Technically, a {@code Condition} is a predicate on the current
- * {@link de.hipphampel.validation.core.execution.ValidationContext ValidationContext} in
- * combination with the object being validated. But in most cases, a {@code Condition} is
- * constructed based on {@link de.hipphampel.validation.core.value.Value Value} objects and/or other
+ * {@link de.hipphampel.validation.core.execution.ValidationContext ValidationContext} in combination with the object being validated. But
+ * in most cases, a {@code Condition} is constructed based on {@link de.hipphampel.validation.core.value.Value Value} objects and/or other
  * {@code Conditions}:
  * <p>
  * An example for a {@code Condition} based on {@code Values} is the
- * {@link de.hipphampel.validation.core.condition.IsNullCondition IsNullCondition}, that checks,
- * whether a {@code Value} is {@code null} or not and returns {@code true} or {@code false}
- * accordingly. An example for a {@code Condition} that is built based in other {@code Conditions},
- * is the {@link de.hipphampel.validation.core.condition.NotCondition NotCondition}, which negates
- * the outcome of a given one.
+ * {@link de.hipphampel.validation.core.condition.IsNullCondition IsNullCondition}, that checks, whether a {@code Value} is {@code null} or
+ * not and returns {@code true} or {@code false} accordingly. An example for a {@code Condition} that is built based in other
+ * {@code Conditions}, is the {@link de.hipphampel.validation.core.condition.NotCondition NotCondition}, which negates the outcome of a
+ * given one.
  * <p>
- * {@code Conditions} can be used to describe reusable, often recurring conditions that have to be
- * evaluated. They are also used to describe the
- * {@link de.hipphampel.validation.core.rule.Rule#getPreconditions() preconditions} of a
+ * {@code Conditions} can be used to describe reusable, often recurring conditions that have to be evaluated. They are also used to describe
+ * the {@link de.hipphampel.validation.core.rule.Rule#getPreconditions() preconditions} of a
  * {@link de.hipphampel.validation.core.rule.Rule Rule}.
  *
  * @see de.hipphampel.validation.core.condition.Condition

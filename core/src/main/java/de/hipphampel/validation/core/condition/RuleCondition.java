@@ -36,10 +36,10 @@ import java.util.Set;
 /**
  * A {@link Condition} that evaluates {@link Rule Rules} for optional given paths.
  * <p>
- * This condition calls the the {@code Rules} selected by the {@link RuleSelector} for the given
- * paths, or - in case that the paths are not set - for the object being validated.
+ * This condition calls the  {@code Rules} selected by the {@link RuleSelector} for the given paths, or - in case that the paths are not set
+ * - for the object being validated.
  * <p>
- * The condition evaluates to {@code true}, if all rules evaulates to {@code ok}
+ * The condition evaluates to {@code true}, if all rules evaluate to {@code OK}
  *
  * @param ruleSelector The {@code RuleSelector} to use
  * @param paths        A {@link Set} for the paths to evaluate

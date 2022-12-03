@@ -30,14 +30,13 @@ import de.hipphampel.validation.core.rule.Rule;
 import de.hipphampel.validation.core.rule.StringResultReason;
 
 /**
- * {@link ValidationException} that can be thrown by a {@link Rule} to indicate a failed
- * {@code Result}.
+ * {@link ValidationException} that can be thrown by a {@link Rule} to indicate a failed {@code Result}.
  * <p>
- * An exception of this kind are caught be the {@link RuleExecutor} when the {@code Rule} is
- * executed; the associated {@link ResultReason} is the reason of the failed |@link Result} returned
- * by {@link #toResult()}
+ * Exceptions of this kind are caught be the {@link RuleExecutor} when the {@code Rule} is executed; the associated {@link ResultReason} is
+ * the reason of the failed {@link Result} returned by {@link #toResult()}
  * <p>
- * Use usage of this exception should not be the normal case to signal a failed rule.
+ * Use usage of this exception should not be the normal case to signal a failed rule, it is more intended to be used by this library to
+ * signal exceptional errors.
  *
  * @see RuleExecutor
  */
@@ -93,8 +92,7 @@ public class RuleFailedException extends ValidationException {
   /**
    * Returns the {@link Result}.
    * <p>
-   * The {@code Result} has always the code {@link ResultCode#FAILED} and the reason specified at
-   * construction time.
+   * The {@code Result} has always the code {@link ResultCode#FAILED} and the reason specified at construction time.
    *
    * @return The {@code Result}
    */

@@ -31,8 +31,19 @@ import java.lang.annotation.Target;
 /**
  * Used inside {@link RuleDef} annotations to define precondtions of a {@link Rule}.
  * <p>
- * This annotation allows to define preconditions that become true if the given rules evaluated for
- * the given paths evaluate to true.
+ * This annotation allows to define preconditions that become true if the given rules evaluated for the given paths evaluate to
+ * {@link de.hipphampel.validation.core.rule.ResultCode#OK OK}.
+ * <p>
+ * Usage example:
+ * <pre>
+ *     &#64;RuleDef(id = "parent",
+ *       preconditions = {
+ *           &#64;Precondition(rules = "child", path="aPath")
+ *       })
+ * </pre>
+ * <p>
+ * In the example above, the {@code Rule} with the id {@code parent} has a precondition that becomes {@code true}, if the {@code Rule} with
+ * the id {@code child} evaluates to {@code OK}.
  *
  * @see RuleDef
  */

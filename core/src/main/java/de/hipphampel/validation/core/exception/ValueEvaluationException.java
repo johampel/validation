@@ -27,7 +27,7 @@ import de.hipphampel.validation.core.value.Value;
 /**
  * {@link ValidationException} thrown from the {@link Value} implementations.
  *
- * Exceptions of this kind are thrown in case the
+ * Exceptions of this kind are thrown in case the evaluation of a {@code Value} fails.
  */
 public class ValueEvaluationException extends ValidationException {
 

@@ -42,11 +42,11 @@ import org.slf4j.LoggerFactory;
  * <p>
  * This implementation extends the {@link SimpleRuleExecutor} regarding two central aspects:
  * <ul>
- *   <li>Rule execution is done in an real asyncrhonous fashion; all rule executions are done
- *   by utilizing the associated {@link ForkJoinPool}.</li>
+ *   <li>Rule execution is done in an real asynchronous fashion; all rule executions are done
+ *   by utilizing the associated {@link Executor}, with is a {@link ForkJoinPool} by default.</li>
  *   <li>It caches the results of {@link Rule} executions. The lifetime of the cache is bound to
  *   the {@link ValidationContext}. The {@code ValidationContext} is usually constructed for each
- *   validation of an object and lives until all rules of the objects are executed</li>
+ *   validation of an object and lives until all rules of the objects are executed.</li>
  * </ul>
  *
  * @see ValidationContext

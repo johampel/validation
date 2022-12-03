@@ -23,8 +23,7 @@
 package de.hipphampel.validation.core.event.payloads;
 
 /**
- * Empty payload informing that the available rules of a
- * {@link de.hipphampel.validation.core.provider.RuleRepository} has been changed.
+ * Empty payload informing that the available rules of a {@link de.hipphampel.validation.core.provider.RuleRepository} has been changed.
  * <p>
  * The {@code RuleRepository} itself is available via the {@code source} of the enclosing event.
  */

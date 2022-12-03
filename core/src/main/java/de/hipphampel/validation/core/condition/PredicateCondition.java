@@ -27,7 +27,9 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
- * {@link Condition} implenentation that wrapps around a {@link Predicate}
+ * {@link Condition} implementation that wraps around a {@link Predicate}.
+ * <p>
+ * The predicate is evaluated on the object being validated.
  *
  * @param predicate The predicate
  */

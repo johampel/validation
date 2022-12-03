@@ -64,8 +64,9 @@ import java.util.function.Function;
  * time to time. The contract is that the copied instance must return exactly the same objects for the infrastructural or shared objects,
  * for all other objects a deep copy is sufficient.
  * <p>
- * Normally, an initial {@code ValidationContext} is created by the {@link Validator} when calling a {@code validate*} method, so in
- * general, the lifetime of a {@code ValidationContext} is limited to the execution of all rules for a single object.
+ * Normally, an <b>initial</b> {@code ValidationContext} is created by the {@link Validator} when calling a {@code validate*} method, so in
+ * general, the lifetime of the initial {@code ValidationContext} is limited to the execution of all rules for a single object. During rule
+ * execution, especially when it is done in an asynchronous way - the validation might create deep copies of the the initial context.
  *
  * @see RuleExecutor
  * @see Validator

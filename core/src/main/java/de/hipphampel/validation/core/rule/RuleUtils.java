@@ -61,7 +61,8 @@ public class RuleUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> determineRuleFactsType(Rule<?> rule) {
-    return (Class<T>) determineRuleFactsTypeInfo(rule).resolve();
+    Class<?> type = determineRuleFactsTypeInfo(rule).resolve();
+    return (Class<T>) (type == null ? Object.class : type);
   }
 
 }

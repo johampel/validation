@@ -24,20 +24,17 @@
 /**
  * Event related components.
  * <p>
- * During validation, a {@link de.hipphampel.validation.core.event.EventPublisher} is used to
- * publish events to the client. Such events are sent, when the execution of a
- * {@link de.hipphampel.validation.core.rule.Rule Rule} starts or ends, but an application/
- * {@code Rule} implementation is also allowed to sent its own events.
+ * During validation, a {@link de.hipphampel.validation.core.event.EventPublisher} is used to publish events to the client. Such events are
+ * sent, when the execution of a {@link de.hipphampel.validation.core.rule.Rule Rule} starts or ends, but an application/{@code Rule}
+ * implementation is also allowed to send its own events.
  * <p>
- * While the {@code EventPublisher} is for sending, the
- * {@link de.hipphampel.validation.core.event.EventSubscriber} is the part that is intended to add
- * {@link de.hipphampel.validation.core.event.EventListener} to be called when an event occurs.
- * Conceputally, {@code EventPublishers} and {@code EvenSubscriber} might be different objects, but
- * with the {@link de.hipphampel.validation.core.event.DefaultSubscribableEventPublisher} there is also one
- * implementation that unifies both.
+ * While the {@code EventPublisher} is for sending, the {@link de.hipphampel.validation.core.event.EventSubscriber} is the part that is
+ * intended to add {@link de.hipphampel.validation.core.event.EventListener} to be called when an event occurs. Conceptually,
+ * {@code EventPublishers} and {@code EvenSubscriber} might be different objects, but with the
+ * {@link de.hipphampel.validation.core.event.DefaultSubscribableEventPublisher} there is also one implementation that unifies both.
  * <p>
- * {@code EventPublisher} and {@code EventSubscriber} are more infrastructural objects that should
- * be provided by the {@link de.hipphampel.validation.core.Validator Validator}.
+ * {@code EventPublisher} and {@code EventSubscriber} are more infrastructural objects that should be provided by the
+ * {@link de.hipphampel.validation.core.Validator Validator}.
  *
  * @see de.hipphampel.validation.core.event.EventSubscriber
  * @see de.hipphampel.validation.core.event.EventPublisher

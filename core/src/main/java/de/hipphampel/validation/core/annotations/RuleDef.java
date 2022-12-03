@@ -42,21 +42,19 @@ import java.util.function.Predicate;
  * <p>
  * The exact behaviour of this annotation depends on the member being annotated:
  * <p>
- * If the annotated object is a field, then the field must be final, not-null and have the type
- * {@link Condition} or {@link Predicate}. The {@code AnnotationRuleRepository} then creates a
- * {@link ConditionRule} for it, whereas the missing information, like the id is taken from the
- * annotation.
+ * If the annotated object is a field, then the field must be final, not-null and have the type {@link Condition} or {@link Predicate}. The
+ * {@code AnnotationRuleRepository} then creates a {@link ConditionRule} for it, whereas the missing information (like the id) is taken from
+ * the annotation.
  * <p>
- * If the annotated object is a method, then the method must accept either exactly one argument or
- * two, whereas - in case of two arguments - the first must be {@link ValidationContext} and the
- * last one is always the object to be validated. Furthermore, the return type of the method must be
- * either a {@code boolean}, a {@code Boolean}, or a {@link Result}. The
- * {@code AnnotationRuleRepository} creates then a {@link FunctionRule} for it.
+ * If the annotated object is a method, then the method must accept either exactly one argument or two, whereas - in case of two arguments -
+ * the first must be {@link ValidationContext} and the last one is always the object to be validated. Furthermore, the return type of the
+ * method must be either a {@code boolean}, a {@code Boolean}, or a {@link Result}. The {@code AnnotationRuleRepository} creates then a
+ * {@link FunctionRule} for it.
  * <p>
- * Generally, the member might be static or not. If it is not static, the {@code Rule}
- * implementation might refer to the state that is provided be the enclosing class.
+ * Generally, the member might be static or not. If it is not static, the {@code Rule} implementation might refer to the state that is
+ * provided be the enclosing class.
  * <p>
- * In opposite to {@link RuleRef}, this annotation defines a new {@code Rule}
+ * In opposite to {@link RuleRef}, this annotation defines a new {@code Rule}.
  *
  * @see RuleRef
  * @see AnnotationRuleRepository
@@ -69,9 +67,8 @@ public @interface RuleDef {
   /**
    * The id of the rule to create.
    * <p>
-   * If the setting is an empty string, the id is automatically generated with the format
-   * {@code <className>:<memberName>} (whereas the {@code className} is the local class name without
-   * the package.
+   * If the setting is an empty string, the id is automatically generated with the format {@code <className>:<memberName>} (whereas the
+   * {@code className} is the local class name without the package.
    *
    * @return The id of the {@link Rule}
    */
@@ -80,8 +77,7 @@ public @interface RuleDef {
   /**
    * The type of object being validated by this definition.
    * <p>
-   * This is only evaluated in case of field based rule definitions; in case of method based ones
-   * this is derived from the method signature
+   * This is only evaluated in case of field based rule definitions; in case of method based ones this is derived from the method signature
    *
    * @return The facts type
    */
@@ -90,17 +86,17 @@ public @interface RuleDef {
   /**
    * The fail message.
    * <p>
-   * The message is only evaluated for rules constructed based on fields and for rules created for
-   * methods returning a {@code boolean} or {@code Boolean}. The message is used, if the rule fails
-   * and contains the reason message then.
+   * The message is only evaluated for rules constructed based on fields and for rules created for methods returning a {@code boolean} or
+   * {@code Boolean}. The message is used, if the rule fails and contains the reason message then.
    *
    * @return The message
    */
   String message() default "";
 
   /**
-   * A set of {@link Rule} ids that acts as precondtions. This {@code Rule} is only executed if the
-   * {@code Rules} mentioned in the precondition have been executed with a {@code ok} result before
+   * A list of {@link Precondition Preconditions}.
+   * <p>
+   * This {@code Rule} is only executed if the {@code Rules} mentioned in the precondition have been executed with a {@code OK} result
    *
    * @return List of preconditions.
    */
