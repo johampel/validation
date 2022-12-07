@@ -40,6 +40,7 @@ import de.hipphampel.validation.core.rule.RuleBuilder;
 import de.hipphampel.validation.core.rule.StringResultReason;
 import de.hipphampel.validation.core.rule.SystemResultReason;
 import de.hipphampel.validation.core.rule.SystemResultReason.Code;
+import de.hipphampel.validation.core.utils.TypeInfo;
 import de.hipphampel.validation.core.value.Values;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -47,6 +48,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -56,18 +58,17 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * {@link RuleRepository} using annotations to define {@link Rule Rules}.
  * <p>
- * This implementation supports the {@link RuleRef} and {@link RuleDef} annotations. Fields or
- * methods annotated with those define the actual {@code Rules}. Basically, there are two ways how
- * to construct an instance: Either by specifying a {@code Class} so that annotated static members
- * are used to define the {@code Rules} or by specifying an object instance, so that non-static
- * member are used. The latter way is useful in situations where the {@code Rules} depend on the
- * state of the instance.
+ * This implementation supports the {@link RuleRef} and {@link RuleDef} annotations. Fields or methods annotated with those define the
+ * actual {@code Rules}. Basically, there are two ways how to construct an instance: Either by specifying a {@code Class} so that annotated
+ * static members are used to define the {@code Rules} or by specifying an object instance, so that non-static member are used. The latter
+ * way is useful in situations where the {@code Rules} depend on the state of the instance.
  * <p>
  * The behavior of duplicate rule definitions in terms of duplicate {@code ids} is not defined.
  * <p>
@@ -106,7 +107,7 @@ public class AnnotationRuleRepository implements RuleRepository {
    * @return A {@link AnnotationRuleRepository}
    */
   public static AnnotationRuleRepository ofInstance(Object instance) {
-    return new AnnotationRuleRepository(instance, (Class<?>) instance.getClass());
+    return new AnnotationRuleRepository(instance, instance.getClass());
   }
 
   /**
@@ -153,11 +154,10 @@ public class AnnotationRuleRepository implements RuleRepository {
   private Map<String, Rule<?>> fillRuleMap(Class<?> clazz) {
     Map<String, Rule<?>> ruleMap = new HashMap<>();
     Arrays.stream(clazz.getDeclaredFields())
-        .map(this::fieldToRule)
-        .filter(Objects::nonNull)
+        .flatMap(this::fieldToRuleStream)
         .forEach(rule -> addRule(ruleMap, rule));
     Arrays.stream(clazz.getMethods())
-        .map(this::methodToRule)
+        .flatMap(this::methodToRuleStream)
         .filter(Objects::nonNull)
         .forEach(rule -> addRule(ruleMap, rule));
     return Collections.unmodifiableMap(ruleMap);
@@ -171,22 +171,21 @@ public class AnnotationRuleRepository implements RuleRepository {
     ruleMap.put(id, rule);
   }
 
-  private Rule<?> fieldToRule(Field field) {
+  private Stream<Rule<?>> fieldToRuleStream(Field field) {
     RuleRef ruleRef = field.getAnnotation(RuleRef.class);
     RuleDef ruleDef = field.getAnnotation(RuleDef.class);
     if (ruleRef == null && ruleDef == null) {
-      return null;
+      return Stream.empty();
     } else if (ruleDef != null && ruleRef != null) {
-      throw new IllegalStateException(
-          "Field '" + field.getName() + "' annotated with both RuleRef and RuleDef");
+      throw new IllegalStateException("Field '" + field.getName() + "' annotated with both RuleRef and RuleDef");
     } else if (ruleDef != null) {
-      return fieldToRuleFromRuleDef(field, ruleDef);
+      return fieldToRuleStreamFromRuleDef(field, ruleDef);
     } else {
-      return fieldToRuleFromRuleRef(field, ruleRef);
+      return fieldToRuleStreamFromRuleRef(field, ruleRef);
     }
   }
 
-  private Rule<?> fieldToRuleFromRuleDef(Field field, RuleDef ruleDef) {
+  private Stream<Rule<?>> fieldToRuleStreamFromRuleDef(Field field, RuleDef ruleDef) {
     assertFieldModifier(field);
     Object fieldValue = getFieldValue(field, Condition.class, Predicate.class);
     Condition condition;
@@ -197,18 +196,37 @@ public class AnnotationRuleRepository implements RuleRepository {
     } else {
       throw new IllegalStateException("Unexpectd field value");
     }
-    return RuleBuilder.conditionRule(
-            determineRuleId(field, ruleDef),
-            ruleDef.factsType())
-        .validateWith(condition)
-        .withFailReason(determineFailReason(ruleDef))
-        .withPreconditions(determinePreconditions(ruleDef))
-        .build();
+    return Stream.of(
+        RuleBuilder.conditionRule(
+                determineRuleId(field, ruleDef),
+                ruleDef.factsType())
+            .validateWith(condition)
+            .withFailReason(determineFailReason(ruleDef))
+            .withPreconditions(determinePreconditions(ruleDef))
+            .build()
+    );
   }
 
-  private Rule<?> fieldToRuleFromRuleRef(Field field, RuleRef ruleRef) {
+  private Stream<Rule<?>> fieldToRuleStreamFromRuleRef(Field field, RuleRef ruleRef) {
     assertFieldModifier(field);
-    return getFieldValue(field, Rule.class);
+    TypeInfo typeInfo;
+    if (instance != null) {
+      typeInfo = TypeInfo.forType(field.getGenericType(), TypeInfo.forInstance(instance));
+    } else {
+      typeInfo = TypeInfo.forType(field.getGenericType());
+    }
+
+    if (Rule.class.isAssignableFrom(typeInfo.resolve())) {
+      Rule<?> rule = getFieldValue(field, Rule.class);
+      return Stream.of(rule);
+    }
+
+    if (Collection.class.isAssignableFrom(typeInfo.resolve()) && Rule.class.isAssignableFrom(typeInfo.getGeneric(0).resolve())) {
+      Collection<Rule<?>> rules = getFieldValue(field, Collection.class);
+      return rules.stream();
+    }
+
+    throw new IllegalStateException("Field '" + field.getName() + "' neither is a Rule or a Collection of Rules");
   }
 
   @SuppressWarnings("unchecked")
@@ -240,7 +258,7 @@ public class AnnotationRuleRepository implements RuleRepository {
     }
   }
 
-  private Rule<?> methodToRule(Method method) {
+  private Stream<Rule<?>> methodToRuleStream(Method method) {
     RuleRef ruleRef = method.getAnnotation(RuleRef.class);
     RuleDef ruleDef = method.getAnnotation(RuleDef.class);
     if (ruleRef == null && ruleDef == null) {
@@ -249,14 +267,14 @@ public class AnnotationRuleRepository implements RuleRepository {
       throw new IllegalStateException(
           "Method '" + method.getName() + "' annotated with both RuleRef and RuleDef");
     } else if (ruleDef != null) {
-      return methodToRuleFromRuleDef(method, ruleDef);
+      return methodToRuleStreamFromRuleDef(method, ruleDef);
     } else {
-      return methodToRuleFromRuleRef(method, ruleRef);
+      return methodToRuleStreamFromRuleRef(method, ruleRef);
     }
   }
 
   @SuppressWarnings("unchecked")
-  private Rule<?> methodToRuleFromRuleDef(Method method, RuleDef ruleDef) {
+  private Stream<Rule<?>> methodToRuleStreamFromRuleDef(Method method, RuleDef ruleDef) {
     assertMethodModifier(method);
     Class<?>[] parameterTypes = method.getParameterTypes();
     if (parameterTypes.length < 1 ||
@@ -294,45 +312,59 @@ public class AnnotationRuleRepository implements RuleRepository {
       }
     }
 
-    return RuleBuilder.functionRule(
-            determineRuleId(method, ruleDef),
-            (Class<Object>) parameterTypes[parameterTypes.length - 1]
-        )
-        .validateWith(invoker)
-        .withPreconditions(determinePreconditions(ruleDef))
-        .build();
+    return Stream.of(
+        RuleBuilder.functionRule(
+                determineRuleId(method, ruleDef),
+                (Class<Object>) parameterTypes[parameterTypes.length - 1])
+            .validateWith(invoker)
+            .withPreconditions(determinePreconditions(ruleDef))
+            .build());
   }
 
   private static Result toResult(Boolean result, ResultReason failReason) {
     return Boolean.TRUE.equals(result) ? Result.ok() : Result.failed(failReason);
   }
 
-  private Rule<?> methodToRuleFromRuleRef(Method method, RuleRef ruleRef) {
+  private Stream<Rule<?>> methodToRuleStreamFromRuleRef(Method method, RuleRef ruleRef) {
     assertMethodModifier(method);
     if (method.getParameterTypes().length > 0) {
       throw new IllegalStateException(
           "Method '" + method.getName() + "' must not expect any parameter");
     }
 
-    Class<?> returnType = method.getReturnType();
-    if (!Rule.class.isAssignableFrom(returnType)) {
-      throw new IllegalStateException(
-          "Method '" + method.getName() + "' must return a Rule");
+    TypeInfo typeInfo;
+    if (instance != null) {
+      typeInfo = TypeInfo.forType(method.getGenericReturnType(), TypeInfo.forInstance(instance));
+    } else {
+      typeInfo = TypeInfo.forType(method.getGenericReturnType());
     }
 
+    if (Rule.class.isAssignableFrom(typeInfo.resolve())) {
+      Rule<?> rule = getMethodValue(method);
+      return Stream.of(rule);
+    }
+
+    if (Collection.class.isAssignableFrom(typeInfo.resolve()) && Rule.class.isAssignableFrom(typeInfo.getGeneric(0).resolve())) {
+      Collection<Rule<?>> rules = getMethodValue(method);
+      return rules.stream();
+    }
+
+    throw new IllegalStateException("Method '" + method.getName() + "' neither returns a Rule or a Collection of Rules");
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> T getMethodValue(Method method) {
     try {
       if (!method.canAccess(instance)) {
         method.setAccessible(true);
       }
-      Rule<?> rule = (Rule<?>) method.invoke(instance);
-      if (rule == null) {
-        throw new IllegalStateException(
-            "Method '" + method.getName() + "' returns null");
+      Object result = method.invoke(instance);
+      if (result == null) {
+        throw new IllegalStateException("Method '" + method.getName() + "' returns null");
       }
-      return rule;
+      return (T) result;
     } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new IllegalStateException(
-          "Method '" + method.getName() + "' throws an exception", e);
+      throw new IllegalStateException("Method '" + method.getName() + "' throws an exception", e);
     }
   }
 

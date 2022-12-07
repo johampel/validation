@@ -37,7 +37,9 @@ import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.rule.Result;
 import de.hipphampel.validation.core.rule.Rule;
 import de.hipphampel.validation.core.rule.RuleBuilder;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 
 public class AnnotationRuleRepositoryTest {
@@ -51,7 +53,11 @@ public class AnnotationRuleRepositoryTest {
         "staticMethodRef",
         "staticPredicate",
         "staticMethod",
-        "StaticContainer:r4"
+        "StaticContainer:r4",
+        "r7_10",
+        "r7_11",
+        "r9_10",
+        "r9_11"
     );
   }
 
@@ -96,7 +102,11 @@ public class AnnotationRuleRepositoryTest {
         "methodRef",
         "predicate",
         "method",
-        "InstanceContainer:r4"
+        "InstanceContainer:r4",
+        "r8_10",
+        "r8_11",
+        "r10_10",
+        "r10_11"
     );
   }
 
@@ -169,15 +179,27 @@ public class AnnotationRuleRepositoryTest {
     }
 
     @RuleDef(id = "method", preconditions = {
-        @Precondition(rules="a", paths="b"),
-        @Precondition(rules="c", paths="d"),
+        @Precondition(rules = "a", paths = "b"),
+        @Precondition(rules = "c", paths = "d"),
     })
     public static Result r6(Point value) {
       return Objects.equals(value.x(), value.y()) ? Result.ok() : Result.failed("x!=y");
     }
+
+    @RuleRef
+    public final List<? extends Rule<?>> r8 = IntStream.range(10, 12).boxed()
+        .map(i -> RuleBuilder.conditionRule("r8_" + i, Object.class).validateWith(Conditions.alwaysTrue()).build())
+        .toList();
+
+    @RuleRef
+    public final List<? extends Rule<?>> r10() {
+      return IntStream.range(10, 12).boxed()
+          .map(i -> RuleBuilder.conditionRule("r10_" + i, Object.class).validateWith(Conditions.alwaysTrue()).build())
+          .toList();
+    }
   }
 
-   static class StaticContainer {
+  static class StaticContainer {
 
     @RuleRef
     private static final Rule<String> r1 =
@@ -209,6 +231,18 @@ public class AnnotationRuleRepositoryTest {
     @RuleDef(id = "staticMethod")
     public static Result r6(Point value) {
       return Objects.equals(value.x(), value.y()) ? Result.ok() : Result.failed("x!=y");
+    }
+
+    @RuleRef
+    public static final List<? extends Rule<?>> r7 = IntStream.range(10, 12).boxed()
+        .map(i -> RuleBuilder.conditionRule("r7_" + i, Object.class).validateWith(Conditions.alwaysTrue()).build())
+        .toList();
+
+    @RuleRef
+    public static List<? extends Rule<?>> r9() {
+      return IntStream.range(10, 12).boxed()
+          .map(i -> RuleBuilder.conditionRule("r9_" + i, Object.class).validateWith(Conditions.alwaysTrue()).build())
+          .toList();
     }
   }
 }

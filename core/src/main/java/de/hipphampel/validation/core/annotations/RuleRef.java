@@ -34,11 +34,31 @@ import java.lang.annotation.Target;
  * <p>
  * Annotations of this type are evaluated by the {@link AnnotationRuleRepository}.
  * <p>
- * This annotation can be applied to final, not-null fields of type {@code Rule} or to parameterless
- * methods returning a {@code Rule}. In both cases the outcome is a ready to use {@code Rule}.
+ * This annotation can be applied to final, not-null fields of type {@code Rule} or to parameterless methods returning a {@code Rule}. In
+ * both cases the outcome is a ready to use {@code Rule}. An example is:
+ *
+ * <pre>
+ *   &#64;RuleRef
+ *   Rule&lt;SomeType> rule = RuleBuilder.functionRule("ruleId", Object.class)
+ *      .validateWith((context, facts) -> facts != null)
+ *      .build();
+ * </pre>
+ *
  * <p>
- * Note that in opposite to the {@link RuleDef} annotation, this annotation does not construct a new
- * {@code Rule}, but simply refers to an existing one.
+ * Also, it is possible to apply this annotation to a field or a parameterless method providing collection of {@code Rules}. This option is
+ * intended to produce rules the have a common shape, e.g.:
+ *
+ * <pre>
+ *   &#64;RuleRef
+ *   List&lt;? extends Rule&lt;?>> rules = Stream.of("Attr1", "Attr2", Attr3")
+ *      .map(attr -> RuleBuilder.conditionRule("ruleFor" + attr, Object.class)
+ *                              .validateWith(Conditions.notNull(Values.path(attr)))
+ *                              .build())
+ *      .toList();
+ * </pre>
+ * <p>
+ * Note that in opposite to the {@link RuleDef} annotation, this annotation does not construct a new {@code Rule}, but simply refers to an
+ * existing one.
  *
  * @see RuleDef
  * @see AnnotationRuleRepository
