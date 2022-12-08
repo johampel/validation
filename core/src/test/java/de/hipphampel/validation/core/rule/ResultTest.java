@@ -91,10 +91,10 @@ public class ResultTest {
 
   @ParameterizedTest
   @CsvSource({
-//      "OK,      OK,      true",
-//      "OK,      SKIPPED, false",
-//      "OK,      FAILED,  false",
-//      "SKIPPED, SKIPPED, true",
+      "OK,      OK,      false",
+      "OK,      SKIPPED, false",
+      "OK,      FAILED,  false",
+      "SKIPPED, SKIPPED, false",
       "SKIPPED, FAILED,  false",
       "FAILED,  SKIPPED, true"
   })

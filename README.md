@@ -2,7 +2,7 @@
 
 This library contains the basic infrastructure to define and run business validations.
 
-This project consists of teh following submodules:
+This project consists of the following submodules:
 
 - [core](core): is the core library, which contains all you need to start with validations. In order to use it, you
   should add the following dependency to your project:

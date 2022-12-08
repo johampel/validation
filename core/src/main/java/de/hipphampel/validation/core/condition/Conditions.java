@@ -27,12 +27,14 @@ import de.hipphampel.validation.core.path.Path;
 import de.hipphampel.validation.core.provider.RuleSelector;
 import de.hipphampel.validation.core.rule.ResultCode;
 import de.hipphampel.validation.core.rule.Rule;
+import de.hipphampel.validation.core.utils.OneOfTwo;
 import de.hipphampel.validation.core.utils.StreamProvider;
 import de.hipphampel.validation.core.value.Value;
 import de.hipphampel.validation.core.value.Values;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -198,8 +200,7 @@ public interface Conditions {
    *
    * @param arg The {@link Value} to check
    * @param <T> Type of the {@code arg}
-   * @return A {@code Condition} that becomes {@code true}, if the argument evaluates to
-   * {@code null}
+   * @return A {@code Condition} that becomes {@code true}, if the argument evaluates to {@code null}
    */
   static <T> Condition isNull(Value<T> arg) {
     return new IsNullCondition<>(arg, IsNullCondition.Mode.NULL);
@@ -210,8 +211,7 @@ public interface Conditions {
    *
    * @param arg The {@link Value} to check
    * @param <T> Type of the {@code arg}
-   * @return A {@code Condition} that becomes {@code true}, if the argument not evaluates to
-   * {@code null}
+   * @return A {@code Condition} that becomes {@code true}, if the argument not evaluates to {@code null}
    */
   static <T> Condition isNotNull(Value<T> arg) {
     return new IsNullCondition<>(arg, IsNullCondition.Mode.NOT_NULL);
@@ -223,8 +223,7 @@ public interface Conditions {
    * @param left  The left  side {@link Value} to check
    * @param right The right  side {@link Value} to check
    * @param <T>   Type of the arguments
-   * @return A {@code Condition} that becomes {@code true}, if the arguments  evaluate to equal
-   * values
+   * @return A {@code Condition} that becomes {@code true}, if the arguments  evaluate to equal values
    */
   static <T> Condition eq(Value<T> left, Value<T> right) {
     return new EqualsCondition<>(left, right, EqualsCondition.Mode.EQ);
@@ -236,8 +235,7 @@ public interface Conditions {
    * @param left  The left  side {@link Value} to check
    * @param right The right  side {@link Value} to check
    * @param <T>   Type of the arguments
-   * @return A {@code Condition} that becomes {@code true}, if the arguments  evaluate to different
-   * values
+   * @return A {@code Condition} that becomes {@code true}, if the arguments  evaluate to different values
    */
   static <T> Condition ne(Value<T> left, Value<T> right) {
     return new EqualsCondition<>(left, right, EqualsCondition.Mode.NE);
@@ -249,8 +247,8 @@ public interface Conditions {
    * @param left  The left  side {@link Value} to check
    * @param right The right  side {@link Value} to check
    * @param <T>   Type of the arguments
-   * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value
-   * that is less or equal to the value evaluated by {@code right}
+   * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value that is less or equal to the value
+   * evaluated by {@code right}
    */
   static <T extends Comparable<T>> Condition le(Value<T> left, Value<T> right) {
     return new CompareCondition<>(left, right, Mode.LE);
@@ -262,8 +260,8 @@ public interface Conditions {
    * @param left  The left  side {@link Value} to check
    * @param right The right  side {@link Value} to check
    * @param <T>   Type of the arguments
-   * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value
-   * that is less than the value evaluated by {@code right}
+   * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value that is less than the value evaluated by
+   * {@code right}
    */
   static <T extends Comparable<T>> Condition lt(Value<T> left, Value<T> right) {
     return new CompareCondition<>(left, right, Mode.LT);
@@ -275,8 +273,8 @@ public interface Conditions {
    * @param left  The left  side {@link Value} to check
    * @param right The right  side {@link Value} to check
    * @param <T>   Type of the arguments
-   * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value
-   * that is greater than the value evaluated by {@code right}
+   * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value that is greater than the value evaluated
+   * by {@code right}
    */
   static <T extends Comparable<T>> Condition gt(Value<T> left, Value<T> right) {
     return new CompareCondition<>(left, right, Mode.GT);
@@ -288,19 +286,17 @@ public interface Conditions {
    * @param left  The left  side {@link Value} to check
    * @param right The right  side {@link Value} to check
    * @param <T>   Type of the arguments
-   * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value
-   * that is greater or equal to the value evaluated by {@code right}
+   * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value that is greater or equal to the value
+   * evaluated by {@code right}
    */
   static <T extends Comparable<T>> Condition ge(Value<T> left, Value<T> right) {
     return new CompareCondition<>(left, right, Mode.GE);
   }
 
   /**
-   * Creates a {@link Condition} that executes the {@link Rule Rules} provided by the given
-   * {@link RuleSelector}.
+   * Creates a {@link Condition} that executes the {@link Rule Rules} provided by the given {@link RuleSelector}.
    * <p>
-   * The condition will evaluate to {@code true}, if all {@code Rules} evaluate to
-   * {@link ResultCode#OK}
+   * The condition will evaluate to {@code true}, if all {@code Rules} evaluate to {@link ResultCode#OK}
    *
    * @param ruleSelector The {@code RuleSelector}
    * @return The {@code Condition}
@@ -310,11 +306,10 @@ public interface Conditions {
   }
 
   /**
-   * Creates a {@link Condition} that executes the {@link Rule Rules} provided by the given
-   * {@link RuleSelector} for the specified {@code paths}.
+   * Creates a {@link Condition} that executes the {@link Rule Rules} provided by the given {@link RuleSelector} for the specified
+   * {@code paths}.
    * <p>
-   * The condition will evaluate to {@code true}, if all {@code Rules} evaluate to
-   * {@link ResultCode#OK}
+   * The condition will evaluate to {@code true}, if all {@code Rules} evaluate to {@link ResultCode#OK}
    *
    * @param ruleSelector The {@code RuleSelector}
    * @param paths        The {@link Path Paths}
@@ -332,5 +327,68 @@ public interface Conditions {
    */
   static Condition predicate(Predicate<?> predicate) {
     return new PredicateCondition(predicate);
+  }
+
+  /**
+   * Creates a {@link Condition} that checks, whether the given {@code path} exists for the object being validated.
+   *
+   * @param path The path to check
+   * @return The {@code Condition}
+   */
+  static Condition existsPath(Path path) {
+    return new PathCondition(OneOfTwo.ofSecond(path), Optional.empty());
+  }
+
+  /**
+   * Creates a {@link Condition} that checks, whether the given {@code path} exists for the object being validated.
+   *
+   * @param path The path to check
+   * @return The {@code Condition}
+   */
+  static Condition existsPath(String path) {
+    return new PathCondition(OneOfTwo.ofFirst(Values.val(path)), Optional.empty());
+  }
+
+  /**
+   * Creates a {@link Condition} that checks, whether the given {@code path} exists for the object being validated.
+   *
+   * @param path The path to check
+   * @return The {@code Condition}
+   */
+  static Condition existsPath(Value<String> path) {
+    return new PathCondition(OneOfTwo.ofFirst(path), Optional.empty());
+  }
+
+  /**
+   * Creates a {@link Condition} that checks, whether the given {@code path} exists for the {@code reference} object.
+   *
+   * @param reference The reference object.
+   * @param path      The path to check
+   * @return The {@code Condition}
+   */
+  static Condition existsPathForObject(Value<?> reference, Path path) {
+    return new PathCondition(OneOfTwo.ofSecond(path), Optional.of(reference));
+  }
+
+  /**
+   * Creates a {@link Condition} that checks, whether the given {@code path} exists for the {@code reference} object.
+   *
+   * @param reference The reference object.
+   * @param path      The path to check
+   * @return The {@code Condition}
+   */
+  static Condition existsPathForObject(Value<?> reference, String path) {
+    return new PathCondition(OneOfTwo.ofFirst(Values.val(path)), Optional.of(reference));
+  }
+
+  /**
+   * Creates a {@link Condition} that checks, whether the given {@code path} exists for the {@code reference} object.
+   *
+   * @param reference The reference object.
+   * @param path      The path to check
+   * @return The {@code Condition}
+   */
+  static Condition existsPathForObject(Value<?> reference, Value<String> path) {
+    return new PathCondition(OneOfTwo.ofFirst(path), Optional.of(reference));
   }
 }

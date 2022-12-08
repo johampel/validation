@@ -288,6 +288,25 @@ public class ConditionsTest {
             Result.failed(),
             TestUtils.FIXED_DURATION),
         TestUtils.FIXED_DATE, context.getRuleExecutor()));
+  }
 
+  @ParameterizedTest
+  @CsvSource({
+      "exists,    true",
+      "notexists, false"
+  })
+  public void existsPath(String path, boolean expected) {
+    Condition condition = Conditions.existsPath(path);
+    assertThat(condition.evaluate(context, Map.of("exists", true))).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "exists,    true",
+      "notexists, false"
+  })
+  public void existsPathForObject(String path, boolean expected) {
+    Condition condition = Conditions.existsPathForObject(Values.val(Map.of("exists", true)), path);
+    assertThat(condition.evaluate(context, "ignore")).isEqualTo(expected);
   }
 }

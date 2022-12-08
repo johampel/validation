@@ -87,8 +87,7 @@ public interface Values {
   /**
    * Factory method to create a {@link MetadataValue}.
    * <p>
-   * Values of this type allow to access the {@linkplain Rule#getMetadata() metadata} of the current
-   * {@link Rule}
+   * Values of this type allow to access the {@linkplain Rule#getMetadata() metadata} of the current {@link Rule}
    *
    * @param key The key for the metadata
    * @param <T> The type of the value
@@ -101,8 +100,7 @@ public interface Values {
   /**
    * Factory method to create a {@link MetadataValue}.
    * <p>
-   * Values of this type allow to access the {@linkplain Rule#getMetadata() metadata} of the current
-   * {@link Rule}
+   * Values of this type allow to access the {@linkplain Rule#getMetadata() metadata} of the current {@link Rule}
    *
    * @param key The key for the metadata
    * @param <T> The type of the value
@@ -115,8 +113,7 @@ public interface Values {
   /**
    * Factory method to create a {@link PathValue} to be evaluated for the {@code referenceObject}.
    * <p>
-   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not
-   * resolvable.
+   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not resolvable.
    *
    * @param referenceObject The {@code Value} with the reference object the path is evaulated fr.
    * @param path            The string representation of the {@link Path}
@@ -124,8 +121,7 @@ public interface Values {
    * @param <T>             The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> pathForObject(Value<?> referenceObject, String path,
-      Value<T> defaultValue) {
+  static <T> Value<T> pathForObject(Value<?> referenceObject, String path, Value<T> defaultValue) {
     return new PathValue<>(
         OneOfTwo.ofFirst(val(path)),
         Optional.of(referenceObject),
@@ -136,8 +132,7 @@ public interface Values {
   /**
    * Factory method to create a {@link PathValue} to be evaluated for the {@code referenceObject}.
    * <p>
-   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not
-   * resolvable.
+   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not resolvable.
    *
    * @param referenceObject The {@code Value} with the reference object the path is evaulated fr.
    * @param path            A {@link Value} with the string representation of the {@link Path}
@@ -145,8 +140,7 @@ public interface Values {
    * @param <T>             The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> pathForObject(Value<?> referenceObject, Value<String> path,
-      Value<T> defaultValue) {
+  static <T> Value<T> pathForObject(Value<?> referenceObject, Value<String> path, Value<T> defaultValue) {
     return new PathValue<>(
         OneOfTwo.ofFirst(path),
         Optional.of(referenceObject),
@@ -157,8 +151,7 @@ public interface Values {
   /**
    * Factory method to create a {@link PathValue} to be evaluated for the {@code referenceObject}.
    * <p>
-   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not
-   * resolvable.
+   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not resolvable.
    *
    * @param referenceObject The {@code Value} with the reference object the path is evaulated fr.
    * @param path            The {@link Path}
@@ -166,8 +159,7 @@ public interface Values {
    * @param <T>             The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> pathForObject(Value<?> referenceObject, Path path,
-      Value<T> defaultValue) {
+  static <T> Value<T> pathForObject(Value<?> referenceObject, Path path, Value<T> defaultValue) {
     return new PathValue<>(
         OneOfTwo.ofSecond(path),
         Optional.of(referenceObject),
@@ -178,8 +170,7 @@ public interface Values {
   /**
    * Factory method to create a {@link PathValue} to be evaluated for the {@code referenceObject}.
    * <p>
-   * The returned {@code Value} will throw an exception upon evaluation in case the path is not
-   * resolvable.
+   * The returned {@code Value} will throw an exception upon evaluation in case the path is not resolvable.
    *
    * @param referenceObject The {@code Value} with the reference object the path is evaulated for.
    * @param path            The string representation of the {@link Path}
@@ -197,8 +188,7 @@ public interface Values {
   /**
    * Factory method to create a {@link PathValue} to be evaluated for the {@code referenceObject}.
    * <p>
-   * The returned {@code Value} will throw an exception upon evaluation in case the path is not
-   * resolvable.
+   * The returned {@code Value} will throw an exception upon evaluation in case the path is not resolvable.
    *
    * @param referenceObject The {@code Value} with the reference object the path is evaulated for.
    * @param path            A {@link Value} with the string representation of the {@link Path}
@@ -216,8 +206,7 @@ public interface Values {
   /**
    * Factory method to create a {@link PathValue} to be evaluated for the {@code referenceObject}.
    * <p>
-   * The returned {@code Value} will throw an exception upon evaluation in case the path is not
-   * resolvable.
+   * The returned {@code Value} will throw an exception upon evaluation in case the path is not resolvable.
    *
    * @param referenceObject The {@code Value} with the reference object the path is evaulated fr.
    * @param path            The {@link Path}
@@ -233,11 +222,9 @@ public interface Values {
   }
 
   /**
-   * Factory method to create a {@link PathValue} to be evaluated against the object being
-   * validated.
+   * Factory method to create a {@link PathValue} to be evaluated against the object being validated.
    * <p>
-   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not
-   * resolvable.
+   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not resolvable.
    *
    * @param path         The string representation of the {@link Path}
    * @param defaultValue The default value
@@ -253,11 +240,9 @@ public interface Values {
   }
 
   /**
-   * Factory method to create a {@link PathValue} to be evaluated against the object being
-   * validated.
+   * Factory method to create a {@link PathValue} to be evaluated against the object being validated.
    * <p>
-   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not
-   * resolvable.
+   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not resolvable.
    *
    * @param path         A {@link Value} with the string representation of the {@link Path}
    * @param defaultValue The default value
@@ -273,11 +258,9 @@ public interface Values {
   }
 
   /**
-   * Factory method to create a {@link PathValue} to be evaluated against the object being
-   * validated.
+   * Factory method to create a {@link PathValue} to be evaluated against the object being validated.
    * <p>
-   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not
-   * resolvable.
+   * The returned {@code Value} will evaluate {@code defaultValue} in case the path is not resolvable.
    *
    * @param path         The {@link Path}
    * @param defaultValue The default value
@@ -293,11 +276,9 @@ public interface Values {
   }
 
   /**
-   * Factory method to create a {@link PathValue} to be evaluated against the object being
-   * validated.
+   * Factory method to create a {@link PathValue} to be evaluated against the object being validated.
    * <p>
-   * The returned {@code Value} will throw an exception upon evaluation in case the path is not
-   * resolvable.
+   * The returned {@code Value} will throw an exception upon evaluation in case the path is not resolvable.
    *
    * @param path The string representation of the {@link Path}
    * @param <T>  The type of the value
@@ -312,11 +293,9 @@ public interface Values {
   }
 
   /**
-   * Factory method to create a {@link PathValue} to be evaluated against the object being
-   * validated.
+   * Factory method to create a {@link PathValue} to be evaluated against the object being validated.
    * <p>
-   * The returned {@code Value} will throw an exception upon evaluation in case the path is not
-   * resolvable.
+   * The returned {@code Value} will throw an exception upon evaluation in case the path is not resolvable.
    *
    * @param path A {@link Value} with the string representation of the {@link Path}
    * @param <T>  The type of the value
@@ -331,11 +310,9 @@ public interface Values {
   }
 
   /**
-   * Factory method to create a {@link PathValue} to be evaluated against the object being
-   * validated.
+   * Factory method to create a {@link PathValue} to be evaluated against the object being validated.
    * <p>
-   * The returned {@code Value} will throw an exception upon evaluation in case the path is not
-   * resolvable.
+   * The returned {@code Value} will throw an exception upon evaluation in case the path is not resolvable.
    *
    * @param path The {@link Path}
    * @param <T>  The type of the value
@@ -354,8 +331,7 @@ public interface Values {
    *
    * @param list A list of {@code Values}
    * @param <T>  The list element type
-   * @return A {@code Value} returning a {@code List} of the values that are provided by
-   * {@code list}
+   * @return A {@code Value} returning a {@code List} of the values that are provided by {@code list}
    */
   @SafeVarargs
   static <T> Value<List<T>> list(Value<T>... list) {
@@ -367,8 +343,7 @@ public interface Values {
    *
    * @param list A list of {@code Values}
    * @param <T>  The list element type
-   * @return A {@code Value} returning a {@code List} of the values that are provided by
-   * {@code list}
+   * @return A {@code Value} returning a {@code List} of the values that are provided by {@code list}
    */
   static <T> Value<List<T>> list(Collection<Value<T>> list) {
     return new ListValue<>(list);
