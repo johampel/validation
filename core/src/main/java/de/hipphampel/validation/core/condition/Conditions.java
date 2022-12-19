@@ -41,14 +41,14 @@ import java.util.function.Predicate;
 /**
  * Collection of factory methods for {@link Condition Conditions}
  */
-public interface Conditions {
+public class Conditions {
 
   /**
    * Factory method for a condition that always evaluates to {@code true}.
    *
    * @return The condition
    */
-  static Condition alwaysTrue() {
+  public static Condition alwaysTrue() {
     return always(true);
   }
 
@@ -57,7 +57,7 @@ public interface Conditions {
    *
    * @return The condition
    */
-  static Condition alwaysFalse() {
+  public static Condition alwaysFalse() {
     return always(false);
   }
 
@@ -67,7 +67,7 @@ public interface Conditions {
    * @param value The result
    * @return the {@code Condition}
    */
-  static Condition always(boolean value) {
+  public static Condition always(boolean value) {
     return new AlwaysCondition(value);
   }
 
@@ -77,7 +77,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code AND} of the given conditions.
    */
-  static Condition and(Condition... conditions) {
+  public static Condition and(Condition... conditions) {
     return and(StreamProvider.of(Arrays.asList(conditions)));
   }
 
@@ -87,7 +87,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code AND} of the given conditions.
    */
-  static Condition and(Collection<Condition> conditions) {
+  public static Condition and(Collection<Condition> conditions) {
     Objects.requireNonNull(conditions);
     return and(StreamProvider.of(conditions));
   }
@@ -98,7 +98,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code AND} of the given conditions.
    */
-  static Condition and(StreamProvider<Condition> conditions) {
+  public static Condition and(StreamProvider<Condition> conditions) {
     return new AndCondition(conditions);
   }
 
@@ -108,7 +108,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code NOT} of the given conditions.
    */
-  static Condition not(Condition... conditions) {
+  public static Condition not(Condition... conditions) {
     return not(StreamProvider.of(Arrays.asList(conditions)));
   }
 
@@ -118,7 +118,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code NOT} of the given conditions.
    */
-  static Condition not(Collection<Condition> conditions) {
+  public static Condition not(Collection<Condition> conditions) {
     Objects.requireNonNull(conditions);
     return not(StreamProvider.of(conditions));
   }
@@ -129,7 +129,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code NOT} of the given conditions.
    */
-  static Condition not(StreamProvider<Condition> conditions) {
+  public static Condition not(StreamProvider<Condition> conditions) {
     return new NotCondition(conditions);
   }
 
@@ -139,7 +139,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code OR} of the given conditions.
    */
-  static Condition or(Condition... conditions) {
+  public static Condition or(Condition... conditions) {
     return or(StreamProvider.of(Arrays.asList(conditions)));
   }
 
@@ -149,7 +149,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code OR} of the given conditions.
    */
-  static Condition or(Collection<Condition> conditions) {
+  public static Condition or(Collection<Condition> conditions) {
     Objects.requireNonNull(conditions);
     return or(StreamProvider.of(conditions));
   }
@@ -160,7 +160,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code OR} of the given conditions.
    */
-  static Condition or(StreamProvider<Condition> conditions) {
+  public static Condition or(StreamProvider<Condition> conditions) {
     return new OrCondition(conditions);
   }
 
@@ -170,7 +170,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code XOR} of the given conditions.
    */
-  static Condition xor(Condition... conditions) {
+  public static Condition xor(Condition... conditions) {
     return xor(StreamProvider.of(Arrays.asList(conditions)));
   }
 
@@ -180,7 +180,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code XOR} of the given conditions.
    */
-  static Condition xor(Collection<Condition> conditions) {
+  public static Condition xor(Collection<Condition> conditions) {
     Objects.requireNonNull(conditions);
     return xor(StreamProvider.of(conditions));
   }
@@ -191,7 +191,7 @@ public interface Conditions {
    * @param conditions Sub conditions
    * @return The logical {@code XOR} of the given conditions.
    */
-  static Condition xor(StreamProvider<Condition> conditions) {
+  public static Condition xor(StreamProvider<Condition> conditions) {
     return new XorCondition(conditions);
   }
 
@@ -202,7 +202,7 @@ public interface Conditions {
    * @param <T> Type of the {@code arg}
    * @return A {@code Condition} that becomes {@code true}, if the argument evaluates to {@code null}
    */
-  static <T> Condition isNull(Value<T> arg) {
+  public static <T> Condition isNull(Value<T> arg) {
     return new IsNullCondition<>(arg, IsNullCondition.Mode.NULL);
   }
 
@@ -213,7 +213,7 @@ public interface Conditions {
    * @param <T> Type of the {@code arg}
    * @return A {@code Condition} that becomes {@code true}, if the argument not evaluates to {@code null}
    */
-  static <T> Condition isNotNull(Value<T> arg) {
+  public static <T> Condition isNotNull(Value<T> arg) {
     return new IsNullCondition<>(arg, IsNullCondition.Mode.NOT_NULL);
   }
 
@@ -225,7 +225,7 @@ public interface Conditions {
    * @param <T>   Type of the arguments
    * @return A {@code Condition} that becomes {@code true}, if the arguments  evaluate to equal values
    */
-  static <T> Condition eq(Value<T> left, Value<T> right) {
+  public static <T> Condition eq(Value<T> left, Value<T> right) {
     return new EqualsCondition<>(left, right, EqualsCondition.Mode.EQ);
   }
 
@@ -237,7 +237,7 @@ public interface Conditions {
    * @param <T>   Type of the arguments
    * @return A {@code Condition} that becomes {@code true}, if the arguments  evaluate to different values
    */
-  static <T> Condition ne(Value<T> left, Value<T> right) {
+  public static <T> Condition ne(Value<T> left, Value<T> right) {
     return new EqualsCondition<>(left, right, EqualsCondition.Mode.NE);
   }
 
@@ -250,7 +250,7 @@ public interface Conditions {
    * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value that is less or equal to the value
    * evaluated by {@code right}
    */
-  static <T extends Comparable<T>> Condition le(Value<T> left, Value<T> right) {
+  public static <T extends Comparable<T>> Condition le(Value<T> left, Value<T> right) {
     return new CompareCondition<>(left, right, Mode.LE);
   }
 
@@ -263,7 +263,7 @@ public interface Conditions {
    * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value that is less than the value evaluated by
    * {@code right}
    */
-  static <T extends Comparable<T>> Condition lt(Value<T> left, Value<T> right) {
+  public static <T extends Comparable<T>> Condition lt(Value<T> left, Value<T> right) {
     return new CompareCondition<>(left, right, Mode.LT);
   }
 
@@ -276,7 +276,7 @@ public interface Conditions {
    * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value that is greater than the value evaluated
    * by {@code right}
    */
-  static <T extends Comparable<T>> Condition gt(Value<T> left, Value<T> right) {
+  public static <T extends Comparable<T>> Condition gt(Value<T> left, Value<T> right) {
     return new CompareCondition<>(left, right, Mode.GT);
   }
 
@@ -289,7 +289,7 @@ public interface Conditions {
    * @return A {@code Condition} that becomes {@code true}, if  {@code left} evaluates to a value that is greater or equal to the value
    * evaluated by {@code right}
    */
-  static <T extends Comparable<T>> Condition ge(Value<T> left, Value<T> right) {
+  public static <T extends Comparable<T>> Condition ge(Value<T> left, Value<T> right) {
     return new CompareCondition<>(left, right, Mode.GE);
   }
 
@@ -301,8 +301,24 @@ public interface Conditions {
    * @param ruleSelector The {@code RuleSelector}
    * @return The {@code Condition}
    */
-  static Condition rule(Value<RuleSelector> ruleSelector) {
+  public static Condition rule(Value<RuleSelector> ruleSelector) {
     return rule(ruleSelector, null);
+  }
+
+  /**
+   * Creates a {@link Condition} that executes the {@link Rule Rules} provided by the given {@code pattern}.
+   * <p>
+   * The condition will evaluate to {@code true}, if all {@code Rules} evaluate to {@link ResultCode#OK}
+   *
+   * @param patterns The regular expressions for the rules that need to be executed
+   * @return The {@code Condition}
+   */
+  public static Condition rule(String... patterns) {
+    return rule(Values.val(RuleSelector.of(patterns)), null);
+  }
+
+  public static Condition rule(String pattern, Value<Set<String>> paths) {
+    return rule(Values.val(RuleSelector.of(pattern)), paths);
   }
 
   /**
@@ -315,7 +331,7 @@ public interface Conditions {
    * @param paths        The {@link Path Paths}
    * @return The {@code Condition}
    */
-  static Condition rule(Value<RuleSelector> ruleSelector, Value<Set<String>> paths) {
+  public static Condition rule(Value<RuleSelector> ruleSelector, Value<Set<String>> paths) {
     return new RuleCondition(ruleSelector, paths == null ? Values.val(Set.of()) : paths);
   }
 
@@ -325,7 +341,7 @@ public interface Conditions {
    * @param predicate The {@link Predicate}
    * @return The {@code Condition}
    */
-  static Condition predicate(Predicate<?> predicate) {
+  public static Condition predicate(Predicate<?> predicate) {
     return new PredicateCondition(predicate);
   }
 
@@ -335,7 +351,7 @@ public interface Conditions {
    * @param path The path to check
    * @return The {@code Condition}
    */
-  static Condition existsPath(Path path) {
+  public static Condition existsPath(Path path) {
     return new PathCondition(OneOfTwo.ofSecond(path), Optional.empty());
   }
 
@@ -345,7 +361,7 @@ public interface Conditions {
    * @param path The path to check
    * @return The {@code Condition}
    */
-  static Condition existsPath(String path) {
+  public static Condition existsPath(String path) {
     return new PathCondition(OneOfTwo.ofFirst(Values.val(path)), Optional.empty());
   }
 
@@ -355,7 +371,7 @@ public interface Conditions {
    * @param path The path to check
    * @return The {@code Condition}
    */
-  static Condition existsPath(Value<String> path) {
+  public static Condition existsPath(Value<String> path) {
     return new PathCondition(OneOfTwo.ofFirst(path), Optional.empty());
   }
 
@@ -366,7 +382,7 @@ public interface Conditions {
    * @param path      The path to check
    * @return The {@code Condition}
    */
-  static Condition existsPathForObject(Value<?> reference, Path path) {
+  public static Condition existsPathForObject(Value<?> reference, Path path) {
     return new PathCondition(OneOfTwo.ofSecond(path), Optional.of(reference));
   }
 
@@ -377,7 +393,7 @@ public interface Conditions {
    * @param path      The path to check
    * @return The {@code Condition}
    */
-  static Condition existsPathForObject(Value<?> reference, String path) {
+  public static Condition existsPathForObject(Value<?> reference, String path) {
     return new PathCondition(OneOfTwo.ofFirst(Values.val(path)), Optional.of(reference));
   }
 
@@ -388,7 +404,7 @@ public interface Conditions {
    * @param path      The path to check
    * @return The {@code Condition}
    */
-  static Condition existsPathForObject(Value<?> reference, Value<String> path) {
+  public static Condition existsPathForObject(Value<?> reference, Value<String> path) {
     return new PathCondition(OneOfTwo.ofFirst(path), Optional.of(reference));
   }
 }

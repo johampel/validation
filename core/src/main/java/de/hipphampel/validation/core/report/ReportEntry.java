@@ -36,7 +36,7 @@ import java.util.function.Function;
  * @param rule   The {@code Rule}
  * @param result The {@link Result}
  */
-public record ReportEntry(Path path, Rule rule, Result result) {
+public record ReportEntry(Path path, Rule<?> rule, Result result) {
 
   /**
    * Enum identifying a field of the {@link ReportEntry} class.

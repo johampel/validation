@@ -49,7 +49,7 @@ public class TypeInfo {
   public static final TypeInfo NONE = new TypeInfo(EmptyType.INSTANCE, null, 0);
   private static final TypeInfo[] EMPTY_TYPES_ARRAY = new TypeInfo[0];
 
-  private static final Map<Class<?>, Class<?>> PRIMITIVE_WRAPPER_MAP = new IdentityHashMap<>(Map.of(
+  public static final Map<Class<?>, Class<?>> PRIMITIVE_WRAPPER_MAP = new IdentityHashMap<>(Map.of(
       boolean.class, Boolean.class,
       char.class, Character.class,
       byte.class, Byte.class,

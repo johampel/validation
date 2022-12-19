@@ -30,21 +30,20 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * {@link Path} consisting of a list of components.
  * <p>
- * This {@code Path} implementation is basically just a sequence of zero or more components, it is
- * intended to resolve hierarchical structures, like nested maps and collections, JSON or XML.
+ * This {@code Path} implementation is basically just a sequence of zero or more components, it is intended to resolve hierarchical
+ * structures, like nested maps and collections, JSON or XML.
  * <p>
- * Basically, when resolving a path of this kind, it first tries to resolve the reference object
- * passed to the {@link PathResolver} using the first component. On the result of this it tries to
- * resolve the second component and so forth. The special {@code ComponentPaths} having no
- * components resolves to the reference object itself. So all in all, resolving
- * {@code ComponentPaths} means to resolve a hierarchical structure, whereas each component
- * identifies on level in this hierarchical structure and the following component is used to
- * identify the values in the next lower level of the hierarchy. A concrete example could be an file
- * path, whereas each component refers to a corresponding level in the directory structure.
+ * Basically, when resolving a path of this kind, it first tries to resolve the reference object passed to the {@link PathResolver} using
+ * the first component. On the result of this it tries to resolve the second component and so forth. The special {@code ComponentPaths}
+ * having no components resolves to the reference object itself. So all in all, resolving {@code ComponentPaths} means to resolve a
+ * hierarchical structure, whereas each component identifies on level in this hierarchical structure and the following component is used to
+ * identify the values in the next lower level of the hierarchy. A concrete example could be an file path, whereas each component refers to
+ * a corresponding level in the directory structure.
  * <p>
  * Each component is one of the following three:
  * <ol>
@@ -214,10 +213,9 @@ public class ComponentPath implements Path {
   /**
    * Checks, whether this {@code Path} is matched by the given {@code pattern}.
    * <p>
-   * If this instance is a pattern, the result must be always {@code false}. Otherwise it is
-   * checked, whether this instance is matched by the given {@code pattern}; the exact matching
-   * algorithm is up to the implementation, but in case {@code pattern} is a concrete {@code Path}
-   * it must return {@code true} only if it is (semantically) equal to this instance.
+   * If this instance is a pattern, the result must be always {@code false}. Otherwise it is checked, whether this instance is matched by
+   * the given {@code pattern}; the exact matching algorithm is up to the implementation, but in case {@code pattern} is a concrete
+   * {@code Path} it must return {@code true} only if it is (semantically) equal to this instance.
    *
    * @param pattern The {@code Path} representing the pattern
    * @return {@code true}, if matching
@@ -271,6 +269,15 @@ public class ComponentPath implements Path {
     };
   }
 
+  /**
+   * Gets the last {@link Component} of this path
+   *
+   * @return The {@code Component}
+   */
+  public Optional<Component> getLastComponent() {
+    return components.isEmpty() ? Optional.empty() : Optional.of(components.get(components.size() - 1));
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -289,8 +296,7 @@ public class ComponentPath implements Path {
   }
 
   /**
-   * Returns a string representation that is parsable by a {@link AbstractComponentPathResolver}
-   * having the given settings.
+   * Returns a string representation that is parsable by a {@link AbstractComponentPathResolver} having the given settings.
    *
    * @param separator  String used to separate the different components.
    * @param anyInLevel String representing a component of type {@link ComponentType#AnyInLevel}

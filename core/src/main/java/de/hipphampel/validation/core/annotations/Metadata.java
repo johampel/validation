@@ -20,20 +20,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package de.hipphampel.validation.core.annotations;
+
+import de.hipphampel.validation.core.rule.Rule;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Provides class related to {@link de.hipphampel.validation.core.provider}.
+ * Used inside {@link RuleDef} annotations to define metadata of a {@link Rule}.
  * <p>
- * In general, it contains some enhancements that allow a smooth integration into the Spring framwork:
+ * This annotation allows to define metadata for the given rule.
+ * <p>
+ * Usage example:
+ * <pre>
+ *     &#64;RuleDef(id = "parent",
+ *       preconditions = {
+ *           &#64;Metdata(key = "child", value="value")
+ *       })
+ * </pre>
+ * <p>
  *
- * <ol>
- *   <li>The {@link de.hipphampel.validation.spring.provider.RuleRepositoryProvider} with its default implementation
- *   {@link de.hipphampel.validation.spring.provider.DefaultRuleRepositoryProvider} allow to gather all beans that contain or
- *   are {@link de.hipphampel.validation.core.rule.Rule Rules} and expose them all together via a single
- *   {@link de.hipphampel.validation.core.provider.RuleRepository}</li>
- *   <li>The {@link de.hipphampel.validation.spring.provider.SpringRuleDefHandler} is an extension of the
- *   {@link de.hipphampel.validation.core.provider.RuleDefHandler} and generates {@code Rules} that is able to generate
- *   {@code Rules} that do an automatic parameter conversion</li>
- * </ol>
+ * @see RuleDef
  */
-package de.hipphampel.validation.spring.provider;
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.METHOD})
+public @interface Metadata {
+
+  /**
+   * The key of the metadata entry.
+   *
+   * @return The key.
+   */
+  String key();
+
+  /**
+   * The value of the metadata entry.
+   *
+   * @return The value.
+   */
+  String value();
+
+}

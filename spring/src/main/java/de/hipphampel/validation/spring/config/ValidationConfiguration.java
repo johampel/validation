@@ -33,6 +33,9 @@ import de.hipphampel.validation.core.path.BeanAccessor;
 import de.hipphampel.validation.core.path.BeanPathResolver;
 import de.hipphampel.validation.core.path.PathResolver;
 import de.hipphampel.validation.core.path.ReflectionBeanAccessor;
+import de.hipphampel.validation.core.provider.AnnotationRuleRepository.Handler;
+import de.hipphampel.validation.core.provider.RuleDefHandler;
+import de.hipphampel.validation.core.provider.RuleRefHandler;
 import de.hipphampel.validation.core.provider.RuleRepository;
 import de.hipphampel.validation.core.report.Report;
 import de.hipphampel.validation.core.report.ReportReporter;
@@ -41,6 +44,7 @@ import de.hipphampel.validation.core.rule.Rule;
 import de.hipphampel.validation.spring.annotation.RuleContainer;
 import de.hipphampel.validation.spring.provider.DefaultRuleRepositoryProvider;
 import de.hipphampel.validation.spring.provider.RuleRepositoryProvider;
+import de.hipphampel.validation.spring.provider.SpringRuleDefHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -50,13 +54,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 /**
  * Autoconfiguration for the validation library.
  * <p>
- * This is a ready to start configuration of all beans required to create a {@link Validator}.
- * Beside the {@code Validator} itself it provides bean definitions for all subordinated components,
- * such as:
+ * This is a ready to start configuration of all beans required to create a {@link Validator}. Beside the {@code Validator} itself it
+ * provides bean definitions for all subordinated components, such as:
  * <ul>
  *   <li>A {@link PathResolver}, which is a {@link BeanPathResolver}</li>
  *   <li>A {@link EventPublisher}, which is a {@link DefaultSubscribableEventPublisher}</li>
@@ -88,8 +93,7 @@ public class ValidationConfiguration {
   /**
    * Optional {@link Validator} bean.
    *
-   * @param ruleRepositoryProvider {@link RuleRepositoryProvider} providing the
-   *                               {@link RuleRepository}
+   * @param ruleRepositoryProvider {@link RuleRepositoryProvider} providing the {@link RuleRepository}
    * @param ruleExecutor           The {@link RuleExecutor}
    * @param eventPublisher         The {@link EventPublisher}
    * @param pathResolver           The {@link PathResolver}
@@ -128,39 +132,80 @@ public class ValidationConfiguration {
   /**
    * Optional {@link RuleRepositoryProvider} bean.
    * <p>
-   * Returns a {@link DefaultRuleRepositoryProvider} unless another {@code RuleRepositoryProvider}
-   * is defined in the context.
+   * Returns a {@link DefaultRuleRepositoryProvider} unless another {@code RuleRepositoryProvider} is defined in the context.
    *
    * @param ruleBeans           List of beans implementing the {@link Rule} interface.
    * @param ruleRepositoryBeans List of beans implementing the {@link RuleRepository} interface
-   * @param context             {@link ApplicationContext} to look up the beans annotate with
-   *                            {@link RuleContainer}
+   * @param context             {@link ApplicationContext} to look up the beans annotate with {@link RuleContainer}
    * @return The {@code RuleRepositoryProvider}
    */
   @Bean
   @Lazy
   @ConditionalOnMissingBean(RuleRepositoryProvider.class)
   public RuleRepositoryProvider ruleRepositoryProvider(
+      List<? extends Handler<?>> handlers,
       List<? extends Rule<?>> ruleBeans,
       List<? extends RuleRepository> ruleRepositoryBeans,
       ApplicationContext context) {
     List<?> ruleContainerBeans = new ArrayList<>(
         context.getBeansWithAnnotation(RuleContainer.class).values());
-    return new DefaultRuleRepositoryProvider(ruleBeans, ruleRepositoryBeans, ruleContainerBeans);
+    return new DefaultRuleRepositoryProvider(handlers, ruleBeans, ruleRepositoryBeans, ruleContainerBeans);
+  }
+
+  /**
+   * Optional {@link RuleDefHandler}.
+   * <p>
+   * Returns a {@link SpringRuleDefHandler} in case no other {@link RuleDefHandler} is defined.
+   *
+   * @param validationConversionService The {@code ConversionService} to use.
+   * @return {@code RuleDefHandler}
+   */
+  @Bean
+  @Lazy
+  @ConditionalOnMissingBean(RuleDefHandler.class)
+  public RuleDefHandler ruleDefHandler(ConversionService validationConversionService) {
+    return new SpringRuleDefHandler(validationConversionService);
+  }
+
+  /**
+   * Optional {@link RuleRefHandler}.
+   * <p>
+   * Returns a {@link RuleRefHandler} in case no other is defined.
+   *
+   * @return {@code RuleRefHandler}
+   */
+  @Bean
+  @Lazy
+  @ConditionalOnMissingBean(RuleRefHandler.class)
+  public RuleRefHandler ruleRefHandler() {
+    return new RuleRefHandler();
+  }
+
+  /**
+   * Optional {@link ConversionService} for the validation.
+   * <p>
+   * Returns a {@code ConversionService} named {@code validationConversionService} unless another is already defined in the context.
+   *
+   * @return The {@code ConversionService} for the validation.
+   */
+  @Bean
+  @Lazy
+  @ConditionalOnMissingBean(ConversionService.class)
+  public ConversionService validationConversionService() {
+    return new DefaultConversionService();
   }
 
   /**
    * Optional {@link RuleExecutor} bean.
    * <p>
-   * Returns a {@link DefaultRuleExecutor} unless another {@code RuleExecutor} is defined in the
-   * context.
+   * Returns a {@link DefaultRuleExecutor} unless another {@code RuleExecutor} is defined in the context.
    *
    * @param executor The {@link Executor} to use
    * @return The {@code RuleExecutor}
    */
   @Bean
   @Lazy
-  @ConditionalOnMissingBean(EventPublisher.class)
+  @ConditionalOnMissingBean(RuleExecutor.class)
   public RuleExecutor ruleExecutor(Executor executor) {
     return new DefaultRuleExecutor(executor);
   }
@@ -168,8 +213,7 @@ public class ValidationConfiguration {
   /**
    * Optional {@link SubscribableEventPublisher} bean.
    * <p>
-   * Returns a {@link DefaultSubscribableEventPublisher} unless another
-   * {@code SubscribableEventPublisher} is defined in the context.
+   * Returns a {@link DefaultSubscribableEventPublisher} unless another {@code SubscribableEventPublisher} is defined in the context.
    *
    * @return The {@code SubscribableEventPublisher}
    */
@@ -183,8 +227,7 @@ public class ValidationConfiguration {
   /**
    * Optional {@link PathResolver} bean.
    * <p>
-   * Returns a {@link BeanPathResolver} unless another {@code PathResolver} is defined in the
-   * context.
+   * Returns a {@link BeanPathResolver} unless another {@code PathResolver} is defined in the context.
    * <p>
    * There are configuration parameters for this bean in the {@link ValidationProperties}
    *
@@ -204,8 +247,7 @@ public class ValidationConfiguration {
   /**
    * Optional {@link BeanAccessor} bean.
    * <p>
-   * Returns a {@link ReflectionBeanAccessor} unless another {@code BeanAccessor} is defined in the
-   * context.
+   * Returns a {@link ReflectionBeanAccessor} unless another {@code BeanAccessor} is defined in the context.
    * <p>
    * There are configuration parameters for this bean in the {@link ValidationProperties}
    *

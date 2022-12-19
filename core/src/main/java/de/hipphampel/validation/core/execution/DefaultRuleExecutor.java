@@ -84,7 +84,7 @@ public class DefaultRuleExecutor extends SimpleRuleExecutor {
    * Creates an instance backed by the given {@link Executor}
    *
    * @param executor The {@code Executor}
-   * @param caching Flag indicating whether or not caching rule results.
+   * @param caching  Flag indicating whether or not caching rule results.
    */
   public DefaultRuleExecutor(Executor executor, boolean caching) {
     this.executor = Objects.requireNonNull(executor);
@@ -106,7 +106,7 @@ public class DefaultRuleExecutor extends SimpleRuleExecutor {
         return Result.failed(
             new SystemResultReason(Code.RuleExecutionThrowsException, e.getCause().getMessage()));
       }
-    }else {
+    } else {
       return super.validate(context, rule, facts);
     }
   }

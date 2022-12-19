@@ -22,41 +22,25 @@
  */
 package de.hipphampel.validation.core.provider;
 
-import de.hipphampel.validation.core.annotations.Precondition;
 import de.hipphampel.validation.core.annotations.RuleDef;
 import de.hipphampel.validation.core.annotations.RuleRef;
-import de.hipphampel.validation.core.condition.Condition;
-import de.hipphampel.validation.core.condition.Conditions;
-import de.hipphampel.validation.core.condition.RuleCondition;
 import de.hipphampel.validation.core.event.EventListener;
 import de.hipphampel.validation.core.event.NoopSubscribableEventPublisher;
 import de.hipphampel.validation.core.event.Subscription;
 import de.hipphampel.validation.core.exception.RuleNotFoundException;
-import de.hipphampel.validation.core.execution.ValidationContext;
-import de.hipphampel.validation.core.rule.Result;
-import de.hipphampel.validation.core.rule.ResultReason;
 import de.hipphampel.validation.core.rule.Rule;
-import de.hipphampel.validation.core.rule.RuleBuilder;
-import de.hipphampel.validation.core.rule.StringResultReason;
-import de.hipphampel.validation.core.rule.SystemResultReason;
-import de.hipphampel.validation.core.rule.SystemResultReason.Code;
-import de.hipphampel.validation.core.utils.TypeInfo;
-import de.hipphampel.validation.core.value.Values;
+import de.hipphampel.validation.core.utils.Pair;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -65,14 +49,31 @@ import org.slf4j.LoggerFactory;
 /**
  * {@link RuleRepository} using annotations to define {@link Rule Rules}.
  * <p>
- * This implementation supports the {@link RuleRef} and {@link RuleDef} annotations. Fields or methods annotated with those define the
- * actual {@code Rules}. Basically, there are two ways how to construct an instance: Either by specifying a {@code Class} so that annotated
- * static members are used to define the {@code Rules} or by specifying an object instance, so that non-static member are used. The latter
- * way is useful in situations where the {@code Rules} depend on the state of the instance.
+ * This implementation uses {@link Handler annotation handlers} that know annotations to define new or refer to existing {@code Rules} and
+ * makes them available. By default, the {@link RuleDefHandler} and {@link RuleRefHandler} are defined, but it is also possible to register
+ * completely different handlers in order to support other kind of annotations.
  * <p>
- * The behavior of duplicate rule definitions in terms of duplicate {@code ids} is not defined.
- * <p>
- * Please refer to {@code RuleDef} and {@code RuleRef} for details, how {@code Rules} are defined.
+ * Generally, a {@link AnnotationRuleRepository} recognizes all public fields and methods of the class or instance that have an annotation
+ * that is accepted by a handler. For example, the following is a class that exposes two {@code Rules} that can be recognized by an
+ * {@code AnnotationRuleRepository}:
+ * <pre>
+ *   public class AClass {
+ *     &#64;RuleRef
+ *     public static Rule&lt;String> aStaticRule = RuleBuilder
+ *                    .functionRule("lengthIsThree", String.class)
+ *                    .withFunction((context, facts) -> facts.length() == 3)
+ *                    .build();
+ *
+ *     &#64;RuleDef
+ *     public boolean isGreaterThan(
+ *         &#64;BindFacts String left,
+ *         &#64;BindContextParameter("value") String right) {
+ *       return left.compareTo(right) > 0;
+ *     }
+ *   }
+ *   ...
+ *   RuleRepository repository = AnnotationRepository.ofInstance(new AClass());
+ * </pre>
  * <p>
  * Instances of this class are static, so that the set of known {@code Rules} never changes
  *
@@ -83,13 +84,68 @@ public class AnnotationRuleRepository implements RuleRepository {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationRuleRepository.class);
 
+  /**
+   * Handler for annotations.
+   * <p>
+   * A {@code Handler} defines how to interpret an {@link Annotation}. It is called by the repository whenever a matching annotation is
+   * found in order to extract the {@link Rule Rules}
+   *
+   * @param <T> The annotation type
+   */
+  public interface Handler<T extends Annotation> {
+
+    /**
+     * Gets the annotation type handled by this handler.
+     *
+     * @return The annotation class.
+     */
+    Class<T> getAnnotation();
+
+    /**
+     * Called, when the {@code annotation} was found on a {@code field}.
+     *
+     * @param repositoryInstance The repository instance or {@code null}, if static
+     * @param field              The {@link Field}
+     * @param annotation         The annotation
+     * @return A list of produced {@code Rules}
+     */
+    default List<Rule<?>> handleAnnotationForField(Object repositoryInstance, Field field, T annotation) {
+      return List.of();
+    }
+
+    /**
+     * Called, when the {@code annotation} was found on a {@code method}.
+     *
+     * @param repositoryInstance The repository instance or {@code null}, if static
+     * @param method             The {@link Method}
+     * @param annotation         The annotation
+     * @return A list of produced {@code Rules}
+     */
+    default List<Rule<?>> handleAnnotationForMethod(Object repositoryInstance, Method method, T annotation) {
+      return List.of();
+    }
+
+    /**
+     * Called, when the {@code annotation} was found on a {@code type}.
+     *
+     * @param repositoryInstance The repository instance or {@code null}, if static
+     * @param type               The {@link Class}
+     * @param annotation         The annotation
+     * @return A list of produced {@code Rules}
+     */
+    default List<Rule<?>> handleAnnotationForType(Object repositoryInstance, Class<?> type, T annotation) {
+      return List.of();
+    }
+  }
+
   private final Object instance;
   private final Map<String, Rule<?>> rules;
 
   /**
    * Creates an instance based on a {@link Class}.
    * <p>
-   * Instances created this way rely on static members of {@code clazz} only.
+   * Instances created this way rely on static members of {@code clazz} only. The repository uses the {@link RuleDefHandler} and
+   * {@link RuleRefHandler} to recognize rules.
    *
    * @param clazz The class to get the {@link Rule Rules} from
    * @return A {@link AnnotationRuleRepository}
@@ -99,9 +155,23 @@ public class AnnotationRuleRepository implements RuleRepository {
   }
 
   /**
+   * Creates an instance based on a {@link Class}  using the given {@link Handler handlers}.
+   * <p>
+   * Instances created this way rely on static members of {@code clazz} only.
+   *
+   * @param clazz    The class to get the {@link Rule Rules} from
+   * @param handlers The list of handlers
+   * @return A {@link AnnotationRuleRepository}
+   */
+  public static AnnotationRuleRepository ofClass(Class<?> clazz, List<? extends Handler<?>> handlers) {
+    return new AnnotationRuleRepository(null, clazz, handlers);
+  }
+
+  /**
    * Creates an instance based on an object.
    * <p>
-   * Instances created this way rely on non-static members of {@code instance} only.
+   * Instances created this way rely on static and non-static members of {@code instance}. The repository uses the {@link RuleDefHandler}
+   * and {@link RuleRefHandler} to recognize rules.
    *
    * @param instance The object instance
    * @return A {@link AnnotationRuleRepository}
@@ -111,9 +181,23 @@ public class AnnotationRuleRepository implements RuleRepository {
   }
 
   /**
+   * Creates an instance based on an object using the given {@link Handler handlers}.
+   * <p>
+   * Instances created this way rely on static and non-static members of {@code instance}.
+   *
+   * @param instance The object instance
+   * @param handlers The list of handlers
+   * @return A {@link AnnotationRuleRepository}
+   */
+  public static AnnotationRuleRepository ofInstance(Object instance, List<? extends Handler<?>> handlers) {
+    return new AnnotationRuleRepository(instance, instance.getClass(), handlers);
+  }
+
+  /**
    * Creates an instance based on an object.
    * <p>
-   * Instances created this way rely on non-static members of {@code instance} only.
+   * Instances created this way rely on static and static members of {@code instance}. The repository uses the {@link RuleDefHandler} and
+   * {@link RuleRefHandler} to recognize rules.
    *
    * @param instance The object instance
    * @param clazz    The type of the instance
@@ -125,15 +209,97 @@ public class AnnotationRuleRepository implements RuleRepository {
   }
 
   /**
+   * Creates an instance based on an object using the given {@link Handler handlers}.
+   * <p>
+   * Instances created this way rely on non-static and static members of {@code instance}.
+   *
+   * @param instance The object instance
+   * @param clazz    The type of the instance
+   * @param handlers The list of handlers
+   * @param <T>      The type of the instance
+   * @return A {@link AnnotationRuleRepository}
+   */
+  public static <T> AnnotationRuleRepository ofInstance(T instance, Class<? extends T> clazz, List<? extends Handler<?>> handlers) {
+    return new AnnotationRuleRepository(instance, clazz, handlers);
+  }
+
+  /**
    * Constructor.
+   *
+   * @param instance The instance the rules are bound to, might be {@code null}
+   * @param clazz    The {@link Class} to use
+   * @param handlers The {@link Handler Handlers} to use
+   * @param <T>      The type of the instance
+   */
+  public <T> AnnotationRuleRepository(T instance, Class<? extends T> clazz, List<? extends Handler<?>> handlers) {
+    this.instance = instance;
+    this.rules = fillRuleMap(clazz, handlers);
+  }
+
+  /**
+   * Constructor.
+   * <p>
+   * Creates an instance that knows the {@link RuleRef} and {@link RuleDef} annotations
    *
    * @param instance The instance the rules are bound to, might be {@code null}
    * @param clazz    The {@link Class} to use
    * @param <T>      The type of the instance
    */
   public <T> AnnotationRuleRepository(T instance, Class<? extends T> clazz) {
-    this.instance = instance;
-    this.rules = fillRuleMap(clazz);
+    this(instance, clazz, List.of(new RuleDefHandler(), new RuleRefHandler()));
+  }
+
+  private <T> Map<String, Rule<?>> fillRuleMap(Class<? extends T> clazz, List<? extends Handler<?>> handlers) {
+    Map<Class<?>, Handler<?>> handlerMap = handlers.stream().collect(Collectors.toMap(Handler::getAnnotation, Function.identity()));
+
+    Map<String, Rule<?>> rules = new HashMap<>();
+
+    for (Method method : clazz.getMethods()) {
+      Pair<Annotation, Handler<Annotation>> handler = getHandler(method, method.getAnnotations(), handlerMap);
+      if (handler == null) {
+        continue;
+      }
+      if (isStatic(method) || instance != null) {
+        Object effectiveInstance = isStatic(method) ? null : instance;
+        handler.second().handleAnnotationForMethod(effectiveInstance, method, handler.first())
+            .forEach(rule -> rules.put(rule.getId(), rule));
+      }
+    }
+    for (Field field : clazz.getFields()) {
+      Pair<Annotation, Handler<Annotation>> handler = getHandler(field, field.getAnnotations(), handlerMap);
+      if (handler == null) {
+        continue;
+      }
+      if (isStatic(field) || instance != null) {
+        Object effectiveInstance = isStatic(field) ? null : instance;
+        handler.second().handleAnnotationForField(effectiveInstance, field, handler.first())
+            .forEach(rule -> rules.put(rule.getId(), rule));
+      }
+    }
+
+    return Collections.unmodifiableMap(rules);
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T extends Annotation> Pair<T, Handler<T>> getHandler(Member member, Annotation[] annotations,
+      Map<Class<?>, Handler<?>> handlerMap) {
+    List<Pair<T, Handler<T>>> handlers = Stream.of(annotations)
+        .map(annotation -> Pair.of(annotation, handlerMap.get(annotation.annotationType())))
+        .filter(pair -> pair.second() != null)
+        .map(pair -> (Object) pair)
+        .map(pair -> (Pair<T, Handler<T>>) pair)
+        .toList();
+    if (handlers.isEmpty()) {
+      return null;
+    }
+    if (handlers.size() > 1) {
+      throw new IllegalArgumentException("Found more than one rule related annotation on member " + member.getName());
+    }
+    return handlers.get(0);
+  }
+
+  private boolean isStatic(Member member) {
+    return Modifier.isStatic(member.getModifiers());
   }
 
   @Override
@@ -151,279 +317,9 @@ public class AnnotationRuleRepository implements RuleRepository {
     return rules.keySet();
   }
 
-  private Map<String, Rule<?>> fillRuleMap(Class<?> clazz) {
-    Map<String, Rule<?>> ruleMap = new HashMap<>();
-    Arrays.stream(clazz.getDeclaredFields())
-        .flatMap(this::fieldToRuleStream)
-        .forEach(rule -> addRule(ruleMap, rule));
-    Arrays.stream(clazz.getMethods())
-        .flatMap(this::methodToRuleStream)
-        .filter(Objects::nonNull)
-        .forEach(rule -> addRule(ruleMap, rule));
-    return Collections.unmodifiableMap(ruleMap);
-  }
-
-  private void addRule(Map<String, Rule<?>> ruleMap, Rule<?> rule) {
-    String id = rule.getId();
-    if (ruleMap.containsKey(id)) {
-      throw new IllegalStateException("Duplicate rule definition '" + id + "'");
-    }
-    ruleMap.put(id, rule);
-  }
-
-  private Stream<Rule<?>> fieldToRuleStream(Field field) {
-    RuleRef ruleRef = field.getAnnotation(RuleRef.class);
-    RuleDef ruleDef = field.getAnnotation(RuleDef.class);
-    if (ruleRef == null && ruleDef == null) {
-      return Stream.empty();
-    } else if (ruleDef != null && ruleRef != null) {
-      throw new IllegalStateException("Field '" + field.getName() + "' annotated with both RuleRef and RuleDef");
-    } else if (ruleDef != null) {
-      return fieldToRuleStreamFromRuleDef(field, ruleDef);
-    } else {
-      return fieldToRuleStreamFromRuleRef(field, ruleRef);
-    }
-  }
-
-  private Stream<Rule<?>> fieldToRuleStreamFromRuleDef(Field field, RuleDef ruleDef) {
-    assertFieldModifier(field);
-    Object fieldValue = getFieldValue(field, Condition.class, Predicate.class);
-    Condition condition;
-    if (fieldValue instanceof Condition c) {
-      condition = c;
-    } else if (fieldValue instanceof Predicate<?> p) {
-      condition = Conditions.predicate(p);
-    } else {
-      throw new IllegalStateException("Unexpectd field value");
-    }
-    return Stream.of(
-        RuleBuilder.conditionRule(
-                determineRuleId(field, ruleDef),
-                ruleDef.factsType())
-            .validateWith(condition)
-            .withFailReason(determineFailReason(ruleDef))
-            .withPreconditions(determinePreconditions(ruleDef))
-            .build()
-    );
-  }
-
-  private Stream<Rule<?>> fieldToRuleStreamFromRuleRef(Field field, RuleRef ruleRef) {
-    assertFieldModifier(field);
-    TypeInfo typeInfo;
-    if (instance != null) {
-      typeInfo = TypeInfo.forType(field.getGenericType(), TypeInfo.forInstance(instance));
-    } else {
-      typeInfo = TypeInfo.forType(field.getGenericType());
-    }
-
-    if (Rule.class.isAssignableFrom(typeInfo.resolve())) {
-      Rule<?> rule = getFieldValue(field, Rule.class);
-      return Stream.of(rule);
-    }
-
-    if (Collection.class.isAssignableFrom(typeInfo.resolve()) && Rule.class.isAssignableFrom(typeInfo.getGeneric(0).resolve())) {
-      Collection<Rule<?>> rules = getFieldValue(field, Collection.class);
-      return rules.stream();
-    }
-
-    throw new IllegalStateException("Field '" + field.getName() + "' neither is a Rule or a Collection of Rules");
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> T getFieldValue(Field field, Class<?>... types) {
-    Object fieldValue;
-    try {
-      field.setAccessible(true);
-      fieldValue = field.get(instance);
-    } catch (IllegalAccessException e) {
-      throw new IllegalStateException("Field+ '" + field.getName() + "' is not accessible", e);
-    }
-
-    for (Class<?> type : types) {
-      if (type.isInstance(fieldValue)) {
-        return (T) fieldValue;
-      }
-    }
-    throw new IllegalStateException(
-        "Field '" + field.getName() + "' must be a '" + Arrays.toString(types) + "' instance");
-  }
-
-  private void assertFieldModifier(Field field) {
-    int modifier = field.getModifiers();
-    if (!Modifier.isFinal(modifier)) {
-      throw new IllegalStateException("Field '" + field.getName() + "' must be final");
-    }
-    if (instance == null && !Modifier.isStatic(modifier)) {
-      throw new IllegalStateException("Field '" + field.getName() + "' must be static");
-    }
-  }
-
-  private Stream<Rule<?>> methodToRuleStream(Method method) {
-    RuleRef ruleRef = method.getAnnotation(RuleRef.class);
-    RuleDef ruleDef = method.getAnnotation(RuleDef.class);
-    if (ruleRef == null && ruleDef == null) {
-      return null;
-    } else if (ruleDef != null && ruleRef != null) {
-      throw new IllegalStateException(
-          "Method '" + method.getName() + "' annotated with both RuleRef and RuleDef");
-    } else if (ruleDef != null) {
-      return methodToRuleStreamFromRuleDef(method, ruleDef);
-    } else {
-      return methodToRuleStreamFromRuleRef(method, ruleRef);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private Stream<Rule<?>> methodToRuleStreamFromRuleDef(Method method, RuleDef ruleDef) {
-    assertMethodModifier(method);
-    Class<?>[] parameterTypes = method.getParameterTypes();
-    if (parameterTypes.length < 1 ||
-        parameterTypes.length > 2 ||
-        (parameterTypes.length == 2 && parameterTypes[0] != ValidationContext.class)) {
-      throw new IllegalStateException(
-          "Method '" + method.getName()
-              + "' must have one parameter or - if there are two - the first must be a ValidationContext");
-    }
-
-    Class<?> returnType = method.getReturnType();
-    if (returnType != boolean.class && returnType != Boolean.class && returnType != Result.class) {
-      throw new IllegalStateException(
-          "Method '" + method.getName() + "' must return boolean, Boolean, or Result");
-    }
-
-    method.setAccessible(true);
-
-    boolean requiresValidationContext = parameterTypes.length == 2;
-    boolean returnsResult = returnType == Result.class;
-    MethodInvoker invoker = null;
-    if (returnsResult) {
-      if (requiresValidationContext) {
-        invoker = (context, facts) -> (Result) method.invoke(instance, context, facts);
-      } else {
-        invoker = (context, facts) -> (Result) method.invoke(instance, facts);
-      }
-    } else {
-      ResultReason reason = determineFailReason(ruleDef);
-      if (requiresValidationContext) {
-        invoker = (context, facts) -> toResult((Boolean) method.invoke(instance, context, facts),
-            reason);
-      } else {
-        invoker = (context, facts) -> toResult((Boolean) method.invoke(instance, facts), reason);
-      }
-    }
-
-    return Stream.of(
-        RuleBuilder.functionRule(
-                determineRuleId(method, ruleDef),
-                (Class<Object>) parameterTypes[parameterTypes.length - 1])
-            .validateWith(invoker)
-            .withPreconditions(determinePreconditions(ruleDef))
-            .build());
-  }
-
-  private static Result toResult(Boolean result, ResultReason failReason) {
-    return Boolean.TRUE.equals(result) ? Result.ok() : Result.failed(failReason);
-  }
-
-  private Stream<Rule<?>> methodToRuleStreamFromRuleRef(Method method, RuleRef ruleRef) {
-    assertMethodModifier(method);
-    if (method.getParameterTypes().length > 0) {
-      throw new IllegalStateException(
-          "Method '" + method.getName() + "' must not expect any parameter");
-    }
-
-    TypeInfo typeInfo;
-    if (instance != null) {
-      typeInfo = TypeInfo.forType(method.getGenericReturnType(), TypeInfo.forInstance(instance));
-    } else {
-      typeInfo = TypeInfo.forType(method.getGenericReturnType());
-    }
-
-    if (Rule.class.isAssignableFrom(typeInfo.resolve())) {
-      Rule<?> rule = getMethodValue(method);
-      return Stream.of(rule);
-    }
-
-    if (Collection.class.isAssignableFrom(typeInfo.resolve()) && Rule.class.isAssignableFrom(typeInfo.getGeneric(0).resolve())) {
-      Collection<Rule<?>> rules = getMethodValue(method);
-      return rules.stream();
-    }
-
-    throw new IllegalStateException("Method '" + method.getName() + "' neither returns a Rule or a Collection of Rules");
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> T getMethodValue(Method method) {
-    try {
-      if (!method.canAccess(instance)) {
-        method.setAccessible(true);
-      }
-      Object result = method.invoke(instance);
-      if (result == null) {
-        throw new IllegalStateException("Method '" + method.getName() + "' returns null");
-      }
-      return (T) result;
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new IllegalStateException("Method '" + method.getName() + "' throws an exception", e);
-    }
-  }
-
-  private void assertMethodModifier(Method field) {
-    int modifier = field.getModifiers();
-    if (Modifier.isAbstract(modifier)) {
-      throw new IllegalStateException("Method '" + field.getName() + "' must not be abstract");
-    }
-    if (instance == null && !Modifier.isStatic(modifier)) {
-      throw new IllegalStateException("Method '" + field.getName() + "' must be static");
-    }
-  }
-
-  private ResultReason determineFailReason(RuleDef ruleDef) {
-    if (ruleDef.message() == null || ruleDef.message().isEmpty()) {
-      return null;
-    } else {
-      return new StringResultReason(ruleDef.message());
-    }
-  }
-
-  private String determineRuleId(Member member, RuleDef ruleDef) {
-    if (ruleDef.id() != null && !ruleDef.id().isBlank()) {
-      return ruleDef.id();
-    }
-    return member.getDeclaringClass().getSimpleName() + ":" + member.getName();
-  }
-
-  private List<? extends Condition> determinePreconditions(RuleDef ruleDef) {
-    return Arrays.stream(ruleDef.preconditions())
-        .map(this::preconditionToCondition)
-        .toList();
-  }
-
-  private Condition preconditionToCondition(Precondition precondition) {
-    RuleSelector ruleSelector = RuleSelector.of(precondition.rules());
-    Set<String> paths = Arrays.stream(precondition.paths()).collect(Collectors.toSet());
-    return new RuleCondition(Values.val(ruleSelector), Values.val(paths));
-  }
-
   @Override
   public Subscription subscribe(EventListener listener) {
     return NoopSubscribableEventPublisher.INSTANCE.subscribe(listener);
   }
 
-  interface MethodInvoker extends BiFunction<ValidationContext, Object, Result> {
-
-    default Result apply(ValidationContext context, Object facts) {
-      try {
-        return validate(context, facts);
-      } catch (Exception e) {
-        LOGGER.error("Rule execution failed", e);
-        return Result.failed(new SystemResultReason(
-            Code.RuleExecutionThrowsException,
-            e.getMessage()
-        ));
-      }
-    }
-
-    Result validate(ValidationContext context, Object facts) throws Exception;
-  }
 }

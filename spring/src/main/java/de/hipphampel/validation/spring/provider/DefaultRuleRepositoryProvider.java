@@ -24,6 +24,7 @@ package de.hipphampel.validation.spring.provider;
 
 import de.hipphampel.validation.core.provider.AggregatingRuleRepository;
 import de.hipphampel.validation.core.provider.AnnotationRuleRepository;
+import de.hipphampel.validation.core.provider.AnnotationRuleRepository.Handler;
 import de.hipphampel.validation.core.provider.InMemoryRuleRepository;
 import de.hipphampel.validation.core.provider.RuleRepository;
 import de.hipphampel.validation.core.rule.Rule;
@@ -35,9 +36,8 @@ import java.util.stream.Stream;
 /**
  * Default implementation of the {@code RuleRepositoryProvider}.
  * <p>
- * This implementation creates a {@link RuleRepository} that aggregates all available
- * {@link Rule Rules} via an {@link AggregatingRuleRepository}. Possible sources of these
- * {@code Rules} are:
+ * This implementation creates a {@link RuleRepository} that aggregates all available {@link Rule Rules} via an
+ * {@link AggregatingRuleRepository}. Possible sources of these {@code Rules} are:
  * <ol>
  *   <li>Beans implementing the {@code Rule} interface. For these an {@link InMemoryRuleRepository}
  *   is created which is then part of the resulting {@code AggregatingRuleRepository}.</li>
@@ -72,6 +72,31 @@ public class DefaultRuleRepositoryProvider implements RuleRepositoryProvider {
                 List.of(new InMemoryRuleRepository(ruleBeans)),
                 repositoryBeans,
                 ruleContainerBeans.stream().map(AnnotationRuleRepository::ofInstance).toList())
+            .flatMap(Collection::stream)
+            .toList()
+    );
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param annotationHandlers The {@link Handler annotation handlers} to use
+   * @param ruleBeans          Beans implementing the {@link Rule} interface.
+   * @param repositoryBeans    Beans implementing the {@link RuleRepository} interface.
+   * @param ruleContainerBeans Beans annotated with {@link RuleContainer}
+   */
+  public DefaultRuleRepositoryProvider(
+      List<? extends Handler<?>> annotationHandlers,
+      List<? extends Rule<?>> ruleBeans,
+      List<? extends RuleRepository> repositoryBeans,
+      List<?> ruleContainerBeans) {
+    this.repository = new AggregatingRuleRepository(
+        Stream.of(
+                List.of(new InMemoryRuleRepository(ruleBeans)),
+                repositoryBeans,
+                ruleContainerBeans.stream()
+                    .map(bean -> AnnotationRuleRepository.ofInstance(bean, annotationHandlers))
+                    .toList())
             .flatMap(Collection::stream)
             .toList()
     );

@@ -28,6 +28,7 @@ import de.hipphampel.validation.core.provider.RuleRepository;
 import de.hipphampel.validation.core.rule.OkRule;
 import de.hipphampel.validation.core.rule.Rule;
 import de.hipphampel.validation.spring.annotation.RuleContainer;
+import de.hipphampel.validation.spring.config.ValidationConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -35,6 +36,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -63,8 +65,9 @@ public class DefaultRuleRepositoryProviderTest {
 
   @ContextConfiguration
   @ComponentScan(basePackages = "de.hipphampel.validation.spring.provider")
+  @Import(ValidationConfiguration.class)
   @EnableAutoConfiguration
-  static class Context {
+  public static class Context {
 
     @Bean
     public Rule<?> aRule1() {

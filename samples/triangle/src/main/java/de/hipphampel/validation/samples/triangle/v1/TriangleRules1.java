@@ -24,6 +24,7 @@ package de.hipphampel.validation.samples.triangle.v1;
 
 import static de.hipphampel.validation.samples.triangle.model.ModelUtils.slopeOf;
 
+import de.hipphampel.validation.core.annotations.BindPath;
 import de.hipphampel.validation.core.annotations.Precondition;
 import de.hipphampel.validation.core.annotations.RuleDef;
 import de.hipphampel.validation.core.annotations.RuleRef;
@@ -34,6 +35,7 @@ import de.hipphampel.validation.core.rule.RuleBuilder;
 import de.hipphampel.validation.core.utils.CollectionUtils;
 import de.hipphampel.validation.core.utils.TypeReference;
 import de.hipphampel.validation.core.value.Values;
+import de.hipphampel.validation.samples.triangle.model.ModelUtils;
 import de.hipphampel.validation.samples.triangle.model.Point;
 import de.hipphampel.validation.samples.triangle.model.Polygon;
 import java.util.List;
@@ -54,11 +56,11 @@ public class TriangleRules1 {
       preconditions = {
           @Precondition(rules = "points:hasThreePoints")
       })
-  public static boolean pointLinearIndependentRule(List<Point> facts) {
-    return CollectionUtils.streamOfPossiblePairs(facts)
-        .map(l -> Optional.ofNullable(slopeOf(l.first(), l.second())))
-        .distinct()
-        .count() == facts.size();
+  public static boolean pointLinearIndependentRule(@BindPath("0") Point a, @BindPath("1") Point b, @BindPath("2") Point c) {
+    Optional<Double> ab = Optional.ofNullable(ModelUtils.slopeOf(a,b));
+    Optional<Double> ac = Optional.ofNullable(ModelUtils.slopeOf(a,c));
+    Optional<Double> bc = Optional.ofNullable(ModelUtils.slopeOf(b,c));
+    return !ab.equals(ac) || !ac.equals(bc);
   }
 
   @RuleDef(id = "points:pointsAreUnique",
@@ -80,7 +82,7 @@ public class TriangleRules1 {
   @RuleRef
   public static final Rule<List<Point>> pointsNotNull =
       RuleBuilder.dispatchingRule("points:notNull", new TypeReference<List<Point>>() {
-      })
+          })
           .forPaths("", "*", "*/*").validateWith("object:notNullRule")
           .build();
 

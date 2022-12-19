@@ -20,20 +20,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package de.hipphampel.validation.core.annotations;
+
+import de.hipphampel.validation.core.path.Path;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Provides class related to {@link de.hipphampel.validation.core.provider}.
+ * Binds a rule method parameter to the specified {@link Path}.
  * <p>
- * In general, it contains some enhancements that allow a smooth integration into the Spring framwork:
+ * Annotations of this type are used for parameters of methods annotated with the {@link RuleDef} annotation. When the method is invoked as
+ * a validation rule, the parameter os filled with the resolved value of the given {@link Path}.
+ * <p>
+ * The core library makes not implicit type conversion, so that the method parameter type must match the context parameter type. The default
+ * spring implementation tries such a conversion
  *
- * <ol>
- *   <li>The {@link de.hipphampel.validation.spring.provider.RuleRepositoryProvider} with its default implementation
- *   {@link de.hipphampel.validation.spring.provider.DefaultRuleRepositoryProvider} allow to gather all beans that contain or
- *   are {@link de.hipphampel.validation.core.rule.Rule Rules} and expose them all together via a single
- *   {@link de.hipphampel.validation.core.provider.RuleRepository}</li>
- *   <li>The {@link de.hipphampel.validation.spring.provider.SpringRuleDefHandler} is an extension of the
- *   {@link de.hipphampel.validation.core.provider.RuleDefHandler} and generates {@code Rules} that is able to generate
- *   {@code Rules} that do an automatic parameter conversion</li>
- * </ol>
+ * @see RuleDef
+ * @see BindContext
+ * @see BindContextParameter
+ * @see BindFacts
+ * @see BindMetadata
+ * @see Path
  */
-package de.hipphampel.validation.spring.provider;
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.PARAMETER})
+public @interface BindPath {
+
+  /**
+   * The {@link Path}
+   *
+   * @return The {@code Path} to evaluate
+   */
+  String value();
+
+}

@@ -26,7 +26,6 @@ import de.hipphampel.validation.core.condition.Condition;
 import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.provider.AnnotationRuleRepository;
 import de.hipphampel.validation.core.rule.ConditionRule;
-import de.hipphampel.validation.core.rule.FunctionRule;
 import de.hipphampel.validation.core.rule.Result;
 import de.hipphampel.validation.core.rule.Rule;
 import java.lang.annotation.ElementType;
@@ -46,10 +45,22 @@ import java.util.function.Predicate;
  * {@code AnnotationRuleRepository} then creates a {@link ConditionRule} for it, whereas the missing information (like the id) is taken from
  * the annotation.
  * <p>
- * If the annotated object is a method, then the method must accept either exactly one argument or two, whereas - in case of two arguments -
- * the first must be {@link ValidationContext} and the last one is always the object to be validated. Furthermore, the return type of the
- * method must be either a {@code boolean}, a {@code Boolean}, or a {@link Result}. The {@code AnnotationRuleRepository} creates then a
- * {@link FunctionRule} for it.
+ * If the annotated object is a method, then the following restrictions apply:
+ * <ol>
+ *   <li>The return type of the method must be either a {@link Result} or a {@link Boolean} or a {@code boolean}. Booleans are automatically
+ *   converted to {@code Results}. Any other return type will cause the {@code Rule} to return a failed result (at least by default)</li>
+ *   <li>The method must have at least one parameter; all parameters must be bound via one of the bind annotations: {@link BindContext},
+ *   {@link BindFacts}, {@link BindContextParameter}, {@link BindPath}, or {@link BindMetadata}.</li>
+ *   <li>For simplicity the following shortcuts exists:
+ *   <ul>
+ *     <li>If the method has exactly one parameter having none of the binding annotations mentioned above, {@code BindFacts} is implicitly
+ *      assumed</li>
+ *     <li>If the method has exactly two parameter having name of the binding annotations mentioned above and the first parameter has the
+ *      type {@link ValidationContext}, {@code BindFacts} is implicitly assumed for the second and {@code BindContext} for the first
+ *      parameter</li>
+ *   </ul>
+ *   </li>
+ * </ol>
  * <p>
  * Generally, the member might be static or not. If it is not static, the {@code Rule} implementation might refer to the state that is
  * provided be the enclosing class.
@@ -59,6 +70,11 @@ import java.util.function.Predicate;
  * @see RuleRef
  * @see AnnotationRuleRepository
  * @see Rule
+ * @see BindContext
+ * @see BindContextParameter
+ * @see BindFacts
+ * @see BindMetadata
+ * @see BindPath
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
@@ -101,4 +117,13 @@ public @interface RuleDef {
    * @return List of preconditions.
    */
   Precondition[] preconditions() default {};
+
+  /**
+   * A list of {@link Metadata} entries.
+   * <p>
+   * This {@code Rule} is annotated with the given metadata
+   *
+   * @return List of metadata entries
+   */
+  Metadata[] metadata() default {};
 }

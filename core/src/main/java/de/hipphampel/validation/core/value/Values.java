@@ -38,7 +38,7 @@ import java.util.function.Supplier;
 /**
  * Collection for factory methods for {@link Value Values}.
  */
-public interface Values {
+public class Values {
 
   /**
    * Factory method to create a {@link ConstantValue} containing the object being validated.
@@ -47,7 +47,7 @@ public interface Values {
    * @return The {@link Value} instance
    */
   @SuppressWarnings("unchecked")
-  static <T> Value<T> facts() {
+  public static <T> Value<T> facts() {
     return FactsValue.instance();
   }
 
@@ -58,7 +58,7 @@ public interface Values {
    * @param <T>   The type of the value
    * @return The {@link Value} instance
    */
-  static <T> Value<T> val(T value) {
+  public static <T> Value<T> val(T value) {
     return new ConstantValue<>(value);
   }
 
@@ -69,7 +69,7 @@ public interface Values {
    * @param <T>           The type of the value
    * @return The {@link Value} instance
    */
-  static <T> Value<T> var(Supplier<T> valueSupplier) {
+  public static <T> Value<T> var(Supplier<T> valueSupplier) {
     return var(ignore -> valueSupplier.get());
   }
 
@@ -80,7 +80,7 @@ public interface Values {
    * @param <T>           The type of the value
    * @return The {@link Value} instance
    */
-  static <T> Value<T> var(Function<ValidationContext, T> valueSupplier) {
+  public static <T> Value<T> var(Function<ValidationContext, T> valueSupplier) {
     return new VariableValue<>(valueSupplier);
   }
 
@@ -93,7 +93,7 @@ public interface Values {
    * @param <T> The type of the value
    * @return The {@link Value}
    */
-  static <T> Value<T> metadata(String key) {
+  public static <T> Value<T> metadata(String key) {
     return metadata(val(key));
   }
 
@@ -106,7 +106,7 @@ public interface Values {
    * @param <T> The type of the value
    * @return The {@link Value}
    */
-  static <T> Value<T> metadata(Value<String> key) {
+  public static <T> Value<T> metadata(Value<String> key) {
     return new MetadataValue<>(key);
   }
 
@@ -121,7 +121,7 @@ public interface Values {
    * @param <T>             The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> pathForObject(Value<?> referenceObject, String path, Value<T> defaultValue) {
+  public static <T> Value<T> pathForObject(Value<?> referenceObject, String path, Value<T> defaultValue) {
     return new PathValue<>(
         OneOfTwo.ofFirst(val(path)),
         Optional.of(referenceObject),
@@ -140,7 +140,7 @@ public interface Values {
    * @param <T>             The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> pathForObject(Value<?> referenceObject, Value<String> path, Value<T> defaultValue) {
+  public static <T> Value<T> pathForObject(Value<?> referenceObject, Value<String> path, Value<T> defaultValue) {
     return new PathValue<>(
         OneOfTwo.ofFirst(path),
         Optional.of(referenceObject),
@@ -159,7 +159,7 @@ public interface Values {
    * @param <T>             The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> pathForObject(Value<?> referenceObject, Path path, Value<T> defaultValue) {
+  public static <T> Value<T> pathForObject(Value<?> referenceObject, Path path, Value<T> defaultValue) {
     return new PathValue<>(
         OneOfTwo.ofSecond(path),
         Optional.of(referenceObject),
@@ -177,7 +177,7 @@ public interface Values {
    * @param <T>             The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> pathForObject(Value<?> referenceObject, String path) {
+  public static <T> Value<T> pathForObject(Value<?> referenceObject, String path) {
     return new PathValue<>(
         OneOfTwo.ofFirst(val(path)),
         Optional.of(referenceObject),
@@ -195,7 +195,7 @@ public interface Values {
    * @param <T>             The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> pathForObject(Value<?> referenceObject, Value<String> path) {
+  public static <T> Value<T> pathForObject(Value<?> referenceObject, Value<String> path) {
     return new PathValue<>(
         OneOfTwo.ofFirst(path),
         Optional.of(referenceObject),
@@ -213,7 +213,7 @@ public interface Values {
    * @param <T>             The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> pathForObject(Value<?> referenceObject, Path path) {
+  public static <T> Value<T> pathForObject(Value<?> referenceObject, Path path) {
     return new PathValue<>(
         OneOfTwo.ofSecond(path),
         Optional.of(referenceObject),
@@ -231,7 +231,7 @@ public interface Values {
    * @param <T>          The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> path(String path, Value<T> defaultValue) {
+  public static <T> Value<T> path(String path, Value<T> defaultValue) {
     return new PathValue<>(
         OneOfTwo.ofFirst(val(path)),
         Optional.empty(),
@@ -249,7 +249,7 @@ public interface Values {
    * @param <T>          The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> path(Value<String> path, Value<T> defaultValue) {
+  public static <T> Value<T> path(Value<String> path, Value<T> defaultValue) {
     return new PathValue<>(
         OneOfTwo.ofFirst(path),
         Optional.empty(),
@@ -267,7 +267,7 @@ public interface Values {
    * @param <T>          The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> path(Path path, Value<T> defaultValue) {
+  public static <T> Value<T> path(Path path, Value<T> defaultValue) {
     return new PathValue<>(
         OneOfTwo.ofSecond(path),
         Optional.empty(),
@@ -284,7 +284,7 @@ public interface Values {
    * @param <T>  The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> path(String path) {
+  public static <T> Value<T> path(String path) {
     return new PathValue<>(
         OneOfTwo.ofFirst(val(path)),
         Optional.empty(),
@@ -301,7 +301,7 @@ public interface Values {
    * @param <T>  The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> path(Value<String> path) {
+  public static <T> Value<T> path(Value<String> path) {
     return new PathValue<>(
         OneOfTwo.ofFirst(path),
         Optional.empty(),
@@ -318,7 +318,7 @@ public interface Values {
    * @param <T>  The type of the value
    * @return The {@code Value}
    */
-  static <T> Value<T> path(Path path) {
+  public static <T> Value<T> path(Path path) {
     return new PathValue<>(
         OneOfTwo.ofSecond(path),
         Optional.empty(),
@@ -334,7 +334,7 @@ public interface Values {
    * @return A {@code Value} returning a {@code List} of the values that are provided by {@code list}
    */
   @SafeVarargs
-  static <T> Value<List<T>> list(Value<T>... list) {
+  public static <T> Value<List<T>> list(Value<T>... list) {
     return new ListValue<>(Arrays.asList(list));
   }
 
@@ -345,7 +345,7 @@ public interface Values {
    * @param <T>  The list element type
    * @return A {@code Value} returning a {@code List} of the values that are provided by {@code list}
    */
-  static <T> Value<List<T>> list(Collection<Value<T>> list) {
+  public static <T> Value<List<T>> list(Collection<Value<T>> list) {
     return new ListValue<>(list);
   }
 
@@ -357,7 +357,7 @@ public interface Values {
    * @return A {@code Value} returning a {@code Set} of the values that are provided by {@code set}
    */
   @SafeVarargs
-  static <T> Value<Set<T>> set(Value<T>... set) {
+  public static <T> Value<Set<T>> set(Value<T>... set) {
     return new SetValue<>(new HashSet<>(Arrays.asList(set)));
   }
 
@@ -368,7 +368,7 @@ public interface Values {
    * @param <T> The set element type
    * @return A {@code Value} returning a {@code Set} of the values that are provided by {@code set}
    */
-  static <T> Value<Set<T>> set(Collection<Value<T>> set) {
+  public static <T> Value<Set<T>> set(Collection<Value<T>> set) {
     return new SetValue<>(set);
   }
 
@@ -379,7 +379,7 @@ public interface Values {
    * @param <T> The type of the value
    * @return A {@code Value} returning the context parameter
    */
-  static <T> Value<T> context(Value<String> key) {
+  public static <T> Value<T> context(Value<String> key) {
     return new ContextValue<>(key);
   }
 
@@ -390,7 +390,7 @@ public interface Values {
    * @param <T> The type of the value
    * @return A {@code Value} returning the context parameter
    */
-  static <T> Value<T> context(String key) {
+  public static <T> Value<T> context(String key) {
     return context(val(key));
   }
 
@@ -404,7 +404,7 @@ public interface Values {
    * @param <T>      The type of the value
    * @return The evaluated value
    */
-  static <T> Value<T> fallback(Value<T> value, Value<T> fallback) {
+  public static <T> Value<T> fallback(Value<T> value, Value<T> fallback) {
     return new FallbackValue<>(value, fallback);
   }
 }

@@ -273,8 +273,40 @@ elements. Since the `Predicate` itself is not a `Rule`, the `@RuleDef` annotatio
 additional information, such as the `id` of the `Rule`, the validation `message` and - if required - 
 a list of `preconditions`. 
 
-Internally, the validation library uses also a `RuleBuilder` to create a new `Rule` instance based on
-the given definition.
+A further - and the most powerful kind of application of `@RuleDef` - is to use an arbitrary method as a rule.
+The following example uses a method, which returns a `boolean` and expects three `Point` instances as a rule:
+
+```java
+  @RuleDef(id = "points:pointsNotInOneLine",
+      message = "The points in the polygon are on the same line",
+      preconditions = {
+          @Precondition(rules = "points:hasThreePoints")
+      })
+  public static boolean pointLinearIndependentRule(
+          @BindPath("0") Point a, 
+          @BindPath("1") Point b, 
+          @BindPath("2") Point c) {
+    Optional<Double> ab = Optional.ofNullable(ModelUtils.slopeOf(a,b));
+    Optional<Double> ac = Optional.ofNullable(ModelUtils.slopeOf(a,c));
+    Optional<Double> bc = Optional.ofNullable(ModelUtils.slopeOf(b,c));
+    return !ab.equals(ac) || !ac.equals(bc);
+  }
+```
+
+In order to use the method as a rule, there must be some definition that describes, how to populate the parameters and how
+to map the return value of the method.  
+
+Mapping the return value is fairly simple:
+<ol>
+  <li>If the method returns a `Result` object, the rule returns exactly this object</li>
+  <li>If the method returns a boolean value, the rule returns `Result.ok()` for `true` and `Result.failed()` for `false`. 
+      The error message can be customized via the `message` parameter of the `RuleDef` annotation.</li>
+  <li>Any other return value of the method results in a `Result.failed()` of the rule.</li>
+</ol>
+
+The parameters are bound via the `BindPath` annotation: for example,  when invoking the method as a rule with a list of `Points`, 
+the parameter `a` is populated with the first `Point` of the point list. Beside the `BindPath` there are many more `Bind*` annotations
+that allow to bind other kind of value sources to a parameter, please also refer to the documentation of the `RuleDef` for details.
 
 
 

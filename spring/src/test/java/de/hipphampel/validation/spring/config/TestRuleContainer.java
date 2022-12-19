@@ -29,7 +29,7 @@ import de.hipphampel.validation.spring.annotation.RuleContainer;
 public class TestRuleContainer {
 
   @RuleDef(id = "aRule5")
-  public static boolean aRule5(Object obj) {
+  public boolean aRule5(Object obj) {
     return true;
   }
 

@@ -22,18 +22,8 @@
  */
 
 /**
- * Provides class related to {@link de.hipphampel.validation.core.provider}.
- * <p>
- * In general, it contains some enhancements that allow a smooth integration into the Spring framwork:
+ * Provides class related to {@link de.hipphampel.validation.core.rule}.
  *
- * <ol>
- *   <li>The {@link de.hipphampel.validation.spring.provider.RuleRepositoryProvider} with its default implementation
- *   {@link de.hipphampel.validation.spring.provider.DefaultRuleRepositoryProvider} allow to gather all beans that contain or
- *   are {@link de.hipphampel.validation.core.rule.Rule Rules} and expose them all together via a single
- *   {@link de.hipphampel.validation.core.provider.RuleRepository}</li>
- *   <li>The {@link de.hipphampel.validation.spring.provider.SpringRuleDefHandler} is an extension of the
- *   {@link de.hipphampel.validation.core.provider.RuleDefHandler} and generates {@code Rules} that is able to generate
- *   {@code Rules} that do an automatic parameter conversion</li>
- * </ol>
+ * Provides the {@link de.hipphampel.validation.spring.rule.SpringReflectionRule}
  */
-package de.hipphampel.validation.spring.provider;
+package de.hipphampel.validation.spring.rule;

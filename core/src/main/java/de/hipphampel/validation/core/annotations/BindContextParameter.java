@@ -22,46 +22,36 @@
  */
 package de.hipphampel.validation.core.annotations;
 
-import de.hipphampel.validation.core.rule.Rule;
+import de.hipphampel.validation.core.execution.ValidationContext;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used inside {@link RuleDef} annotations to define precondtions of a {@link Rule}.
+ * Binds a rule method parameter to a parameter of the current {@link ValidationContext}.
  * <p>
- * This annotation allows to define the preconditions of the rule. A single precondition becomes {@code true}, if the {@code rules} evaluate
- * to {@code OK} for all {@code paths}.
+ * Annotations of this type are used for parameters of methods annotated with the {@link RuleDef} annotation and ensure that, when the
+ * method is invoked as a validation rule, the parameter os filled with the parameter of the current {@code ValidationContext} having the
+ * name/key specified in the {@link #value() value}.
  * <p>
- * Usage example:
- * <pre>
- *     &#64;RuleDef(id = "parent",
- *       preconditions = {
- *           &#64;Precondition(rules = "child", paths="aPath")
- *       })
- * </pre>
- * <p>
- * In the example above, the {@code Rule} with the id {@code parent} has a precondition that becomes {@code true}, if the {@code Rule} with
- * the id {@code child} evaluates to {@code OK}.
+ * The core library makes not implicit type conversion, so that the method parameter type must match the context parameter type. The default
+ * Spring implementation tries such a conversion
  *
- * @see RuleDef
+ * @see BindContext
+ * @see BindFacts
+ * @see BindMetadata
+ * @see BindPath
+ * @see ValidationContext
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
-public @interface Precondition {
+@Target({ElementType.PARAMETER})
+public @interface BindContextParameter {
 
   /**
-   * The list of rule ids that need to be evaluated.
+   * The name of the {@link ValidationContext} parameter to bind.
    *
-   * @return The rule ids
+   * @return Parameter name.
    */
-  String[] rules();
-
-  /**
-   * The paths the rules have to validated for.
-   *
-   * @return The paths
-   */
-  String[] paths() default {};
+  String value();
 }

@@ -33,7 +33,7 @@ import java.util.function.BiFunction;
  * {@link Rule} implementation composed of {@link BiFunction BiFunctions}.
  * <p>
  * In this implementation, the {@link #validate(ValidationContext, Object) validate} method simply
- * invokes a {@code BiFunction} that is passed at construction time
+ * invokes a {@code BiFunction} that is passed at construction time.
  *
  * @param <T> Type of the object being validated
  */

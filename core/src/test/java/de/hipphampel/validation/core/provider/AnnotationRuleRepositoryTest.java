@@ -53,7 +53,7 @@ public class AnnotationRuleRepositoryTest {
         "staticMethodRef",
         "staticPredicate",
         "staticMethod",
-        "StaticContainer:r4",
+        "r4",
         "r7_10",
         "r7_11",
         "r9_10",
@@ -78,7 +78,7 @@ public class AnnotationRuleRepositoryTest {
     assertThat(r3.validate(context, "r3")).isEqualTo(Result.ok());
     assertThat(r3.validate(context, "r2")).isEqualTo(Result.failed("failed rule"));
 
-    Rule<Long> r4 = repository.getRule("StaticContainer:r4");
+    Rule<Long> r4 = repository.getRule("r4");
     assertThat(r4.validate(context, 4L)).isEqualTo(Result.ok());
     assertThat(r4.validate(context, 5L)).isEqualTo(Result.failed());
 
@@ -102,7 +102,7 @@ public class AnnotationRuleRepositoryTest {
         "methodRef",
         "predicate",
         "method",
-        "InstanceContainer:r4",
+        "r4",
         "r8_10",
         "r8_11",
         "r10_10",
@@ -131,7 +131,7 @@ public class AnnotationRuleRepositoryTest {
     assertThat(r3.validate(context, "r3")).isEqualTo(Result.ok());
     assertThat(r3.validate(context, "r2")).isEqualTo(Result.failed("failed rule"));
 
-    Rule<Long> r4 = repository.getRule("InstanceContainer:r4");
+    Rule<Long> r4 = repository.getRule("r4");
     assertThat(r4.validate(context, 4L)).isEqualTo(Result.ok());
     assertThat(r4.validate(context, 5L)).isEqualTo(Result.failed());
 
@@ -146,19 +146,19 @@ public class AnnotationRuleRepositoryTest {
     assertThat(r6.getPreconditions()).hasSize(2);
   }
 
-  private static class InstanceContainer {
+  public static class InstanceContainer {
 
     private int intVar;
     private String strVar;
 
     @RuleRef
-    private final Rule<Integer> r1 =
+    public final Rule<Integer> r1 =
         RuleBuilder.conditionRule("fieldRef", Integer.class)
             .validateWith(Conditions.eq(facts(), var(() -> intVar)))
             .build();
 
     @RuleDef(id = "fieldDef", factsType = Integer.class, message = "value not good")
-    private final Condition r2 = Conditions.eq(var(() -> intVar * 2), facts());
+    public final Condition r2 = Conditions.eq(var(() -> intVar * 2), facts());
 
     @RuleRef
     public Rule<?> r3() {
@@ -182,7 +182,7 @@ public class AnnotationRuleRepositoryTest {
         @Precondition(rules = "a", paths = "b"),
         @Precondition(rules = "c", paths = "d"),
     })
-    public static Result r6(Point value) {
+    public Result r6(Point value) {
       return Objects.equals(value.x(), value.y()) ? Result.ok() : Result.failed("x!=y");
     }
 
@@ -199,16 +199,16 @@ public class AnnotationRuleRepositoryTest {
     }
   }
 
-  static class StaticContainer {
+  public static class StaticContainer {
 
     @RuleRef
-    private static final Rule<String> r1 =
+    public static final Rule<String> r1 =
         RuleBuilder.conditionRule("staticFieldRef", String.class)
             .validateWith(Conditions.eq(facts(), val("r1")))
             .build();
 
     @RuleDef(id = "staticFieldDef", factsType = Integer.class, message = "value not 1")
-    private static final Condition r2 = Conditions.eq(val(1), facts());
+    public static final Condition r2 = Conditions.eq(val(1), facts());
 
     @RuleRef
     public static Rule<?> r3() {

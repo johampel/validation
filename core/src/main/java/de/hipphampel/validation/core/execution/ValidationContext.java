@@ -229,7 +229,7 @@ public class ValidationContext {
   }
 
   /**
-   * Gets the current {@link Path} used for validation.
+   * Gets the current absolute {@link Path} used for validation.
    * <p>
    * If the validation is currently executed for a {@code Path}, this is returned, otherwise {@link PathResolver#selfPath() the self path}.
    * <p>

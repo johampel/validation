@@ -23,6 +23,7 @@
 package de.hipphampel.validation.core.annotations;
 
 import de.hipphampel.validation.core.provider.AnnotationRuleRepository;
+import de.hipphampel.validation.core.provider.RuleRefHandler;
 import de.hipphampel.validation.core.rule.Rule;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -32,7 +33,7 @@ import java.lang.annotation.Target;
 /**
  * Annotates a class member providing a {@link Rule}.
  * <p>
- * Annotations of this type are evaluated by the {@link AnnotationRuleRepository}.
+ * Annotations of this type are evaluated by the {@link RuleRefHandler} which is normally called by the {@link AnnotationRuleRepository}.
  * <p>
  * This annotation can be applied to final, not-null fields of type {@code Rule} or to parameterless methods returning a {@code Rule}. In
  * both cases the outcome is a ready to use {@code Rule}. An example is:
@@ -62,6 +63,7 @@ import java.lang.annotation.Target;
  *
  * @see RuleDef
  * @see AnnotationRuleRepository
+ * @see RuleRefHandler
  * @see Rule
  */
 @Retention(RetentionPolicy.RUNTIME)

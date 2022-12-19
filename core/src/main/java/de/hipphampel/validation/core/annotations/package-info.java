@@ -24,7 +24,6 @@
 /**
  * Provides annotations that can be used to declare {@link de.hipphampel.validation.core.rule.Rule Rules}.
  * <p>
- * Please also refer to {@link de.hipphampel.validation.core.provider.AnnotationRuleRepository}
  *
  * @see de.hipphampel.validation.core.provider.AnnotationRuleRepository
  * @see de.hipphampel.validation.core.annotations.RuleDef
