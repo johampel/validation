@@ -35,7 +35,7 @@ import java.util.Map;
  *
  * @param <T> Type of the objects being validated
  */
-public class DelegatingRule<T> implements Rule<T> {
+public class DelegatingRule<T> implements ForwardingRule<T> {
 
   private final Rule<T> delegate;
 

@@ -24,6 +24,7 @@ package de.hipphampel.validation.core.report;
 
 import de.hipphampel.validation.core.path.Path;
 import de.hipphampel.validation.core.rule.Result;
+import de.hipphampel.validation.core.rule.ResultReason;
 import de.hipphampel.validation.core.rule.Rule;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,8 +33,8 @@ import java.util.function.Predicate;
 /**
  * A {@link Reporter} that uses a {@link Report} as intermediate result.
  * <p>
- * This basically collects all validation results into a {@code Report} and allows to transform that
- * {@code Report} into the final report when calling {@code getReport}
+ * This basically collects all validation results into a {@code Report} and allows to transform that {@code Report} into the final report
+ * when calling {@code getReport}
  *
  * @param <T> Type of teh report to produce
  * @see Reporter
@@ -44,15 +45,32 @@ public abstract class AbstractReportBasedReporter<T> implements Reporter<T> {
   private final Object facts;
   private final Predicate<ReportEntry> entryPredicate;
   private final Set<ReportEntry> entries;
+  private final boolean flattenReason;
 
   /**
    * Constructor.
-   * @param facts The Object being validated
-   * @param entryPredicate A {@code Predicate} that decides, whether a {@link ReportEntry} should
-   *                       become part of the {@code Report}, might be {@code null}
+   *
+   * @param facts          The Object being validated
+   * @param entryPredicate A {@code Predicate} that decides, whether a {@link ReportEntry} should become part of the {@code Report}, might
+   *                       be {@code null}
    */
   protected AbstractReportBasedReporter(Object facts, Predicate<ReportEntry> entryPredicate) {
+    this(facts, true, entryPredicate);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param facts          The Object being validated
+   * @param flattenReason  If {@code false}, {@link ReportEntry entries} are added as they are, otherwise for each entry the
+   *                       {@link ResultReason} is {@link ResultReason#flatten() flattened} and based on that stream individual entries are
+   *                       created.
+   * @param entryPredicate A {@code Predicate} that decides, whether a {@link ReportEntry} should become part of the {@code Report}, might
+   *                       be {@code null}
+   */
+  protected AbstractReportBasedReporter(Object facts, boolean flattenReason, Predicate<ReportEntry> entryPredicate) {
     this.facts = facts;
+    this.flattenReason = flattenReason;
     this.entries = ConcurrentHashMap.newKeySet();
     this.entryPredicate = entryPredicate == null ? entry -> true : entryPredicate;
   }
@@ -68,7 +86,16 @@ public abstract class AbstractReportBasedReporter<T> implements Reporter<T> {
 
   @Override
   public void add(Path path, Object facts, Rule<?> rule, Result result) {
-    ReportEntry entry = new ReportEntry(path, rule, result);
+    if (result.reason() == null || !flattenReason) {
+      add(new ReportEntry(path, rule, result));
+    } else {
+      result.reason().flatten()
+          .map(reason -> new ReportEntry(path, rule, new Result(result.code(), reason)))
+          .forEach(this::add);
+    }
+  }
+
+  private void add(ReportEntry entry) {
     if (entryPredicate.test(entry)) {
       entries.add(entry);
     }

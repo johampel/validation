@@ -57,7 +57,7 @@ public interface RuleSelector {
    * @see RuleExecutor
    * @see RuleRepository
    */
-  List<Rule<?>> selectRules(RuleRepository provider, ValidationContext context, Object facts);
+  List<? extends Rule<?>> selectRules(RuleRepository provider, ValidationContext context, Object facts);
 
   /**
    * Utility method to create a {@link RuleSelector} selecting the {@link Rule Rules} having the

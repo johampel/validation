@@ -24,16 +24,29 @@ package de.hipphampel.validation.core.provider;
 
 import de.hipphampel.validation.core.rule.Rule;
 import de.hipphampel.validation.core.value.Value;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 
 /**
  * Builders to create {@link RuleSelector RuleSelectors}
  */
 public class RuleSelectorBuilder {
+
+  /**
+   * Starts the production of a {@link PredicateBasedRuleSelector}.
+   *
+   * @param predicate The first {@link Predicate}
+   * @return The builder
+   */
+  public static PredicateBasedRuleSelectorBuilder withPredicate(Predicate<Rule<?>> predicate) {
+    return new PredicateBasedRuleSelectorBuilder(predicate);
+  }
 
   /**
    * Starts the production of a {@link CategorizingRuleSelector}.
@@ -44,6 +57,49 @@ public class RuleSelectorBuilder {
    */
   public static <D> CategorizingRuleSelectorBuilder<D> withCategorizer(Value<D> discriminator) {
     return new CategorizingRuleSelectorBuilder<>(discriminator);
+  }
+
+  /**
+   * Builder for a {@link PredicateBasedRuleSelector}.
+   * <p>
+   * The builder is normally created using the {@link #withPredicate(Predicate) withPredicate} method. For example:
+   *
+   * <pre>
+   *   PredicateBasedRuleSelector selector =  RuleSelectorBuilder.withPredicate(rule -> rule.getId().startsWith("ABC"))
+   *      .and(rule -> rule.getMetadata().containsKey("ImportantKey")
+   *      .build();
+   * </pre>
+   */
+  public static class PredicateBasedRuleSelectorBuilder extends RuleSelectorBuilder {
+
+    private final List<Predicate<Rule<?>>> predicates;
+
+    private PredicateBasedRuleSelectorBuilder(Predicate<Rule<?>> predicate) {
+      this.predicates = new ArrayList<>();
+      this.predicates.add(predicate);
+    }
+
+    /**
+     * Adds a further {@link Predicate} that need to be {@code true} in order to select a {@link Rule}.
+     * <p>
+     * All predicates are and combined.
+     *
+     * @param predicate The {@code Predicate} to add
+     * @return This builder
+     */
+    public PredicateBasedRuleSelectorBuilder and(Predicate<Rule<?>> predicate) {
+      this.predicates.add(predicate);
+      return this;
+    }
+
+    /**
+     * Finalizes the production of the {@link PredicateBasedRuleSelector}.
+     *
+     * @return The {@code PredicateBasedRuleSelector}
+     */
+    public PredicateBasedRuleSelector build() {
+      return new PredicateBasedRuleSelector(Collections.unmodifiableList(new ArrayList<>(predicates)));
+    }
   }
 
   /**

@@ -20,31 +20,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package de.hipphampel.validation.core.rule;
+package de.hipphampel.validation.samples.productdata.model.metadata;
 
-import java.util.stream.Stream;
+import org.springframework.core.convert.TypeDescriptor;
+import java.util.List;
+import java.util.Map;
 
-/**
- * Interface for the reason part of {@link Result RuleResults}.
- */
-public interface ResultReason {
+public record CompositeAttributeDescriptor(String name, boolean mandatory, List<AttributeDescriptor> components) implements AttributeDescriptor{
 
-  /**
-   * Flattens the reason to a {@link Stream}.
-   * <p>
-   * In case that the {@code ResultReason} is actually a list of reasons, this decomposes this instance to a list of single
-   * {@code ResultReasons}; this works also recursively.
-   * <p>
-   * The basic idea behind this is that if single {@link Rule} wants to signal multiple errors, it could use a {@link ListResultReason} to
-   * transport more than one reason and the reporter can later on decompose the single list of reasons into one {@code ResultReason} for
-   * each error.
-   * <p>
-   * This default implementation just returns a stream containing this instance.
-   *
-   * @return The stream of subordinated reasons.
-   * @see de.hipphampel.validation.core.report.AbstractReportBasedReporter
-   */
-  default Stream<ResultReason> flatten() {
-    return Stream.of(this);
+  @Override
+  public TypeDescriptor type() {
+    return TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Object.class));
   }
 }

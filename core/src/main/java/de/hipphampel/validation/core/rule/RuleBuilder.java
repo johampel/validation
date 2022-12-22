@@ -348,6 +348,32 @@ public abstract class RuleBuilder<T, B extends RuleBuilder<T, B>> {
   }
 
   /**
+   * Creates a new {@link SelectorRuleBuilder}.
+   *
+   * @param id        Id of the {@link SelectorRule} to build
+   * @param factsType The type of the object being validated
+   * @param <T>       The type of the object being validated
+   * @return The {@link SelectorRuleBuilder}
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> SelectorRuleBuilder<T> selectorRule(String id, TypeReference<T> factsType) {
+    return new SelectorRuleBuilder<>(id,
+        (Class<T>) TypeInfo.forTypeReference(factsType).resolve());
+  }
+
+  /**
+   * Creates a new {@link SelectorRuleBuilder}.
+   *
+   * @param id        Id of the {@link SelectorRule} to build
+   * @param factsType The type of the object being validated
+   * @param <T>       The type of the object being validated
+   * @return The {@link SelectorRuleBuilder}
+   */
+  public static <T> SelectorRuleBuilder<T> selectorRule(String id, Class<? super T> factsType) {
+    return new SelectorRuleBuilder<>(id, factsType);
+  }
+
+  /**
    * Adds the given {@code key} - {@code value} pair to the {@link Rule#getMetadata() metadata} of the {@link Rule} to built.
    *
    * @param key   The key of the metdata
@@ -806,4 +832,51 @@ public abstract class RuleBuilder<T, B extends RuleBuilder<T, B>> {
     }
 
   }
+
+
+  /**
+   * {@link RuleBuilder} for a {@link SelectorRule}.
+   *
+   * @param <T> Type of the object being validated
+   */
+  public static class SelectorRuleBuilder<T> extends RuleBuilder<T, SelectorRuleBuilder<T>> {
+
+    private RuleSelector selector;
+
+    /**
+     * Constructor.
+     *
+     * @param id        Id of the rule to be built
+     * @param factsType {@link Class} of the object being validated
+     */
+    protected SelectorRuleBuilder(String id, Class<? super T> factsType) {
+      super(id, factsType);
+    }
+
+    /**
+     * Specifies the {@link RuleSelector} used for validation.
+     *
+     * @param selector The {@code RuleSelector}
+     * @return This builder.
+     */
+    public SelectorRuleBuilder<T> validateWith(RuleSelector selector) {
+      this.selector = Objects.requireNonNull(selector);
+      return self();
+    }
+
+    /**
+     * Builds the final {@link SelectorRule}
+     *
+     * @return The {@code SelectorRule}
+     */
+    public SelectorRule<T> build() {
+      return new SelectorRule<>(
+          id,
+          factsType,
+          Collections.unmodifiableMap(metadata),
+          Collections.unmodifiableList(preconditions),
+          Objects.requireNonNull(selector));
+    }
+  }
+
 }

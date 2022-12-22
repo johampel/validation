@@ -44,8 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 
 public class DispatchingRuleTest {
 
@@ -64,28 +62,6 @@ public class DispatchingRuleTest {
       new ReportReporter(null), Map.of(), executor, ruleRepository, pathResolver,
       new DefaultSubscribableEventPublisher());
 
-
-  @Test
-  public void noPathResult() {
-    DispatchingRule<?> rule = RuleBuilder.dispatchingRule("undertest", Object.class)
-        .forPaths("*").validateWith(".*")
-        .build();
-    assertThat(rule.noPathResult()).isEqualTo(Result.ok());
-  }
-
-  @ParameterizedTest
-  @CsvSource({
-      "OK,      OK,       OK",
-      "SKIPPED, OK,       SKIPPED",
-      "SKIPPED, FAILED,   FAILED",
-  })
-  public void mergeResults(ResultCode firstCode, ResultCode secondCode, ResultCode expectedCode) {
-    DispatchingRule<?> rule = RuleBuilder.dispatchingRule("undertest", Object.class)
-        .forPaths("*").validateWith(".*")
-        .build();
-    assertThat(rule.mergeResults(new Result(firstCode, null), new Result(secondCode, null)))
-        .isEqualTo(new Result(expectedCode, null));
-  }
 
   @Test
   public void validate() {

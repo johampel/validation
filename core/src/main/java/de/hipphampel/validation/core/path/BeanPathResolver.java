@@ -30,20 +30,16 @@ import java.util.stream.Stream;
 /**
  * Simple {@link PathResolver} for any kind of beans.
  * <p>
- * This is based on a {@link CollectionPathResolver}. In addition to the capabilities inherited from
- * there (allow adressing elements in {@code Collections} and {@code Maps} with strings as keys) it
- * allows to address properties of PoJos/Beans.
+ * This is based on a {@link CollectionPathResolver}. In addition to the capabilities inherited from there (allow adressing elements in
+ * {@code Collections} and {@code Maps} with strings as keys) it allows to address properties of PoJos/Beans.
  * <p>
- * The syntax of the {@link ComponentPath ComponentPaths} is the same like for
- * {@code CollectionPathResolver}, but in addition a single component might be also interpreted as
- * the name of a bean property. So having a Java record like
- * {@code record Person(String name, Collection<Person> friends)} allows path like
- * "**&#47;friends/*&#47;name" to select the names of all friends that appears somewhere in the
- * object graph.
+ * The syntax of the {@link ComponentPath ComponentPaths} is the same like for {@code CollectionPathResolver}, but in addition a single
+ * component might be also interpreted as the name of a bean property. So having a Java record like
+ * {@code record Person(String name, Collection<Person> friends)} allows path like "**&#47;friends/*&#47;name" to select the names of all
+ * friends that appears somewhere in the object graph.
  * <p>
- * The strategy to find the properties is outsourced in the {@link BeanAccessor}, which is by
- * default an implementation that finds all the getters for normal Java Beans as well for Java
- * records.
+ * The strategy to find the properties is outsourced in the {@link BeanAccessor}, which is by default an implementation that finds all the
+ * getters for normal Java Beans as well for Java records.
  *
  * @see CollectionPathResolver
  * @see ComponentPath
@@ -56,8 +52,8 @@ public class BeanPathResolver extends CollectionPathResolver {
   /**
    * Default constructor.
    * <p>
-   * Creates an instance with the standard settings from the {@link CollectionPathResolver} and a
-   * {@link BeanAccessor} that recognizes properties of Java Beans and Java records.
+   * Creates an instance with the standard settings from the {@link CollectionPathResolver} and a {@link BeanAccessor} that recognizes
+   * properties of Java Beans and Java records.
    */
   public BeanPathResolver() {
     this(new ReflectionBeanAccessor());
@@ -66,8 +62,7 @@ public class BeanPathResolver extends CollectionPathResolver {
   /**
    * Constructor.
    * <p>
-   * Creates an instance with the standard settings from the {@link CollectionPathResolver} and the
-   * given {@code beanAccessor}
+   * Creates an instance with the standard settings from the {@link CollectionPathResolver} and the given {@code beanAccessor}
    *
    * @param beanAccessor {@code BeanAccessor} to use
    */
@@ -77,15 +72,31 @@ public class BeanPathResolver extends CollectionPathResolver {
 
   /**
    * Constructor.
+   * <p>
+   * Missing keys in maps resolve to {@link Resolved#isEmpty() empty}
    *
    * @param separator    String used to separate the different components.
    * @param allInLevel   String representing exactly one levels having any name
    * @param manyLevels   String representing zero or more levels having any name
    * @param beanAccessor The {@code BeanAccessor} to use
    */
-  public BeanPathResolver(String separator, String allInLevel, String manyLevels,
-      BeanAccessor beanAccessor) {
-    super(separator, allInLevel, manyLevels);
+  public BeanPathResolver(String separator, String allInLevel, String manyLevels, BeanAccessor beanAccessor) {
+    this(separator, allInLevel, manyLevels, beanAccessor, false);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param separator             String used to separate the different components.
+   * @param allInLevel            String representing exactly one levels having any name
+   * @param manyLevels            String representing zero or more levels having any name
+   * @param beanAccessor          The {@code BeanAccessor} to use
+   * @param mapUnresolvableToNull If {@code true}, then not existing concrete {@link Path Paths} resolve to a {@link Resolved} with value
+   *                              {@code null}. If {@code false} it resolves to an {@link Resolved#empty() empty} {@code Resolved}
+   */
+  public BeanPathResolver(String separator, String allInLevel, String manyLevels, BeanAccessor beanAccessor,
+      boolean mapUnresolvableToNull) {
+    super(separator, allInLevel, manyLevels, mapUnresolvableToNull);
     this.beanAccessor = beanAccessor;
   }
 

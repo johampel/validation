@@ -241,7 +241,8 @@ public class ValidationConfiguration {
         properties.getPathResolver().getSeparator(),
         properties.getPathResolver().getAllInLevel(),
         properties.getPathResolver().getManyLevels(),
-        beanAccessor);
+        beanAccessor,
+        properties.getPathResolver().isMapUnresolvableToNull());
   }
 
   /**

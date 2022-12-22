@@ -41,5 +41,6 @@
 
   <modules>
     <module>triangle</module>
+    <module>productdata</module>
   </modules>
 </project>

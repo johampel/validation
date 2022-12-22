@@ -24,6 +24,8 @@ package de.hipphampel.validation.spring.config;
 
 import de.hipphampel.validation.core.path.AbstractComponentPathResolver;
 import de.hipphampel.validation.core.path.BeanPathResolver;
+import de.hipphampel.validation.core.path.Path;
+import de.hipphampel.validation.core.path.Resolved;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -58,8 +60,7 @@ public class ValidationProperties {
   /**
    * Properties to configure a {@link BeanPathResolver}.
    * <p>
-   * Please also refer to the {@link AbstractComponentPathResolver} for a detailed description of
-   * the settings
+   * Please also refer to the {@link AbstractComponentPathResolver} for a detailed description of the settings
    *
    * @see AbstractComponentPathResolver
    */
@@ -68,6 +69,8 @@ public class ValidationProperties {
     private String separator = "/";
     private String allInLevel = "*";
     private String manyLevels = "**";
+
+    private boolean mapUnresolvableToNull = false;
     private List<String> whiteList = List.of();
 
     /**
@@ -140,6 +143,26 @@ public class ValidationProperties {
      */
     public void setWhiteList(List<String> whiteList) {
       this.whiteList = whiteList;
+    }
+
+    /**
+     * Checks, whether unresolvable concrete {@link Path Paths} are mapped to {@code null}.
+     *
+     * @return If {@code true}, then not existing concrete {@link Path Paths} resolve to a {@link Resolved} with value {@code null}. If
+     * {@code false} it resolves to an {@link Resolved#empty() empty} {@code Resolved}
+     */
+    public boolean isMapUnresolvableToNull() {
+      return mapUnresolvableToNull;
+    }
+
+    /**
+     * Sets, whether unresolvable concrete {@link Path Paths} are mapped to {@code null}.
+     *
+     * @param mapUnresolvableToNull If {@code true}, then not existing concrete {@link Path Paths} resolve to a {@link Resolved} with value
+     *                              {@code null}. If {@code false} it resolves to an {@link Resolved#empty() empty} {@code Resolved}
+     */
+    public void setMapUnresolvableToNull(boolean mapUnresolvableToNull) {
+      this.mapUnresolvableToNull = mapUnresolvableToNull;
     }
   }
 

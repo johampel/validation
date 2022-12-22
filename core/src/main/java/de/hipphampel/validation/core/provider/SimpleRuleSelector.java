@@ -102,7 +102,7 @@ public class SimpleRuleSelector implements RuleSelector {
   }
 
   @Override
-  public List<Rule<?>> selectRules(RuleRepository provider, ValidationContext context,
+  public List<? extends Rule<?>> selectRules(RuleRepository provider, ValidationContext context,
       Object facts) {
     Set<String> allowedRuleIds = ruleIdFilter == null ? null : ruleIdFilter.get(context, facts);
     return provider.getRuleIds().stream()

@@ -49,7 +49,7 @@ import java.util.stream.Stream;
  * @see RuleSelector
  * @see Path
  */
-public class DispatchingRule<T> extends AbstractRule<T> {
+public class DispatchingRule<T> extends AbstractRule<T> implements ForwardingRule<T> {
 
   private final List<DispatchEntry> dispatchList;
 
@@ -76,36 +76,8 @@ public class DispatchingRule<T> extends AbstractRule<T> {
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0]))
         .thenApply(v -> futures.stream()
             .map(CompletableFuture::join)
-            .reduce(noPathResult(), this::mergeResults))
+            .reduce(noRuleResult(), this::mergeResults))
         .join();
-  }
-
-  /**
-   * Called when there is not matching path to for a certain validation to valiate
-   * <p>
-   * By default, this returns {@link Result#ok() ok}
-   *
-   * @return The {@code Result}
-   */
-  protected Result noPathResult() {
-    return Result.ok();
-  }
-
-  /**
-   * Called to merge the results of two validations.
-   * <p>
-   * Since a {@link Rule} returns only one {@link Result} but this executes potentially more than
-   * one {@code Rule}, this method is used merge two into one. The merged result has no reason by
-   * default
-   * <p>
-   * This returns a {@code Result} with the highest severity of the two inputs.
-   *
-   * @param first  First {@code Result}
-   * @param second Second {@code Result}
-   * @return Merged {@code Result}
-   */
-  protected Result mergeResults(Result first, Result second) {
-    return new Result(ResultCode.getHighestSeverityOf(first.code(), second.code()), null);
   }
 
   /**
@@ -122,7 +94,7 @@ public class DispatchingRule<T> extends AbstractRule<T> {
       Stream<? extends Path> paths = getPaths(context, facts);
       return executor.validateForPathsAsync(context, rules, facts, paths)
           .thenApply(results -> results.stream().reduce(
-              rule.noPathResult(),
+              rule.noRuleResult(),
               rule::mergeResults
           ));
     }

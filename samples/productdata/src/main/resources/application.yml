@@ -1,0 +1,4 @@
+
+validation:
+  path-resolver:
+    map-unresolvable-to-null: true

@@ -33,7 +33,7 @@ import java.util.Optional;
 /**
  * {@link RuleSelector} that selects the {@link Rule Rules} based  on the category of the object to validate.
  * <p>
- * In order to determine the {@code Rules}, this selector first calls the {@code disscriminator} function, which returns a category of type
+ * In order to determine the {@code Rules}, this selector first calls the {@code discriminator} function, which returns a category of type
  * {@code D}. It then returns those {@code Rules} that are mapped in the {@code categories} map to this category. If no matching entry is
  * found in the {@code categories} map, the rules from the {@code defaultCategory} are used.
  *
@@ -55,7 +55,7 @@ public record CategorizingRuleSelector<D>(
   }
 
   @Override
-  public List<Rule<?>> selectRules(RuleRepository provider, ValidationContext context, Object facts) {
+  public List<? extends Rule<?>> selectRules(RuleRepository provider, ValidationContext context, Object facts) {
     return Optional.ofNullable(discriminator.get(context, facts))
         .flatMap(category -> Optional.ofNullable(categories.get(category)))
         .orElse(defaultCategory)

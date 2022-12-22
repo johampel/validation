@@ -39,7 +39,9 @@ This project consists of the following submodules:
 
 ## Quick start
 
-Please check the [triangle example](samples//triangle/README.md)
+Please check the [triangle example](samples/triangle/README.md) for a very small example, just demonstrating the very basic concepts.
+
+The [product data example](samples/productdata/README.md) is a more complex example that also shows some techniques to author validation rules.
 
 ## Release notes
 

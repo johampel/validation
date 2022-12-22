@@ -122,4 +122,21 @@ public class CollectionPathResolverTest {
     assertThat(resolved).hasSize(expectedCount);
     assertThat(resolved.toString()).isEqualTo(expected);
   }
+
+  @ParameterizedTest
+  @CsvSource({
+      "false, false",
+      "true,  true"
+  })
+  public void mapUnresolvableToNull(boolean reportNull, boolean isPresent) {
+    Map<String, String> facts = Map.of();
+    CollectionPathResolver resolver = new CollectionPathResolver("/", "*", "**", reportNull);
+    Path path = resolver.parse("notFound");
+    Resolved<Object> result = resolver.resolve(facts, path);
+
+    assertThat(result.isPresent()).isEqualTo(isPresent);
+    if (isPresent) {
+      assertThat(result.orElse("present")).isNull();
+    }
+  }
 }

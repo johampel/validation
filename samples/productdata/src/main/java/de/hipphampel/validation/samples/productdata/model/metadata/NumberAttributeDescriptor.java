@@ -1,0 +1,12 @@
+package de.hipphampel.validation.samples.productdata.model.metadata;
+
+import org.springframework.core.convert.TypeDescriptor;
+import java.math.BigDecimal;
+
+public record NumberAttributeDescriptor(String name, boolean mandatory, BigDecimal minValue, BigDecimal maxValue) implements AttributeDescriptor {
+
+  @Override
+  public TypeDescriptor type() {
+    return TypeDescriptor.valueOf(BigDecimal.class);
+  }
+}

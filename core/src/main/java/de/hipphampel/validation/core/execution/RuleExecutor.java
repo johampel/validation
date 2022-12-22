@@ -146,7 +146,7 @@ public interface RuleExecutor {
    */
   default List<Result> validate(ValidationContext context, RuleSelector selector,
       Object facts) {
-    List<Rule<?>> rules = selector.selectRules(context.getRuleProvider(), context, facts);
+    List<? extends Rule<?>> rules = selector.selectRules(context.getRuleProvider(), context, facts);
     return rules.stream()
         .map(rule -> validate(context, rule, facts))
         .collect(Collectors.toList());
@@ -293,7 +293,7 @@ public interface RuleExecutor {
    */
   default CompletableFuture<List<Result>> validateAsync(ValidationContext context,
       RuleSelector selector, Object facts) {
-    List<Rule<?>> rules = selector.selectRules(context.getRuleProvider(), context, facts);
+    List<? extends Rule<?>> rules = selector.selectRules(context.getRuleProvider(), context, facts);
     List<CompletableFuture<Result>> futures = rules.stream()
         .map(rule -> validateAsync(context, rule, facts))
         .toList();

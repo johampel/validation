@@ -286,10 +286,10 @@ The following example uses a method, which returns a `boolean` and expects three
           @BindPath("0") Point a, 
           @BindPath("1") Point b, 
           @BindPath("2") Point c) {
-    Optional<Double> ab = Optional.ofNullable(ModelUtils.slopeOf(a,b));
-    Optional<Double> ac = Optional.ofNullable(ModelUtils.slopeOf(a,c));
-    Optional<Double> bc = Optional.ofNullable(ModelUtils.slopeOf(b,c));
-    return !ab.equals(ac) || !ac.equals(bc);
+    Double ab = ModelUtils.slopeOf(a, b);
+    Double ac = ModelUtils.slopeOf(a, c);
+    Double bc = ModelUtils.slopeOf(b, c);
+    return !Objects.equals(ab, ac) || !Objects.equals(ac, bc);
   }
 ```
 

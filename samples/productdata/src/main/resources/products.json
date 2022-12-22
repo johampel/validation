@@ -1,0 +1,42 @@
+{
+  "attributes" : {
+    "gtin" : "00000000000017",
+    "name" : "Box of beer",
+    "supplier" : "The Brewery Company",
+    "category" : "FOOD",
+    "netWeightInKg" : 10.000,
+    "grossWeightInKg" : 16.000,
+    "canBeSold" : "true",
+    "price" : 19.99,
+    "ingredients" : [
+      {
+        "name" : "Sugar",
+        "amountInMg" : 10001
+      }
+    ]
+  },
+  "relations" : [
+    {
+      "attributes" : {
+        "amount" : 20
+      },
+      "product" : {
+        "attributes" : {
+          "gtin" : "00000000000024",
+          "name" : "Bottle of beer",
+          "supplier" : "The Brewery Company",
+          "category" : "ALCOHOL",
+          "netWeightInKg" : 0.500,
+          "grossWeightInKg" : 0.750,
+          "price" : 1.09,
+          "ingredients" : [
+            {
+              "name" : "Alcohol",
+              "percent" : 4.5
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
