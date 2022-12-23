@@ -35,10 +35,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 
 /**
  * The product data example.
+ *
+ * You may pass the name of a JSON formatted file with product data to this application
  */
 @SpringBootApplication
 @Configuration
@@ -46,10 +49,12 @@ public class ProductDataApp implements CommandLineRunner {
 
   private final Validator validator;
   private final ObjectMapper objectMapper;
+  private final ThreadPoolTaskExecutor executor;
 
-  public ProductDataApp(Validator validator, ObjectMapper objectMapper) {
+  public ProductDataApp(Validator validator, ObjectMapper objectMapper, ThreadPoolTaskExecutor executor) {
     this.validator = validator;
     this.objectMapper = objectMapper;
+    this.executor = executor;
   }
 
   public static void main(String[] args) {
@@ -58,8 +63,9 @@ public class ProductDataApp implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-    Product product = objectMapper.readValue(ProductDataApp.class.getResource("/products.json"), Product.class);
+    Product product = objectMapper.readValue(ProductDataApp.class.getResource(args[0]), Product.class);
     validateAndPrintReport(product);
+    executor.shutdown(); // Terminate executor so that the application terminates as well
   }
 
   private void validateAndPrintReport(Product product) {

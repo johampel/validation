@@ -3,8 +3,8 @@
 This example as a little more complex than the [triangle example](../triangle/README.md) and is intended to demonstrate some techniques
 to write validation rules.
 
-Technically, this example uses the - beside the [core](../../core) module - the [spring](../../spring) module. So before explaining the
-use case, first a short introduction, some words about the Spring integration:
+Technically, this example uses - beside the [core](../../core) module - the [spring](../../spring) module. So before explaining the
+use case, first a short introduction about the Spring integration:
 
 ## Project setup with Spring
 
@@ -225,7 +225,7 @@ There are two aspects that are interesting regarding this rule:
   result?
 
 The `AttributeDescriptorRule` is called from a dispatching rule for some concrete `Paths`. For example if it is called for the path 
-`attributes/gtin` the `facts` parameter has the value of the GTIN attribute; if it is called with the path `attributes/name`, thge `facts`
+`attributes/gtin` the `facts` parameter has the value of the GTIN attribute; if it is called with the path `attributes/name`, the `facts`
 parameter contains the value of the name attribute. Using the `ValidationContext.getCurrentPath()` method it is possible to get the current
 path, the rule is invoked for. The last component of the path corresponds to the name of the `AttributeDescriptor`. So the following code in
 the `validate` method find the `AttributeDescriptor` for the value (`facts`) based on the context information, for which path the rule 
@@ -268,7 +268,7 @@ the `Predicate` nor the `Condition` is a rule, we need to provide additional inf
 annotation. In opposite to the `@RuleRef`, which makes an existing rule visible to the validator, the `@RuleDef` creates a new rule based on
 the field, or, as we see now, based on a method:
 
-### `@RuleDef' for a method to define a new rule.
+### `@RuleDef` for a method to define a new rule.
 
 The rules `attribute:validIngredient` and `attribute:validGTIN` are examples for rules, that are too simple to have an own class for them, 
 otherwise they are too complex to have just a `Predicate`. Let's focus on the `attribute:validIngredient` rule, which checks, if for an 
@@ -283,7 +283,7 @@ public Result validIngredientRule(
       @BindPath("amountInMg") Object amountInMg) {
     return percent != null || amountInMg != null ? Result.ok()
     : Result.failed(String.format("Missing 'percent' or 'amountInMg' attribute for ingredient '%s'", name));
-    }
+}
 ```
 
 Actually, you can use any public method with at least one parameter as a validation rule; but you have to specify, how to populate the 
@@ -301,16 +301,115 @@ value the path resolves to, when applied to the object validated. For example, o
 ```
 Then the `name` is actually `Sugar`, `percent` is `10`, and `amountInMg` is `null` then.
 
-
 Beside the `@BindPath` there is also a `@BindFacts`, `@BindContext`,`@BindContextParameter`, and `@BindMetadata` annotation, see the Javadoc
 for details
 
+
 ## Logistic rules
+
+The second rule set are the [logistics rules](src/main/java/de/hipphampel/validation/samples/productdata/rules/LogisticRules.java) 
+
+Most rules follow concepts we already saw before: The `logisticRules` rule is structural same like the `basicRules` shown before and the
+`logistic:product:checkProductWeight` is a rule based on a `@RuleDef` annotation applied to a method. A different thing is the method
+`hierarchicalWeightRuleFactory`:
+
+### `@RuleRef` for a method to define a set of rules (rule factory).
+
+The `hierarchicalWeightRuleFactory` method is an example for a _rule factory_: 
+```java
+@RuleRef
+public List<? extends Rule<Product>> hierarchicalWeightRuleFactory() {
+    return Stream.of("netWeightInKg", "grossWeightInKg")
+         .map(attribute -> new HierarchyWeightRule("logistic:product:" + attribute + "HierarchyCheck", 
+                                                   attribute, 
+                                                   validationConversionService,     
+                                                   pathResolver))
+         .toList();
+}
+```
+Rule factories are intended to produce validation rules that are structurally the same. In this case we have a factory that produces two
+rules:
+- `logistics:product:netWeightHierachyCheck` that checks, whether the `netWeight` if the product is equal to or greater than the net weights 
+  of the products assocaited via the relations.
+- `logistics:product:grossWeightHierachyCheck` that does exactly the same for the `grossWeight`.
+
+The logic of the rule is externalized in the class `HierarchyWeightRule`, which acts as a template for this factory: The `HierarchyWeightRule` 
+is instantiated twice by this factory, one time for the `netWeight` and the other `grossWeight`.
+
 
 ## Selling rules
 
+The third rule set are the [selling rules](src/main/java/de/hipphampel/validation/samples/productdata/rules/SellingRules.java), which check 
+whether the product is intended to be sold and - if so - if it has a price.
+
+Like the logistic rules, there is not such much new, but one rule may be dicussed more in depth, since it demonstrates, how to examine 
+hierarchical structures using the `PathResolver`:
+
+
+### Use `PathResolver` to solve recursion tasks
+
+The rule to discuss checks, whether the product itself, or one of the related products in the hierarchy is intended to he sold. The supplier
+provides in the product data the `canBeSold` attribute, which is `true`, if the product is intended to be sold. So the then task of the the
+rule is to recursively traverse through the product graph and find at least one product that can be sold.
+```java
+@RuleDef(
+    id = "selling:hierarchy:atLeastOneProductCanBeSold",
+    message = "None of the products in the hierarchy can be sold")
+public boolean atLeastOneProductCanBeSoldRule(@BindFacts Product product) {
+    Path nestedFlagPaths = pathResolver.parse("**/product/attributes/canBeSold");
+    Path selfFlagPaths = pathResolver.parse("attributes/canBeSold");
+
+    return Stream.of(nestedFlagPaths, selfFlagPaths) // Examine paths attributes/canBeSold and **/product/attributes/canBeSold
+      .flatMap(path -> pathResolver.resolvePattern(product, path)) // Get the concrete paths
+      .map(path -> pathResolver.resolve(product, path)) // get the values
+      .map(resolved -> resolved.orElse(false)) // If not set, assume false
+      .map(value -> validationConversionService.convert(value, Boolean.class)) // Convert value to boolean
+      .anyMatch(Boolean.TRUE::equals); // Hope at least one is true
+}
+```
+
+The interesting part in this rule is the path `**/product/attributes/canBeSold`, which matches any path to directly or indirectly related
+products having the `canBeSold` attribute. The path component `**` matches zero or any number of components, so that this pattern finds also
+products deep in the product hierarchy.
+
+
 ## Category rules
 
+The fourth and final rule set is the [Cacegory rules](src/main/java/de/hipphampel/validation/samples/productdata/rules/CategoryRules.java). 
+Here we have the `CategorizingRuleSelector as interesting part:
 
+### `CategorizingRuleSelector`
 
+```java
+  @RuleRef
+public final Rule<Product> categoryRules = RuleBuilder.dispatchingRule("categoryRules", Product.class)
+    .withMetadata("master", true) // Rule considered as master dispatching rule
+    .forPaths("relations/*/product").validateWith("categoryRules")
+    .forPaths("").validateWith(
+        RuleSelectorBuilder.withCategorizer(Values.path("attributes/category"))
+            .forCategory("ALCOHOL").use("categoryRules:alcohol:.*")
+            .forCategory("FOOD").use("categoryRules:food:.*")
+            .elseUse(RuleSelector.of(""))
+            .build())
+    .build();
+```
+This is a relative complex rule definition, which is  `DispatchingRule`, we already know this concept from the rule set described above.
+The interesting part here is the `CategorzingRuleSelector`, its rules are triggered by this branch:
+```java
+    ...
+    .forPaths("").validateWith(
+        RuleSelectorBuilder.withCategorizer(Values.path("attributes/category"))
+            .forCategory("ALCOHOL").use("categoryRules:alcohol:.*")
+            .forCategory("FOOD").use("categoryRules:food:.*")
+            .elseUse(RuleSelector.of(""))
+            .build())
+    ...
+```
+A `CategorizingRuleSelector` can be compared with a `switch` statement: the `withCategorizer` defines the discriminator, that extracts some
+value from the object to validate, in this case the value of the `category` attribute of the product. Depending on the concrete value, it 
+selects different rules, in this case, if the product is `FOOD`, it executes all rules have an id matching the pattern `"categoryRules:food:.*"`,
+whenit is 'ALCOHOL' the rules with the id pattern `"categoryRules:alcohol:.*"`. 
 
+So it allows to automatically group the rules for special kind of groups, without having lengthly `switch` statements in the code.
+
+The rules called by this construct are structurally similar to other rules discussed above.

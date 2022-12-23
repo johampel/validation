@@ -33,6 +33,15 @@ import java.math.BigDecimal;
 import java.util.stream.Stream;
 import org.springframework.core.convert.ConversionService;
 
+/**
+ * Rule template for hierarchy weight checks.
+ * <p>
+ * The rule defined here is parameterized by the {@code attribute}, which needs to specified at construction time. This is not a standalone
+ * rule, but used by a rule factory to produce rules having the same logic, but acting on different attributes.
+ * <p>
+ * This template checks, whether the numeric {@code attribute} is equal to or greater than the sum of the attribute multiplied with the
+ * amount that comes from the relations.
+ */
 public class HierarchyWeightRule extends AbstractRule<Product> {
 
   private final ConversionService validationConversionService;

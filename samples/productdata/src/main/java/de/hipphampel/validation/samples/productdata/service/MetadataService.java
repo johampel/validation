@@ -32,6 +32,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service providing metadata about the attributes we are aware of.
+ * <p>
+ * For each attribute we are interested in, we provide an {@link AttributeDescriptor} that contains some basic information about the
+ * attribute
+ */
 @Service
 public class MetadataService {
 
@@ -76,14 +82,27 @@ public class MetadataService {
         .collect(Collectors.toMap(AttributeDescriptor::name, Function.identity()));
   }
 
+  /**
+   * Gets the attributes we expect on a product.
+   * @return Attributes
+   */
   public Set<AttributeDescriptor> getProductAttributes() {
     return PRODUCT_ATTRIBUTES;
   }
 
+  /**
+   * Gets the attributes we expect on a relation.
+   * @return Attributes
+   */
   public Set<AttributeDescriptor> getRelationAttributes() {
     return RELATION_ATTRIBUTES;
   }
 
+  /**
+   * Gets the descriptor by name
+   * @param name The name
+   * @return The {@link AttributeDescriptor}
+   */
   public Optional<AttributeDescriptor> getAttributeDescriptor(String name) {
     return Optional.ofNullable(descriptors.get(name));
   }

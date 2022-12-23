@@ -15,6 +15,9 @@ import java.math.BigDecimal;
 import java.util.stream.Stream;
 import org.springframework.core.convert.ConversionService;
 
+/**
+ * Selling related rules.
+ */
 @RuleContainer
 public class SellingRules {
 
@@ -66,11 +69,11 @@ public class SellingRules {
     Path nestedFlagPaths = pathResolver.parse("**/product/attributes/canBeSold");
     Path selfFlagPaths = pathResolver.parse("attributes/canBeSold");
 
-    return Stream.of(nestedFlagPaths, selfFlagPaths)
-        .flatMap(path -> pathResolver.resolvePattern(product, path))
-        .map(path -> pathResolver.resolve(product, path))
-        .map(resolved -> resolved.orElse(false))
-        .map(value -> validationConversionService.convert(value, Boolean.class))
-        .anyMatch(Boolean.TRUE::equals);
+    return Stream.of(nestedFlagPaths, selfFlagPaths) // Examine paths attributes/canBeSold and **/product/attributes/canBeSold
+        .flatMap(path -> pathResolver.resolvePattern(product, path)) // Get the concrete paths
+        .map(path -> pathResolver.resolve(product, path)) // get the values
+        .map(resolved -> resolved.orElse(false)) // If not set, assume false
+        .map(value -> validationConversionService.convert(value, Boolean.class)) // Convert value to boolean
+        .anyMatch(Boolean.TRUE::equals); // Hope at least one is true
   }
 }
