@@ -39,7 +39,6 @@
   <name>validation-samples-triangle</name>
   <description>Triangle example</description>
 
-
   <dependencies>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -66,7 +65,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
       <scope>compile</scope>
     </dependency>
   </dependencies>

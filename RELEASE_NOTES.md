@@ -1,5 +1,13 @@
 # Release notes `validation` library
 
+
+## 0.0.3
+
+### Spring module
+
+- Migrated to Spring Boot 3.0.x, fixed bug in the auto configuration
+
+
 ## 0.0.2 
 
 ### Core module
