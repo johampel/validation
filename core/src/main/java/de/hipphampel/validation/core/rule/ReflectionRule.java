@@ -53,7 +53,7 @@ import java.util.function.Function;
  * exists just a {@linkplain DefaultResultMapper default implementation} with limited capabilities, if you need your own, you need to
  * implemnt it.
  *
- * @param <T>
+ * @param <T> Type of the object being validated
  */
 public class ReflectionRule<T> extends AbstractRule<T> {
 

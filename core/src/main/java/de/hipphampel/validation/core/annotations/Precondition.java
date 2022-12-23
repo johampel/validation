@@ -31,8 +31,8 @@ import java.lang.annotation.Target;
 /**
  * Used inside {@link RuleDef} annotations to define precondtions of a {@link Rule}.
  * <p>
- * This annotation allows to define the preconditions of the rule. A single precondition becomes {@code true}, if the {@code rules} evaluate
- * to {@code OK} for all {@code paths}.
+ * This annotation allows to define the preconditions of the rule. A single precondition becomes {@code true}, if the {@code rules}
+ * mentioned in the annotation evaluate to {@code OK} for all {@code paths}.
  * <p>
  * Usage example:
  * <pre>
@@ -43,7 +43,7 @@ import java.lang.annotation.Target;
  * </pre>
  * <p>
  * In the example above, the {@code Rule} with the id {@code parent} has a precondition that becomes {@code true}, if the {@code Rule} with
- * the id {@code child} evaluates to {@code OK}.
+ * the id {@code child} evaluates to {@code OK} (for path {@code aPath}).
  *
  * @see RuleDef
  */

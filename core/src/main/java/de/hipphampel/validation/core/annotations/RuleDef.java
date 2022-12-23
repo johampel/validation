@@ -25,6 +25,7 @@ package de.hipphampel.validation.core.annotations;
 import de.hipphampel.validation.core.condition.Condition;
 import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.provider.AnnotationRuleRepository;
+import de.hipphampel.validation.core.provider.RuleDefHandler;
 import de.hipphampel.validation.core.rule.ConditionRule;
 import de.hipphampel.validation.core.rule.Result;
 import de.hipphampel.validation.core.rule.Rule;
@@ -37,7 +38,7 @@ import java.util.function.Predicate;
 /**
  * Annotates a class member to define a new {@link Rule}.
  * <p>
- * Annotations of this type are evaluated by the {@link AnnotationRuleRepository}.
+ * Annotations of this type are evaluated by the {@link RuleDefHandler}.
  * <p>
  * The exact behaviour of this annotation depends on the member being annotated:
  * <p>
@@ -68,6 +69,7 @@ import java.util.function.Predicate;
  * In opposite to {@link RuleRef}, this annotation defines a new {@code Rule}.
  *
  * @see RuleRef
+ * @see RuleDefHandler
  * @see AnnotationRuleRepository
  * @see Rule
  * @see BindContext

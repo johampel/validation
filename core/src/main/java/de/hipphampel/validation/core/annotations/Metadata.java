@@ -36,11 +36,10 @@ import java.lang.annotation.Target;
  * Usage example:
  * <pre>
  *     &#64;RuleDef(id = "parent",
- *       preconditions = {
+ *       metadata = {
  *           &#64;Metdata(key = "child", value="value")
  *       })
  * </pre>
- * <p>
  *
  * @see RuleDef
  */

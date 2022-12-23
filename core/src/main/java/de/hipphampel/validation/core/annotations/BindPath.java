@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * Binds a rule method parameter to the specified {@link Path}.
  * <p>
  * Annotations of this type are used for parameters of methods annotated with the {@link RuleDef} annotation. When the method is invoked as
- * a validation rule, the parameter os filled with the resolved value of the given {@link Path}.
+ * a validation rule, the parameter is filled with the resolved value of the given {@link Path}.
  * <p>
  * The core library makes not implicit type conversion, so that the method parameter type must match the context parameter type. The default
  * spring implementation tries such a conversion

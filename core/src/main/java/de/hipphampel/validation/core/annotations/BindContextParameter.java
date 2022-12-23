@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * Binds a rule method parameter to a parameter of the current {@link ValidationContext}.
  * <p>
  * Annotations of this type are used for parameters of methods annotated with the {@link RuleDef} annotation and ensure that, when the
- * method is invoked as a validation rule, the parameter os filled with the parameter of the current {@code ValidationContext} having the
+ * method is invoked as a validation rule, the parameter is filled with the parameter of the current {@code ValidationContext} having the
  * name/key specified in the {@link #value() value}.
  * <p>
  * The core library makes not implicit type conversion, so that the method parameter type must match the context parameter type. The default
