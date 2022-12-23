@@ -30,7 +30,7 @@ import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Configurable properties of the {@link ValidationConfiguration}.
+ * Configurable properties of the {@link ValidationAutoConfiguration}.
  * <p>
  * All properties are bound under the prfix {@code validation}.
  */

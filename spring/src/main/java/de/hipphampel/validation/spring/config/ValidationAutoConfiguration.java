@@ -48,6 +48,7 @@ import de.hipphampel.validation.spring.provider.SpringRuleDefHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -75,9 +76,9 @@ import org.springframework.core.convert.support.DefaultConversionService;
  *
  * @see ValidationProperties
  */
-@Configuration
+@AutoConfiguration
 @EnableConfigurationProperties(ValidationProperties.class)
-public class ValidationConfiguration {
+public class ValidationAutoConfiguration {
 
   private final ValidationProperties properties;
 
@@ -86,7 +87,7 @@ public class ValidationConfiguration {
    *
    * @param properties The {@link ValidationProperties}
    */
-  public ValidationConfiguration(ValidationProperties properties) {
+  public ValidationAutoConfiguration(ValidationProperties properties) {
     this.properties = properties;
   }
 

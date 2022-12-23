@@ -1,2 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-de.hipphampel.validation.spring.config.ValidationConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=de.hipphampel.validation.spring.config.ValidationAutoConfiguration

@@ -31,6 +31,7 @@ import de.hipphampel.validation.core.report.ReportFormatter;
 import de.hipphampel.validation.core.rule.ForwardingRule;
 import de.hipphampel.validation.core.rule.ResultCode;
 import de.hipphampel.validation.samples.productdata.model.product.Product;
+import java.io.File;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,7 +41,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * The product data example.
- *
+ * <p>
  * You may pass the name of a JSON formatted file with product data to this application
  */
 @SpringBootApplication
@@ -63,7 +64,7 @@ public class ProductDataApp implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-    Product product = objectMapper.readValue(ProductDataApp.class.getResource(args[0]), Product.class);
+    Product product = objectMapper.readValue(new File(args[0]), Product.class);
     validateAndPrintReport(product);
     executor.shutdown(); // Terminate executor so that the application terminates as well
   }

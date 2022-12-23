@@ -52,9 +52,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
-@SpringBootTest(classes = ValidationConfigurationTest.Context.class)
+@SpringBootTest(classes = ValidationAutoConfigurationTest.Context.class)
 @ActiveProfiles("test-strange-values")
-public class ValidationConfigurationTest {
+public class ValidationAutoConfigurationTest {
 
   @Autowired
   private ApplicationContext context;
