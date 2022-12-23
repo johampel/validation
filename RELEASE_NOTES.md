@@ -1,6 +1,6 @@
 # Release notes `validation` library
 
-## 0.0.2 (in progress)
+## 0.0.2 
 
 ### Core module
 
