@@ -170,7 +170,7 @@ public record Result(ResultCode code, ResultReason reason) {
    * @return The {@code Result}
    */
   public static Result ok(ResultReason reason) {
-    return new Result(SKIPPED, reason);
+    return new Result(OK, reason);
   }
 
   /**

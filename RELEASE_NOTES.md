@@ -1,7 +1,12 @@
 # Release notes `validation` library
 
 
-## 0.0.3
+## 23.1.1
+
+### Core module
+
+- Switched to calendar versioning
+- Bugfix: `Result.ok(ResultReason)` returns no `SKIPPED` result anymore
 
 ### Spring module
 

@@ -126,7 +126,8 @@ Let's move on and take a look what is different when using the validation librar
 
 ## Implementation with the validation library
 
-[TriangleApp1](src/main/java/de/hipphampel/validation/samples/triangle/v1/TriangleApp1.java) does the
+[TriangleApp1](src/main/java/de/hipphampel/validation/samples/triangle/v1/TriangleApp1.java) in combination with
+[TriangleRules1](src/main/java/de/hipphampel/validation/samples/triangle/v1/TriangleRules1.java) does the
 same like `TriangleApp0`, but it uses the validation library. The output when running it with the same
 arguments like above should look like:
 ```
