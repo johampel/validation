@@ -24,17 +24,17 @@ package de.hipphampel.validation.core.report;
 
 import de.hipphampel.validation.core.Validator;
 import de.hipphampel.validation.core.execution.RuleExecutor;
+import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.path.Path;
 import de.hipphampel.validation.core.rule.Result;
 import de.hipphampel.validation.core.rule.Rule;
-import de.hipphampel.validation.core.utils.Stacked;
 
 /**
  * Generate a final validation report.
  * <p>
  * A {@code Reporter} is invoked by the {@link RuleExecutor} during validation to form the
  * validation report of the object being validated. For this, the {@code RuleExecutor} calls
- * {@link #add(Path, Object, Rule, Result) add} each time a {@link Rule} is executed. When all
+ * {@link #add(ValidationContext, Object, Path, Rule, Result) add} each time a {@link Rule} is executed. When all
  * validations are done, the {@link Validator} calls {@link #getReport() getReport} to obtain the
  * final validation result.
  * <p>
@@ -56,12 +56,13 @@ public interface Reporter<T> {
   /**
    * Adds the result of a {@link Rule}  execution to the report data.
    *
-   * @param path   The {@link Path} to the object being validated, might be {@code null}
-   * @param facts  The object being validated ({@code path} points to it)
-   * @param rule   The {@code Rule} being executed.
-   * @param result The {@link Result}
+   * @param context The current {@link ValidationContext}
+   * @param facts   The object being validated ({@code path} points to it)
+   * @param path    The {@link Path} to the object being validated, might be {@code null}
+   * @param rule    The {@code Rule} being executed.
+   * @param result  The {@link Result}
    */
-  void add(Path path, Object facts, Rule<?> rule, Result result);
+  void add(ValidationContext context, Object facts, Path path, Rule<?> rule, Result result);
 
   /**
    * Called when the validation is done.

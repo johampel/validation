@@ -81,7 +81,7 @@ public class SimpleRuleExecutor implements RuleExecutor {
   protected Result addRuleResultToReporter(ValidationContext context, Rule<?> rule, Object facts,
       Result result) {
     Reporter<?> reporter = context.getReporter();
-    reporter.add(context.getCurrentPath(), facts, rule, result);
+    reporter.add(context, facts, context.getCurrentPath(), rule, result);
     return result;
   }
 

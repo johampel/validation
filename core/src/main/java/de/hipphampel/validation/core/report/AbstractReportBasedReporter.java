@@ -22,6 +22,7 @@
  */
 package de.hipphampel.validation.core.report;
 
+import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.path.Path;
 import de.hipphampel.validation.core.rule.Result;
 import de.hipphampel.validation.core.rule.ResultReason;
@@ -85,7 +86,7 @@ public abstract class AbstractReportBasedReporter<T> implements Reporter<T> {
   }
 
   @Override
-  public void add(Path path, Object facts, Rule<?> rule, Result result) {
+  public void add(ValidationContext context, Object facts, Path path, Rule<?> rule, Result result) {
     if (result.reason() == null || !flattenReason) {
       add(new ReportEntry(path, rule, result));
     } else {

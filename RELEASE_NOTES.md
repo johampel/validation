@@ -1,6 +1,12 @@
 # Release notes `validation` library
 
 
+## Next release
+
+### Core module
+
+- Bugfix for issue `#1`: Changed signature of `Reporter.add` method so that the `ValidationContext` is available. 
+
 ## 23.1.1
 
 ### Core module

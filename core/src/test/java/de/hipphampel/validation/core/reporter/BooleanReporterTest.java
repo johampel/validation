@@ -37,7 +37,7 @@ public class BooleanReporterTest {
   public void addSuccess() {
     Reporter<Boolean> reporter = new BooleanReporter(null);
 
-    reporter.add(null, null, null, Result.ok());
+    reporter.add(null, null, null, null, Result.ok());
     assertThat(reporter.getReport()).isTrue();
   }
 
@@ -45,7 +45,7 @@ public class BooleanReporterTest {
   public void addFailed() {
     Reporter<Boolean> reporter = new BooleanReporter(null);
 
-    reporter.add(null, null, null, Result.failed());
+    reporter.add(null, null, null, null, Result.failed());
     assertThat(reporter.getReport()).isFalse();
   }
 
@@ -57,7 +57,7 @@ public class BooleanReporterTest {
   public void addSkipped(boolean skippedIsFailed, boolean expected) {
     Reporter<Boolean> reporter = new BooleanReporter(null, skippedIsFailed);
 
-    reporter.add(null, null, null, Result.skipped());
+    reporter.add(null, null, null, null, Result.skipped());
     assertThat(reporter.getReport()).isEqualTo(expected);
   }
 
@@ -65,9 +65,9 @@ public class BooleanReporterTest {
   public void falseStaysFalse() {
     Reporter<Boolean> reporter = new BooleanReporter(null);
 
-    reporter.add(null, null, null, Result.failed());
+    reporter.add(null, null, null, null, Result.failed());
     assertThat(reporter.getReport()).isFalse();
-    reporter.add(null, null, null, Result.ok());
+    reporter.add(null, null, null, null, Result.ok());
     assertThat(reporter.getReport()).isFalse();
   }
 }
