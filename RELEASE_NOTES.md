@@ -1,11 +1,13 @@
 # Release notes `validation` library
 
 
-## Next release
+## 23.1.2
 
 ### Core module
 
 - Bugfix for issue `#1`: Changed signature of `Reporter.add` method so that the `ValidationContext` is available. 
+- Extended the {@code Stacked} class to provide a {@code toList} method.
+
 
 ## 23.1.1
 

@@ -38,6 +38,16 @@ import java.util.Objects;
 public record Event<T>(T payload, LocalDateTime publishTime, Object source) {
 
   /**
+   * Convenience constructor.
+   *
+   * @param payload The event payload
+   * @param source  The event source
+   */
+  public Event(T payload, Object source) {
+    this(payload, LocalDateTime.now(), source);
+  }
+
+  /**
    * Constructor
    *
    * @param payload     The event payload

@@ -22,18 +22,20 @@
  */
 package de.hipphampel.validation.core.utils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
  * A stacked object.
  * <p>
- * Instances of this class always wrap a {@link #getValue() value} but might have also a
- * {@link #getParent() parent}. Using the {@code push} and {@code pop} operations it is possible to
- * emulate a stack (in opposite to the {@code Stack} class, a {@code Stacked} instance is immutable,
- * so that {@code push} and {@code pop} always return new instances).
+ * Instances of this class always wrap a {@link #getValue() value} but might have also a {@link #getParent() parent}. Using the {@code push}
+ * and {@code pop} operations it is possible to emulate a stack (in opposite to the {@code Stack} class, a {@code Stacked} instance is
+ * immutable, so that {@code push} and {@code pop} always return new instances).
  *
- * @param <T>    The type of the value
+ * @param <T> The type of the value
  */
 public class Stacked<T> {
 
@@ -55,8 +57,7 @@ public class Stacked<T> {
   }
 
   /**
-   * Creates a new {@link Stacked} instance with the given {@code value} and this instance as its
-   * parent
+   * Creates a new {@link Stacked} instance with the given {@code value} and this instance as its parent
    *
    * @param value The value
    * @return The new instance
@@ -89,7 +90,7 @@ public class Stacked<T> {
   }
 
   /**
-   * Alias for {@link #getParent()} ()}
+   * Alias for {@link #getParent() getParent},
    *
    * @return The parent
    */
@@ -100,8 +101,7 @@ public class Stacked<T> {
   /**
    * Checks, whether the instance is empty.
    * <p>
-   * Note that this method returns only {@code true}, if the object is the same as {@link #empty()}
-   * returns.
+   * Note that this method returns only {@code true}, if the object is the same as {@link #empty()} returns.
    *
    * @return {@code true}, if empty
    */
@@ -119,12 +119,34 @@ public class Stacked<T> {
     return matcher.test(value) || parent != null && parent.exists(matcher);
   }
 
+  /**
+   * Converts this instance to a {@link List}.
+   * <p>
+   * The last element of the list is the value of this, the last but one the value of the parent and so on.
+   *
+   * @return The list of values
+   */
+  public List<T> toList() {
+    Stacked<T> current = this;
+    List<T> list = new ArrayList<>();
+
+    while (current != null && !current.isEmpty()) {
+      list.add(current.value);
+      current = current.parent;
+    }
+
+    Collections.reverse(list);
+    return list;
+  }
+
   @Override
   public boolean equals(Object o) {
-    if (this == o)
+    if (this == o) {
       return true;
-    if (o == null || getClass() != o.getClass())
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
+    }
     Stacked<?> stacked = (Stacked<?>) o;
     return Objects.equals(parent, stacked.parent) && Objects.equals(value, stacked.value);
   }

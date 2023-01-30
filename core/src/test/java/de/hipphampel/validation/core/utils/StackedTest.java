@@ -45,4 +45,17 @@ public class StackedTest {
     assertThat(l2.exists("b"::equals)).isTrue();
     assertThat(l2.exists("c"::equals)).isFalse();
   }
+
+  @Test
+  public void toList() {
+    Stacked<String> l0 = Stacked.empty();
+    Stacked<String> l1 = l0.push("a");
+    Stacked<String> l2 = l1.push("b");
+    Stacked<String> l3 = l2.push("c");
+
+    assertThat(l0.toList()).isEmpty();
+    assertThat(l1.toList()).containsExactly("a");
+    assertThat(l2.toList()).containsExactly("a", "b");
+    assertThat(l3.toList()).containsExactly("a", "b", "c");
+  }
 }
