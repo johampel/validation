@@ -51,7 +51,8 @@ import java.util.function.Predicate;
  *   <li>The return type of the method must be either a {@link Result} or a {@link Boolean} or a {@code boolean}. Booleans are automatically
  *   converted to {@code Results}. Any other return type will cause the {@code Rule} to return a failed result (at least by default)</li>
  *   <li>The method must have at least one parameter; all parameters must be bound via one of the bind annotations: {@link BindContext},
- *   {@link BindFacts}, {@link BindContextParameter}, {@link BindPath}, or {@link BindMetadata}.</li>
+ *   {@link BindFacts}, {@link BindParentFacts}, {@link BindRootFacts}, {@link BindContextParameter}, {@link BindPath}, or
+ *   {@link BindMetadata}.</li>
  *   <li>For simplicity the following shortcuts exists:
  *   <ul>
  *     <li>If the method has exactly one parameter having none of the binding annotations mentioned above, {@code BindFacts} is implicitly
@@ -75,6 +76,8 @@ import java.util.function.Predicate;
  * @see BindContext
  * @see BindContextParameter
  * @see BindFacts
+ * @see BindRootFacts
+ * @see BindParentFacts
  * @see BindMetadata
  * @see BindPath
  */

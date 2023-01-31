@@ -30,6 +30,7 @@ import de.hipphampel.validation.core.path.PathResolver;
 import de.hipphampel.validation.core.path.Resolved;
 import de.hipphampel.validation.core.utils.OneOfTwo;
 import de.hipphampel.validation.core.utils.TypeInfo;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -301,6 +302,29 @@ public class ReflectionRule<T> extends AbstractRule<T> {
     @Override
     public Resolved<?> apply(ValidationContext context, Object facts) {
       return Resolved.of(facts);
+    }
+  }
+
+  /**
+   * {@link ParameterBinding} that returns the parent object being validated.
+   */
+  public record ParentFactsBinding() implements ParameterBinding {
+
+    @Override
+    public Resolved<?> apply(ValidationContext context, Object facts) {
+      return Resolved.of(context.getParentFacts());
+    }
+  }
+
+
+  /**
+   * {@link ParameterBinding} that returns the root object being validated.
+   */
+  public record RootFactsBinding() implements ParameterBinding {
+
+    @Override
+    public Resolved<?> apply(ValidationContext context, Object facts) {
+      return Resolved.of(context.getRootFacts());
     }
   }
 

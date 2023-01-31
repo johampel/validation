@@ -22,10 +22,12 @@
  */
 package de.hipphampel.validation.core.execution;
 
+import de.hipphampel.validation.core.rule.Rule;
 import de.hipphampel.validation.core.utils.Pair;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ValidationContextTest {
 
@@ -46,5 +48,33 @@ public class ValidationContextTest {
 
     assertThat(context.getLocalExtension(Pair.class)).isSameAs(pair);
     assertThat(context.copy().knowsLocalExtension(Pair.class)).isFalse();
+  }
+
+  @Test
+  public void facts() {
+    ValidationContext context = new ValidationContext();
+    assertThat(context.getCurrentFacts()).isNull();
+    assertThat(context.getParentFacts()).isNull();
+    assertThat(context.getRootFacts()).isNull();
+
+    context.enterRule(mock(Rule.class), "foo");
+    assertThat(context.getCurrentFacts()).isEqualTo("foo");
+    assertThat(context.getParentFacts()).isNull();
+    assertThat(context.getRootFacts()).isEqualTo("foo");
+
+    context.enterRule(mock(Rule.class), "bar");
+    assertThat(context.getCurrentFacts()).isEqualTo("bar");
+    assertThat(context.getParentFacts()).isEqualTo("foo");
+    assertThat(context.getRootFacts()).isEqualTo("foo");
+
+    context.leaveRule();
+    assertThat(context.getCurrentFacts()).isEqualTo("foo");
+    assertThat(context.getParentFacts()).isNull();
+    assertThat(context.getRootFacts()).isEqualTo("foo");
+
+    context.leaveRule();
+    assertThat(context.getCurrentFacts()).isNull();
+    assertThat(context.getParentFacts()).isNull();
+    assertThat(context.getRootFacts()).isNull();
   }
 }

@@ -38,11 +38,13 @@ import de.hipphampel.validation.core.rule.ReflectionRule.DefaultResultMapper;
 import de.hipphampel.validation.core.rule.ReflectionRule.FactsBinding;
 import de.hipphampel.validation.core.rule.ReflectionRule.MetadataBinding;
 import de.hipphampel.validation.core.rule.ReflectionRule.ParameterBinding;
+import de.hipphampel.validation.core.rule.ReflectionRule.ParentFactsBinding;
 import de.hipphampel.validation.core.rule.ReflectionRule.PathBinding;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.Map;
+import de.hipphampel.validation.core.rule.ReflectionRule.RootFactsBinding;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -174,6 +176,30 @@ public class ReflectionRuleTest {
     FactsBinding binding = new FactsBinding();
 
     assertThat(binding.apply(context, facts)).isEqualTo(Resolved.of(facts));
+  }
+
+  @Test
+  public void parentFactsBinding() {
+    // Arrange
+    Object facts = mock(Object.class);
+    Object parentFacts = mock(Object.class);
+    when(context.getParentFacts()).thenReturn(parentFacts);
+
+    ParentFactsBinding binding = new ParentFactsBinding();
+
+    assertThat(binding.apply(context, facts)).isEqualTo(Resolved.of(parentFacts));
+  }
+
+  @Test
+  public void rootFactsBinding() {
+    // Arrange
+    Object facts = mock(Object.class);
+    Object rootFacts = mock(Object.class);
+    when(context.getRootFacts()).thenReturn(rootFacts);
+
+    RootFactsBinding binding = new RootFactsBinding();
+
+    assertThat(binding.apply(context, facts)).isEqualTo(Resolved.of(rootFacts));
   }
 
   @Test

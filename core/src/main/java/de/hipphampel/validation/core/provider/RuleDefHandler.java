@@ -22,18 +22,7 @@
  */
 package de.hipphampel.validation.core.provider;
 
-import static de.hipphampel.validation.core.utils.ReflectionUtils.ensurePublicFinalField;
-import static de.hipphampel.validation.core.utils.ReflectionUtils.ensurePublicMethod;
-import static de.hipphampel.validation.core.utils.ReflectionUtils.getMandatoryFieldValue;
-
-import de.hipphampel.validation.core.annotations.BindContext;
-import de.hipphampel.validation.core.annotations.BindContextParameter;
-import de.hipphampel.validation.core.annotations.BindFacts;
-import de.hipphampel.validation.core.annotations.BindMetadata;
-import de.hipphampel.validation.core.annotations.BindPath;
-import de.hipphampel.validation.core.annotations.Metadata;
-import de.hipphampel.validation.core.annotations.Precondition;
-import de.hipphampel.validation.core.annotations.RuleDef;
+import de.hipphampel.validation.core.annotations.*;
 import de.hipphampel.validation.core.condition.Condition;
 import de.hipphampel.validation.core.condition.Conditions;
 import de.hipphampel.validation.core.condition.RuleCondition;
@@ -41,19 +30,8 @@ import de.hipphampel.validation.core.execution.ValidationContext;
 import de.hipphampel.validation.core.path.Path;
 import de.hipphampel.validation.core.path.PathResolver;
 import de.hipphampel.validation.core.provider.AnnotationRuleRepository.Handler;
-import de.hipphampel.validation.core.rule.ConditionRule;
-import de.hipphampel.validation.core.rule.ReflectionRule;
-import de.hipphampel.validation.core.rule.ReflectionRule.ContextBinding;
-import de.hipphampel.validation.core.rule.ReflectionRule.ContextParameterBinding;
-import de.hipphampel.validation.core.rule.ReflectionRule.FactsBinding;
-import de.hipphampel.validation.core.rule.ReflectionRule.MetadataBinding;
-import de.hipphampel.validation.core.rule.ReflectionRule.ParameterBinding;
-import de.hipphampel.validation.core.rule.ReflectionRule.PathBinding;
-import de.hipphampel.validation.core.rule.ReflectionRule.ResultMapper;
-import de.hipphampel.validation.core.rule.Result;
-import de.hipphampel.validation.core.rule.ResultReason;
-import de.hipphampel.validation.core.rule.Rule;
-import de.hipphampel.validation.core.rule.StringResultReason;
+import de.hipphampel.validation.core.rule.*;
+import de.hipphampel.validation.core.rule.ReflectionRule.*;
 import de.hipphampel.validation.core.utils.OneOfTwo;
 import de.hipphampel.validation.core.value.Value;
 import de.hipphampel.validation.core.value.Values;
@@ -68,6 +46,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static de.hipphampel.validation.core.utils.ReflectionUtils.*;
 
 /**
  * {@link Handler} implementation for the {@link RuleDef} annotation.
@@ -90,6 +70,8 @@ public class RuleDefHandler implements AnnotationRuleRepository.Handler<RuleDef>
       BindContext.class,
       BindContextParameter.class,
       BindFacts.class,
+      BindParentFacts.class,
+      BindRootFacts.class,
       BindMetadata.class,
       BindPath.class);
 
@@ -231,6 +213,10 @@ public class RuleDefHandler implements AnnotationRuleRepository.Handler<RuleDef>
       return newContextParameterParameterBinding(parameter, bcp);
     } else if (annotation instanceof BindFacts bf) {
       return newFactsParameterBinding(parameter, bf);
+    } else if (annotation instanceof BindParentFacts bpf) {
+      return newParentFactsParameterBinding(parameter, bpf);
+    } else if (annotation instanceof BindRootFacts brf) {
+      return newRootFactsParameterBinding(parameter, brf);
     } else if (annotation instanceof BindMetadata bm) {
       return newMetadataParameterBinding(parameter, bm);
     } else if (annotation instanceof BindPath bp) {
@@ -274,6 +260,28 @@ public class RuleDefHandler implements AnnotationRuleRepository.Handler<RuleDef>
    */
   protected ParameterBinding newFactsParameterBinding(Parameter parameter, BindFacts annotation) {
     return new FactsBinding();
+  }
+
+  /**
+   * Creates a {@link ParameterBinding} based on the given {@code parameter} and {@code annotation}.
+   *
+   * @param parameter  The {@link Parameter}
+   * @param annotation The {@link BindParentFacts} annotation
+   * @return The resulting {@code ParameterBinding}
+   */
+  protected ParameterBinding newParentFactsParameterBinding(Parameter parameter, BindParentFacts annotation) {
+    return new ParentFactsBinding();
+  }
+
+  /**
+   * Creates a {@link ParameterBinding} based on the given {@code parameter} and {@code annotation}.
+   *
+   * @param parameter  The {@link Parameter}
+   * @param annotation The {@link BindRootFacts} annotation
+   * @return The resulting {@code ParameterBinding}
+   */
+  protected ParameterBinding newRootFactsParameterBinding(Parameter parameter, BindRootFacts annotation) {
+    return new RootFactsBinding();
   }
 
   /**
@@ -386,8 +394,7 @@ public class RuleDefHandler implements AnnotationRuleRepository.Handler<RuleDef>
    * @return The {@code Rule}
    */
   protected <T> ReflectionRule<T> newReflectionBasedRule(String id, Class<? super T> factsType, Map<String, Object> metadata,
-      List<Condition> preconditions,
-      Object boundInstance, Method ruleMethod, List<ParameterBinding> bindings, ResultMapper resultMapper) {
+      List<Condition> preconditions, Object boundInstance, Method ruleMethod, List<ParameterBinding> bindings, ResultMapper resultMapper) {
     return new ReflectionRule<>(id, factsType, metadata, preconditions, boundInstance, ruleMethod, bindings, resultMapper);
   }
 }

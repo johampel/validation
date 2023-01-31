@@ -30,11 +30,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Binds a rule method parameter to the object being validated.
+ * Binds a rule method parameter to the parent object being validated.
  * <p>
  * Annotations of this type are used for parameters of methods annotated with the {@link RuleDef} annotation and ensure that, when the
- * method is invoked as a validation rule, the parameter is filled with the object being validated (see also
- * {@link ValidationContext#getCurrentFacts() ValidationContext.getCurrentFacts()}).
+ * method is invoked as a validation rule, the parameter is filled with the parent object being validated (see also
+ * {@link ValidationContext#getParentFacts() ValidationContext.getParentFacts()}).
  * <p>
  * The core library makes not implicit type conversion, so that the method parameter type must match the type of the object being validated.
  * The default spring implementation tries such a conversion
@@ -47,6 +47,6 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-public @interface BindFacts {
+public @interface BindParentFacts {
 
 }

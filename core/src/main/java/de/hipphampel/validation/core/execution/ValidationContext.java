@@ -78,6 +78,7 @@ public class ValidationContext {
   private final Map<String, Object> parameters;
   private Stacked<Pair<Rule<?>, Object>> ruleStack;
   private Stacked<Resolvable> pathStack;
+  private Object rootFacts;
 
   /**
    * Default constructor. Makes only sense for testing purposes.
@@ -127,6 +128,7 @@ public class ValidationContext {
     this.ruleStack = source.ruleStack;
     this.pathStack = source.pathStack;
     this.parameters = source.parameters;
+    this.rootFacts = source.rootFacts;
   }
 
   /**
@@ -178,10 +180,14 @@ public class ValidationContext {
     Pair<Rule<?>, Object> entry = new Pair<>(rule, facts);
     if (ruleStack.exists(v -> Objects.equals(v, entry))) {
       return false;
-    } else {
-      ruleStack = ruleStack.push(entry);
-      return true;
     }
+
+    if (ruleStack.isEmpty()) {
+      rootFacts = facts;
+    }
+
+    ruleStack = ruleStack.push(entry);
+    return true;
   }
 
   /**
@@ -198,7 +204,12 @@ public class ValidationContext {
     if (ruleStack.isEmpty()) {
       throw new ValidationException("No active rule");
     }
+
     ruleStack = ruleStack.pop();
+
+    if (ruleStack.isEmpty()) {
+      rootFacts = null;
+    }
   }
 
   /**
@@ -239,6 +250,100 @@ public class ValidationContext {
    */
   public Path getCurrentPath() {
     return pathStack.isEmpty() ? getPathResolver().selfPath() : pathStack.getValue().path();
+  }
+
+  /**
+   * Gets the root object being validated.
+   * <p>
+   * The root object is the object being originally validated, this might be different from the {@link #getCurrentFacts() currentFacts},
+   * e.g. if the current rule execution has been triggered by another rule via
+   * {@link RuleExecutor#validateForPath(ValidationContext, Rule, Object, Path) validateForPath}.
+   *
+   * @param type The requested type
+   * @param <T>  The requested type
+   * @return The root facts
+   * @see #getCurrentFacts()
+   * @see #getParentFacts()
+   */
+  public <T> T getRootFacts(Class<T> type) {
+    return type.cast(getRootFacts());
+  }
+
+  /**
+   * Gets the root object being validated.
+   * <p>
+   * The root object is the object being originally validated, this might be different from the {@link #getCurrentFacts() currentFacts},
+   * e.g. if the current rule execution has been triggered by another rule via
+   * {@link RuleExecutor#validateForPath(ValidationContext, Rule, Object, Path) validateForPath}. The root object is the objects originally
+   * passed to the {@link Rule#validate(ValidationContext, Object) validate} method and stays constant during all further rule executions
+   * triggered from within this {@code validate} call.
+   *
+   * @return The root facts
+   * @see #getCurrentFacts()
+   * @see #getParentFacts()
+   */
+  public Object getRootFacts() {
+    return rootFacts;
+  }
+
+  /**
+   * Gets the object currently being validated.
+   * <p>
+   * The object returned by this method is exactly the same that is passed as {@code facts} parameter to the current
+   * {@link Rule#validate(ValidationContext, Object) validate} method
+   *
+   * @param type The requested type
+   * @param <T>  The requested type
+   * @return The current facts
+   * @see #getRootFacts()
+   * @see #getParentFacts()
+   */
+  public <T> T getCurrentFacts(Class<T> type) {
+    return type.cast(getCurrentFacts());
+  }
+
+  /**
+   * Gets the object currently being validated.
+   * <p>
+   * The object returned by this method is exactly the same that is passed as {@code facts} parameter to the current
+   * {@link Rule#validate(ValidationContext, Object) validate} method
+   *
+   * @return The current facts
+   * @see #getRootFacts()
+   * @see #getParentFacts()
+   */
+  public Object getCurrentFacts() {
+    return ruleStack.isEmpty() ? null : ruleStack.getValue().second();
+  }
+
+  /**
+   * Gets the parent  object being validated.
+   * <p>
+   * The object returned by this method is the one that was the {@link #getCurrentFacts() current object}, when this
+   * {@link Rule#validate(ValidationContext, Object) validation} has been triggered.
+   *
+   * @param type The requested type
+   * @param <T>  The requested type
+   * @return The parent facts
+   * @see #getRootFacts()
+   * @see #getCurrentFacts()
+   */
+  public <T> T getParentFacts(Class<T> type) {
+    return type.cast(getParentFacts());
+  }
+
+  /**
+   * Gets the parent  object being validated.
+   * <p>
+   * The object returned by this method is the one that was the {@link #getCurrentFacts() current object}, when this
+   * {@link Rule#validate(ValidationContext, Object) validation} has been triggered.
+   *
+   * @return The parent facts
+   * @see #getRootFacts()
+   * @see #getCurrentFacts()
+   */
+  public Object getParentFacts() {
+    return ruleStack.getParent() == null || ruleStack.getParent().isEmpty() ? null : ruleStack.getParent().getValue().second();
   }
 
   /**
