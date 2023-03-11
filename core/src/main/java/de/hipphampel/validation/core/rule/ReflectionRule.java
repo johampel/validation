@@ -30,7 +30,6 @@ import de.hipphampel.validation.core.path.PathResolver;
 import de.hipphampel.validation.core.path.Resolved;
 import de.hipphampel.validation.core.utils.OneOfTwo;
 import de.hipphampel.validation.core.utils.TypeInfo;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -220,7 +219,7 @@ public class ReflectionRule<T> extends AbstractRule<T> {
    * @return {@code true}, is assignable
    */
   protected boolean isAssignable(Class<?> type, Object value) {
-    if (type.isInstance(value)) {
+    if (type.isInstance(value) || (value == null && !type.isPrimitive())) {
       return true;
     }
     if (!type.isPrimitive()) {

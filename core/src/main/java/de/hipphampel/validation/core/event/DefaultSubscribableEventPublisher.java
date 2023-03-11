@@ -22,9 +22,11 @@
  */
 package de.hipphampel.validation.core.event;
 
+import java.lang.ref.WeakReference;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,46 +40,30 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultSubscribableEventPublisher implements SubscribableEventPublisher {
 
-  private final Map<Subscription, EventListener> subscriptions = new ConcurrentHashMap<>();
+  private final Set<SubscriptionImpl> subscriptions = ConcurrentHashMap.newKeySet();
 
   @Override
   public <T> Event<T> publish(Object source, T payload) {
     Event<T> event = new Event<>(payload, LocalDateTime.now(), source);
-    subscriptions.values().forEach(listener -> listener.accept(event));
+    subscriptions.forEach(subscription -> subscription.eventListener.accept(event));
     return event;
   }
 
   @Override
   public Subscription subscribe(EventListener listener) {
-    Subscription subscription = new SubscriptionImpl();
-    subscriptions.put(subscription, Objects.requireNonNull(listener));
+    SubscriptionImpl subscription = new SubscriptionImpl(this, Objects.requireNonNull(listener));
+    listener.subscribed(subscription);
+    subscriptions.add(subscription);
     return subscription;
   }
 
-  private class SubscriptionImpl implements Subscription {
-
-    private final UUID id = UUID.randomUUID();
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      SubscriptionImpl that = (SubscriptionImpl) o;
-      return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(id);
-    }
+  private record SubscriptionImpl(DefaultSubscribableEventPublisher publisher, EventListener eventListener) implements Subscription {
 
     @Override
     public void unsubscribe() {
-      DefaultSubscribableEventPublisher.this.subscriptions.remove(this);
+      if (publisher.subscriptions.remove(this)) {
+        eventListener.unsubscribed(this);
+      }
     }
   }
 }

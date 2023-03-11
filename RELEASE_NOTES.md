@@ -1,6 +1,13 @@
 # Release notes `validation` library
 
 
+## 23.3.1
+
+### Core module
+
+- Introduced a `WeakEventListener` that automatically unsubscribes in case the listener is not weakly reachable anymore
+- Introduced `ValidationContext.getRootFacts` to navigate through the object graph more easily.
+
 ## 23.1.2
 
 ### Core module

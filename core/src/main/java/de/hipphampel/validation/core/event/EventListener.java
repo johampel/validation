@@ -35,4 +35,18 @@ import java.util.function.Consumer;
 @FunctionalInterface
 public interface EventListener extends Consumer<Event<?>> {
 
+  /**
+   * Called by the {@link EventSubscriber} when this instance has been {@link EventSubscriber#subscribe(EventListener) subscribed}.
+   *
+   * @param subscription The {@link Subscription}
+   */
+  default void subscribed(Subscription subscription) {
+  }
+
+  /**
+   * Called by the {@link EventSubscriber} when {@link Subscription#unsubscribe() unsubscribe} has been called.
+   * @param subscription The {@link Subscription}
+   */
+  default void unsubscribed(Subscription subscription) {
+  }
 }

@@ -23,6 +23,10 @@
 package de.hipphampel.validation.core.event;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +36,21 @@ import org.junit.jupiter.api.Test;
 public class DefaultSubscribableEventPublisherTest {
 
   @Test
-  public void subscribeAndUnsubscribe() {
+  public void subscribeAndUnsubscribe_lifecycleCallback() {
+    SubscribableEventPublisher publisher = new DefaultSubscribableEventPublisher();
+    EventListener listener = mock(EventListener.class);
+
+    Subscription subscription = publisher.subscribe(listener);
+    verify(listener, times(1)).subscribed(subscription);
+    verify(listener, never()).unsubscribed(subscription);
+
+    subscription.unsubscribe();
+    verify(listener, times(1)).subscribed(subscription);
+    verify(listener, times(1)).unsubscribed(subscription);
+  }
+
+  @Test
+  public void subscribeAndUnsubscribe_events() {
     SubscribableEventPublisher publisher = new DefaultSubscribableEventPublisher();
     List<Event<?>> events1 = new ArrayList<>();
     List<Event<?>> events2 = new ArrayList<>();
@@ -64,6 +82,5 @@ public class DefaultSubscribableEventPublisherTest {
     publisher.publish(this, "Three");
     assertThat(events2).hasSize(1);
     assertThat(events1).hasSize(2);
-
   }
 }
