@@ -1,5 +1,13 @@
 # Release notes `validation` library
 
+## 23.4.1
+
+### Core module
+
+- `PathResolver` and `EventPublisher` now can be provided via a `Supplier` to the `ValidationContext` so that
+   each validation run might use its own instances
+-  `EventPublisher.publish()` returns `void` instead of an event.
+
 
 ## 23.3.1
 
