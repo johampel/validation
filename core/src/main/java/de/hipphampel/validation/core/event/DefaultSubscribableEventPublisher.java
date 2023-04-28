@@ -43,10 +43,9 @@ public class DefaultSubscribableEventPublisher implements SubscribableEventPubli
   private final Set<SubscriptionImpl> subscriptions = ConcurrentHashMap.newKeySet();
 
   @Override
-  public <T> Event<T> publish(Object source, T payload) {
+  public <T> void publish(Object source, T payload) {
     Event<T> event = new Event<>(payload, LocalDateTime.now(), source);
     subscriptions.forEach(subscription -> subscription.eventListener.accept(event));
-    return event;
   }
 
   @Override

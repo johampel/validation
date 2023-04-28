@@ -25,9 +25,8 @@ package de.hipphampel.validation.core.event;
 /**
  * Publishes {@link Event Events}.
  * <p>
- * An {@code EventPublisher} is intended to publish {@code Events} that might be relevant for
- * the application. The counterpart of this interface is the {@link EventSubscriber} that allows
- * to add listeners for the {@code Events}.
+ * An {@code EventPublisher} is intended to publish {@code Events} that might be relevant for the application. The counterpart of this
+ * interface is the {@link EventSubscriber} that allows to add listeners for the {@code Events}.
  *
  * @see EventListener
  * @see EventSubscriber
@@ -40,7 +39,6 @@ public interface EventPublisher {
    * @param source  The source of the event, might be {@code null}
    * @param payload The event payload, must not be {@code null}
    * @param <T>     The Payload type
-   * @return The published event
    */
-  <T> Event<T> publish(Object source, T payload);
+  <T> void publish(Object source, T payload);
 }

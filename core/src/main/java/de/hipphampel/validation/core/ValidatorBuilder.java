@@ -33,6 +33,7 @@ import de.hipphampel.validation.core.provider.InMemoryRuleRepository;
 import de.hipphampel.validation.core.provider.RuleRepository;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 
 /**
@@ -42,10 +43,10 @@ import java.util.Map;
  * <code>
  * Validator validator = ValidatorBuilder.newBuilder().build();
  * </code>
- * which basically constructs a {@link DefaultValidator} with the standard settings. Using the
- * different {@code with*} methods, one may customize the generated {@code Validator}.
+ * which basically constructs a {@link DefaultValidator} with the standard settings. Using the different {@code with*} methods, one may
+ * customize the generated {@code Validator}.
  * <p>
- * Teh default settings of the generated {@code Validator} are as follows:
+ * The default settings of the generated {@code Validator} are as follows:
  * <ul>
  *   <li>The {@link RuleRepository} is an empty {@link InMemoryRuleRepository}</li>
  *   <li>The {@link PathResolver} is a {@link BeanPathResolver}</li>
@@ -56,9 +57,9 @@ import java.util.Map;
 public class ValidatorBuilder {
 
   private RuleRepository ruleRepository;
-  private PathResolver pathResolver;
+  private Supplier<PathResolver> pathResolverSupplier;
   private RuleExecutor ruleExecutor;
-  private EventPublisher eventPublisher;
+  private Supplier<EventPublisher> eventPublisherSupplier;
   private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
 
 
@@ -69,8 +70,7 @@ public class ValidatorBuilder {
   /**
    * Creates a new {@link ValidatorBuilder}.
    * <p>
-   * Using the different {@code with*} methods the validator can be customized; its production is
-   * finalized by calling {@link #build()}
+   * Using the different {@code with*} methods the validator can be customized; its production is finalized by calling {@link #build()}
    *
    * @return The {@code ValidatorBuilder}
    */
@@ -88,8 +88,8 @@ public class ValidatorBuilder {
     return new DefaultValidator(
         ruleRepository == null ? new InMemoryRuleRepository() : ruleRepository,
         ruleExecutor == null ? new DefaultRuleExecutor() : ruleExecutor,
-        eventPublisher == null ? new DefaultSubscribableEventPublisher() : eventPublisher,
-        pathResolver == null ? new BeanPathResolver() : pathResolver,
+        eventPublisherSupplier == null ? DefaultSubscribableEventPublisher::new : eventPublisherSupplier,
+        pathResolverSupplier == null ? BeanPathResolver::new : pathResolverSupplier,
         sharedObjects);
   }
 
@@ -122,7 +122,18 @@ public class ValidatorBuilder {
    * @return This instance
    */
   public ValidatorBuilder withPathResolver(PathResolver pathResolver) {
-    this.pathResolver = pathResolver;
+    this.pathResolverSupplier = () -> pathResolver;
+    return this;
+  }
+
+  /**
+   * Specifies the {@link Supplier} for the {@link PathResolver} to use.
+   *
+   * @param pathResolverSupplier The {@code Supplier} for the {@code PathResolver}
+   * @return This instance
+   */
+  public ValidatorBuilder withPathResolverSupplier(Supplier<PathResolver> pathResolverSupplier) {
+    this.pathResolverSupplier = pathResolverSupplier;
     return this;
   }
 
@@ -133,19 +144,31 @@ public class ValidatorBuilder {
    * @return This instance
    */
   public ValidatorBuilder withEventPublisher(EventPublisher eventPublisher) {
-    this.eventPublisher = eventPublisher;
+    this.eventPublisherSupplier = () -> eventPublisher;
+    return this;
+  }
+
+  /**
+   * Specifies the {@link EventPublisher} to use.
+   *
+   * @param eventPublisherSupplier The {@code EventPublisher}
+   * @return This instance
+   */
+  public ValidatorBuilder withEventPublisherSupplier(Supplier<EventPublisher> eventPublisherSupplier) {
+    this.eventPublisherSupplier = eventPublisherSupplier;
     return this;
   }
 
   /**
    * Adds a shared object.
+   * <p>
+   * The shared objects are additional objects that can be passed to the {@link ValidationContext} and can be made accessible in the
+   * validation rules.
    *
-   * The shared objects are additional objects that can be passed to the {@link ValidationContext}
-   * and can be made accessible in the validation rules.
-   * @param type The type of the object
+   * @param type   The type of the object
    * @param object The object
+   * @param <T>    The type of the object
    * @return This builder
-   * @param <T> The type of the object
    */
   public <T> ValidatorBuilder withSharedObject(Class<T> type, T object) {
     this.sharedObjects.put(type, object);

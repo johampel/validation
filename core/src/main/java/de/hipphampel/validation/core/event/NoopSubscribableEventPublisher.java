@@ -22,8 +22,6 @@
  */
 package de.hipphampel.validation.core.event;
 
-import java.time.LocalDateTime;
-
 /**
  * Dummy implementation of the {@link SubscribableEventPublisher} doing nothing.
  * <p>
@@ -40,8 +38,7 @@ public class NoopSubscribableEventPublisher implements SubscribableEventPublishe
   public static final SubscribableEventPublisher INSTANCE = new NoopSubscribableEventPublisher();
 
   @Override
-  public <T> Event<T> publish(Object source, T payload) {
-    return new Event<>(payload, LocalDateTime.now(), source);
+  public <T> void publish(Object source, T payload) {
   }
 
   @Override

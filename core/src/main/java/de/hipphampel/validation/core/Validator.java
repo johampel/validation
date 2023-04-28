@@ -22,6 +22,7 @@
  */
 package de.hipphampel.validation.core;
 
+import de.hipphampel.validation.core.event.EventPublisher;
 import de.hipphampel.validation.core.event.payloads.ValidationFinishedPayload;
 import de.hipphampel.validation.core.event.payloads.ValidationStartedPayload;
 import de.hipphampel.validation.core.execution.RuleExecutor;

@@ -31,6 +31,7 @@ import de.hipphampel.validation.core.report.Reporter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Default implementation of the {@link Validator} interface.
@@ -39,26 +40,26 @@ public class DefaultValidator implements Validator {
 
   private final RuleRepository ruleRepository;
   private final RuleExecutor ruleExecutor;
-  private final EventPublisher eventPublisher;
-  private final PathResolver pathResolver;
+  private final Supplier<EventPublisher> eventPublisherSupplier;
+  private final Supplier<PathResolver> pathResolverSupplier;
   private final Map<Class<?>, ?> sharedObjects;
 
   /**
    * Constructor.
    *
-   * @param ruleRepository The {@link RuleRepository} to use.
-   * @param ruleExecutor   The {@link RuleExecutor} to use.
-   * @param eventPublisher The {@link EventPublisher} to use.
-   * @param pathResolver   The {@link PathResolver} to use.
-   * @param sharedObjects  Additional shared objects made available in the
-   *                       {@link ValidationContext}
+   * @param ruleRepository         The {@link RuleRepository} to use.
+   * @param ruleExecutor           The {@link RuleExecutor} to use.
+   * @param eventPublisherSupplier The {@link Supplier} to create a {@link EventPublisher}.
+   * @param pathResolverSupplier   The {@link Supplier} to create a {@link PathResolver}.
+   * @param sharedObjects          Additional shared objects made available in the {@link ValidationContext}
    */
-  public DefaultValidator(RuleRepository ruleRepository, RuleExecutor ruleExecutor,
-      EventPublisher eventPublisher, PathResolver pathResolver, Map<Class<?>, ?> sharedObjects) {
+  public DefaultValidator(RuleRepository ruleRepository,
+      RuleExecutor ruleExecutor,
+      Supplier<EventPublisher> eventPublisherSupplier, Supplier<PathResolver> pathResolverSupplier, Map<Class<?>, ?> sharedObjects) {
     this.ruleRepository = Objects.requireNonNull(ruleRepository);
     this.ruleExecutor = Objects.requireNonNull(ruleExecutor);
-    this.eventPublisher = Objects.requireNonNull(eventPublisher);
-    this.pathResolver = Objects.requireNonNull(pathResolver);
+    this.eventPublisherSupplier = Objects.requireNonNull(eventPublisherSupplier);
+    this.pathResolverSupplier = Objects.requireNonNull(pathResolverSupplier);
     this.sharedObjects = sharedObjects == null ? Map.of() : new HashMap<>(sharedObjects);
   }
 
@@ -71,8 +72,8 @@ public class DefaultValidator implements Validator {
         parameters,
         ruleExecutor,
         ruleRepository,
-        pathResolver,
-        eventPublisher
+        pathResolverSupplier.get(),
+        eventPublisherSupplier.get()
     );
     sharedObjects.forEach(
         (key, value) -> context.getOrCreateSharedExtension((Class<Object>) key, ignore -> value)
