@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Simple implementation of the {@link RuleExecutor} interface.
  * <p>
- * This is a ready to use implementation of the {@code RuleExecutor} interface. In addition to the
- * basic workflow it has the following extensions/detail handling:
+ * This is a ready to use implementation of the {@code RuleExecutor} interface. In addition to the basic workflow it has the following
+ * extensions/detail handling:
  * <ol>
  *   <li>For start and end of the rule execution according events are published via the {@link
  *   EventPublisher}</li>
@@ -88,8 +88,7 @@ public class SimpleRuleExecutor implements RuleExecutor {
   /**
    * Internal validation.
    * <p>
-   * Performs all operations required to validate {@code facts} for {@code rule}, except adding the
-   * result to the {@link Reporter}.
+   * Performs all operations required to validate {@code facts} for {@code rule}, except adding the result to the {@link Reporter}.
    *
    * @param context The {@code ValidationContext}
    * @param rule    The {@code Rule} to execute
@@ -99,13 +98,16 @@ public class SimpleRuleExecutor implements RuleExecutor {
   protected Result doValidate(ValidationContext context, Rule<?> rule, Object facts) {
     Result result = null;
     long now = System.nanoTime();
+    EventPublisher publisher = context.getEventPublisher();
 
     if (!context.enterRule(rule, facts)) {
       return Result.failed(
           new SystemResultReason(Code.CyclicRuleDependency, rule.getId()));
     }
     try {
-      publishEvent(context, new RuleStartedPayload(rule, context.getPathStack(), facts));
+      if (publisher != null) {
+        publisher.publish(this, new RuleStartedPayload(rule, context.getPathStack(), facts));
+      }
       result = checkFactsType(rule, facts)
           .mapIfOk(toBeMapped -> checkPreconditions(context, rule, facts))
           .mapIfOk(toBeMapped -> invokeValidation(context, rule, facts))
@@ -115,8 +117,10 @@ public class SimpleRuleExecutor implements RuleExecutor {
       result = Result.failed(
           new SystemResultReason(Code.RuleExecutionThrowsException, e.getMessage()));
     } finally {
-      publishEvent(context, new RuleFinishedPayload(rule, context.getPathStack(),
-          facts, result, System.nanoTime() - now));
+      if (publisher != null) {
+        publisher.publish(this, new RuleFinishedPayload(rule, context.getPathStack(),
+            facts, result, System.nanoTime() - now));
+      }
       context.leaveRule();
     }
     return result;
@@ -136,8 +140,7 @@ public class SimpleRuleExecutor implements RuleExecutor {
   /**
    * Checks the preconditions of the {@code rule}.
    * <p>
-   * If at least one of the preconditions is not met, a {@link Result} with code {@code SKIPPED} is
-   * returned.
+   * If at least one of the preconditions is not met, a {@link Result} with code {@code SKIPPED} is returned.
    *
    * @param context The {@link ValidationContext}
    * @param rule    The {@link Rule} being executed.
@@ -179,8 +182,7 @@ public class SimpleRuleExecutor implements RuleExecutor {
   /**
    * Postprocesses the {@link Result} in case it has the code {@code SKIPPED}.
    * <p>
-   * Derived classes might wish to remap this to a ok or failed code. This default implementation
-   * leave the original result unchanged,
+   * Derived classes might wish to remap this to a ok or failed code. This default implementation leave the original result unchanged,
    *
    * @param context The {@link ValidationContext}
    * @param rule    The {@link Rule} being executed.
@@ -191,15 +193,5 @@ public class SimpleRuleExecutor implements RuleExecutor {
   protected Result postprocessSkippedResult(ValidationContext context, Rule<?> rule,
       Object facts, Result result) {
     return result;
-  }
-
-  /**
-   * Publishes the given {@code payload}.
-   *
-   * @param context The {@link ValidationContext} providing the {@link EventPublisher}
-   * @param payload The payload.
-   */
-  protected void publishEvent(ValidationContext context, Object payload) {
-    context.getEventPublisher().publish(this, payload);
   }
 }

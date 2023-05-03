@@ -73,6 +73,11 @@ import java.util.function.Function;
  */
 public class ValidationContext {
 
+  private final PathResolver pathResolver;
+  private final RuleRepository ruleRepository;
+  private final RuleExecutor ruleExecutor;
+  private final EventPublisher eventPublisher;
+  private final Reporter<?> reporter;
   private final ObjectRegistry sharedExtensions;
   private final ObjectRegistry localExtensions;
   private final Map<String, Object> parameters;
@@ -113,6 +118,11 @@ public class ValidationContext {
     this.ruleStack = Stacked.empty();
     this.pathStack = Stacked.empty();
     this.parameters = Collections.unmodifiableMap(parameters);
+    this.pathResolver = Objects.requireNonNull(pathResolver);
+    this.ruleExecutor = Objects.requireNonNull(ruleExecutor);
+    this.ruleRepository = Objects.requireNonNull(ruleRepository);
+    this.reporter = Objects.requireNonNull(reporter);
+    this.eventPublisher = eventPublisher;
     this.sharedExtensions = new ObjectRegistry();
     this.localExtensions = new ObjectRegistry();
     sharedExtensions.add(Objects.requireNonNull(reporter), Reporter.class);
@@ -123,12 +133,28 @@ public class ValidationContext {
   }
 
   private ValidationContext(ValidationContext source) {
+    this.pathResolver = source.pathResolver;
+    this.ruleExecutor = source.ruleExecutor;
+    this.ruleRepository = source.ruleRepository;
+    this.eventPublisher = source.eventPublisher;
+    this.reporter = source.reporter;
     this.sharedExtensions = source.sharedExtensions;
     this.localExtensions = new ObjectRegistry();
     this.ruleStack = source.ruleStack;
     this.pathStack = source.pathStack;
     this.parameters = source.parameters;
     this.rootFacts = source.rootFacts;
+  }
+
+  /**
+   * Casts this instance to the specified type.
+   *
+   * @param type c
+   * @param <T>  The type to convert to.
+   * @return This instance
+   */
+  public <T> T as(Class<T> type) {
+    return type.cast(this);
   }
 
   /**
@@ -388,7 +414,7 @@ public class ValidationContext {
    * @return The {@code Reporter}
    */
   public Reporter<?> getReporter() {
-    return getSharedExtension(Reporter.class);
+    return this.reporter;
   }
 
   /**
@@ -397,7 +423,7 @@ public class ValidationContext {
    * @return The {@code RuleRepository}
    */
   public RuleRepository getRuleProvider() {
-    return getSharedExtension(RuleRepository.class);
+    return this.ruleRepository;
   }
 
   /**
@@ -406,7 +432,7 @@ public class ValidationContext {
    * @return The {@code RuleExecutor }
    */
   public RuleExecutor getRuleExecutor() {
-    return getSharedExtension(RuleExecutor.class);
+    return this.ruleExecutor;
   }
 
   /**
@@ -415,16 +441,16 @@ public class ValidationContext {
    * @return The {@code PathResolver}
    */
   public PathResolver getPathResolver() {
-    return getSharedExtension(PathResolver.class);
+    return this.pathResolver;
   }
 
   /**
    * Gets the associated {@link EventPublisher}.
    *
-   * @return The {@code EventPublisher}.
+   * @return The {@code EventPublisher}, might be {@code null}.
    */
   public EventPublisher getEventPublisher() {
-    return getSharedExtension(EventPublisher.class);
+    return this.eventPublisher;
   }
 
   /**
@@ -439,7 +465,11 @@ public class ValidationContext {
    * @return The object
    * @throws java.util.NoSuchElementException If there is nu such object
    * @see #getLocalExtension(Class)
+   * @deprecated Instead of using shared extensions, the recommended way is to derive from this class and provide explicit getter and
+   * setters. A shared extension can be realized by a derived {@code ValidationContext} by setting it once in the initial constructor and
+   * use the same object in a copy as well
    */
+  @Deprecated
   public <T> T getSharedExtension(Class<T> type) {
     return sharedExtensions.get(type);
   }
@@ -449,7 +479,11 @@ public class ValidationContext {
    *
    * @param type The type of the requested object
    * @return {@code true}, if object is known
+   * @deprecated Instead of using shared extensions, the recommended way is to derive from this class and provide explicit getter and
+   * setters. A shared extension can be realized by a derived {@code ValidationContext} by setting it once in the initial constructor and
+   * use the same object in a copy as well
    */
+  @Deprecated
   public boolean knowsSharedExtension(Class<?> type) {
     return sharedExtensions.knowsType(type);
   }
@@ -462,7 +496,11 @@ public class ValidationContext {
    * @param creator The function to create the object
    * @param <T>     The type of the requested object
    * @return The object
+   * @deprecated Instead of using shared extensions, the recommended way is to derive from this class and provide explicit getter and
+   * setters. A shared extension can be realized by a derived {@code ValidationContext} by setting it once in the initial constructor and
+   * use the same object in a copy as well
    */
+  @Deprecated
   public <T> T getOrCreateSharedExtension(Class<T> type, Function<Class<T>, T> creator) {
     return sharedExtensions.getOrRegister(type, creator);
   }
@@ -478,7 +516,11 @@ public class ValidationContext {
    * @return The object
    * @throws java.util.NoSuchElementException If there is nu such object
    * @see #getSharedExtension(Class)
+   * @deprecated Instead of using local extensions, the recommended way is to derive from this class and provide explicit getter and
+   * setters. A local extension can be realized by a derived {@code ValidationContext} implementation that newly constructs the extension
+   * within the {@link #copy() copy} method and/or the normal constructors.
    */
+  @Deprecated
   public <T> T getLocalExtension(Class<T> type) {
     return localExtensions.get(type);
   }
@@ -488,7 +530,11 @@ public class ValidationContext {
    *
    * @param type The type of the requested object
    * @return {@code true}, if object is known
+   * @deprecated Instead of using local extensions, the recommended way is to derive from this class and provide explicit getter and
+   * setters. A local extension can be realized by a derived {@code ValidationContext} implementation that newly constructs the extension
+   * within the {@link #copy() copy} method and/or the normal constructors.
    */
+  @Deprecated
   public boolean knowsLocalExtension(Class<?> type) {
     return localExtensions.knowsType(type);
   }
@@ -501,7 +547,11 @@ public class ValidationContext {
    * @param creator The function to create the object
    * @param <T>     The type of the requested object
    * @return The object
+   * @deprecated Instead of using local extensions, the recommended way is to derive from this class and provide explicit getter and
+   * setters. A local extension can be realized by a derived {@code ValidationContext} implementation that newly constructs the extension
+   * within the {@link #copy() copy} method and/or the normal constructors.
    */
+  @Deprecated
   public <T> T getOrCreateLocalExtension(Class<T> type, Function<Class<T>, T> creator) {
     return localExtensions.getOrRegister(type, creator);
   }

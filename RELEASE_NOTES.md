@@ -1,5 +1,19 @@
 # Release notes `validation` library
 
+
+## Upcoming
+
+### Core module
+
+- Performance improvements
+  - The usage of shared and local objects in the `ValidationContext` is deprecated and internally not used anymore
+    On the one hand, it always costs some cpu cycles to retrieve an object via a map instead of a plain getter and
+    it is also not good style to do so, since it makes things too implicit. The recommended way is to derive from
+    the `ValidationContext`, instantiate that in the `Validator` and use explicit getter/setters for the extensions
+    you might need in the context.
+  - Sending of events and in that row the usage of the `EventPublisher` during the validation has been made optional,
+    also saves some cpu cycles for projects not relying on events.
+
 ## 23.4.1
 
 ### Core module

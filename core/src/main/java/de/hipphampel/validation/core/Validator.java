@@ -113,10 +113,15 @@ public interface Validator {
     long start = System.nanoTime();
     Reporter<T> reporter = reporterFactory.createReporter(facts);
     ValidationContext context = createValidationContext(reporter, parameters);
-    context.getEventPublisher().publish(this, new ValidationStartedPayload(facts));
+    EventPublisher publisher = context.getEventPublisher();
+    if (publisher != null) {
+      publisher.publish(this, new ValidationStartedPayload(facts));
+    }
     context.getRuleExecutor().validate(context, ruleSelector, facts);
     T report = reporter.getReport();
-    context.getEventPublisher().publish(this, new ValidationFinishedPayload<>(facts, report, null, System.nanoTime()-start));
+    if (publisher != null) {
+      publisher.publish(this, new ValidationFinishedPayload<>(facts, report, null, System.nanoTime() - start));
+    }
     return report;
   }
 
@@ -187,13 +192,19 @@ public interface Validator {
       Map<String, Object> parameters) {
     long start = System.nanoTime();
     Reporter<T> reporter = reporterFactory.createReporter(facts);
+
     ValidationContext context = createValidationContext(reporter, parameters);
-    context.getEventPublisher().publish(this, new ValidationStartedPayload(facts));
+    EventPublisher publisher = context.getEventPublisher();
+    if (publisher != null) {
+      publisher.publish(this, new ValidationStartedPayload(facts));
+    }
     return context.getRuleExecutor().validateAsync(context, ruleSelector, facts)
         .thenApply(ignore -> reporter.getReport())
-        .whenComplete((result, ex) -> context.getEventPublisher()
-            .publish(this, new ValidationFinishedPayload<T>(facts, result, ex, System.nanoTime() - start)));
-
+        .whenComplete((result, ex) -> {
+          if (publisher != null) {
+            publisher.publish(this, new ValidationFinishedPayload<T>(facts, result, ex, System.nanoTime() - start));
+          }
+        });
   }
 
   /**

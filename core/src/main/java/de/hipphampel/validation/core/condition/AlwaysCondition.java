@@ -38,6 +38,6 @@ public record AlwaysCondition(boolean result) implements Condition {
 
   @Override
   public String toString() {
-    return "" + result;
+    return String.valueOf(result);
   }
 }
