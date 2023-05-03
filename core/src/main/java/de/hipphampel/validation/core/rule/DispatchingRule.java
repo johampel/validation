@@ -38,16 +38,17 @@ import java.util.stream.Stream;
 /**
  * {@link Rule} implementatiuon that dispatches the validation to subordinates {@code Rules}
  * <p>
- * The basic idea of this implementatation is to call other {@code Rules} for certain
- * {@link Path Paths}. So a {@code DispatchingRule} hold as list of
- * {@link DispatchEntry DispatchEntries}, whereas each entry consits of {@code Path} patterns and a
- * corresponding {@link RuleSelector}. Upon validation, this implementation iterates through all
- * these entries and calls the {@code Rules} of the {@code RuleSelector} for each matching
- * {@code Path}.
+ * The basic idea of this implementation is to call other {@code Rules} for certain {@link Path Paths}. So a {@code DispatchingRule} hold
+ * as list of {@link DispatchEntry DispatchEntries}, whereas each entry consits of {@code Path} patterns and a corresponding
+ * {@link RuleSelector}. Upon validation, this implementation iterates through all these entries and calls the {@code Rules} of the
+ * {@code RuleSelector} for each matching {@code Path}.
+ * <p>
+ * Note that the {@link PathBasedRule} is related and more suitable in certain use cases.
  *
  * @param <T> Type of the objecz to validate
  * @see RuleSelector
  * @see Path
+ * @see PathBasedRule
  */
 public class DispatchingRule<T> extends AbstractRule<T> implements ForwardingRule<T> {
 

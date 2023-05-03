@@ -13,6 +13,9 @@
     you might need in the context.
   - Sending of events and in that row the usage of the `EventPublisher` during the validation has been made optional,
     also saves some cpu cycles for projects not relying on events.
+- Introduction of the `PathBasedRule` which is a handy and more performant alternative for the `DispatchingRule` in
+  certain use cases.
+
 
 ## 23.4.1
 
