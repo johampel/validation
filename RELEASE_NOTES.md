@@ -1,7 +1,7 @@
 # Release notes `validation` library
 
 
-## Upcoming
+## 23.5.1
 
 ### Core module
 
