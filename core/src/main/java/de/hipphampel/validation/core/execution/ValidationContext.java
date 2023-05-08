@@ -126,13 +126,20 @@ public class ValidationContext {
     this.sharedExtensions = new ObjectRegistry();
     this.localExtensions = new ObjectRegistry();
     sharedExtensions.add(Objects.requireNonNull(reporter), Reporter.class);
-    sharedExtensions.add(Objects.requireNonNull(eventPublisher), EventPublisher.class);
+    if (eventPublisher!=null) {
+      sharedExtensions.add(eventPublisher, EventPublisher.class);
+    }
     sharedExtensions.add(Objects.requireNonNull(pathResolver), PathResolver.class);
     sharedExtensions.add(Objects.requireNonNull(ruleExecutor), RuleExecutor.class);
     sharedExtensions.add(Objects.requireNonNull(ruleRepository), RuleRepository.class);
   }
 
-  private ValidationContext(ValidationContext source) {
+  /**
+   * Copy constructor
+   *
+   * @param source Source instance
+   */
+  public ValidationContext(ValidationContext source) {
     this.pathResolver = source.pathResolver;
     this.ruleExecutor = source.ruleExecutor;
     this.ruleRepository = source.ruleRepository;
